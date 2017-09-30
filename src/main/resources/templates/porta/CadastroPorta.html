@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com">
+
+<head>
+	<title>Cadastro de porta</title>
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1 th:if="${porta.novo}"> Cadastro de porta</h1>
+					<h1 th:unless="${porta.novo}">Edição da porta: [[${porta.codigoDescricao}]]</h1>
+				</div>
+				
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn  btn-default" th:href="@{/portas}">
+							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="POST" th:object="${porta}" 
+				th:action="${porta.novo} ? @{/portas/novo} : @{/portas/{codigo}(codigo=${porta.codigo})}">
+			
+			<brewer:message/>
+			
+			<input type="hidden" th:field="*{codigo}"/>
+			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" type="hidden" th:field="*{estabelecimento.codigo}"/>
+						
+			<div class="row">
+				<div class="form-group  col-sm-2" brewer:classforerror="codigo">
+					<label for="codigo" class="control-label">Código</label>
+					<input type="text" class="form-control" id="codigo" th:field="*{codigo}" disabled/>
+				</div>
+				
+				<div class="form-group  col-sm-7  bw-required" brewer:classforerror="descricao">
+					<label for="descricao" class="control-label">Descrição</label>
+					<input type="text" class="form-control" id="descricao" autofocus="autofocus" th:field="*{descricao}"/>
+				</div>
+				
+				<div class="form-group  col-sm-3  bw-required" brewer:classforerror="senha">
+					<label for="senha" class="control-label">Senha</label>
+					<input type="text" class="form-control" id="descricao" th:field="*{senha}"/>
+				</div>								
+			</div>
+			
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+				<div class="form-group  col-sm-6 bw-required" brewer:classforerror="estabelecimento.codigo">
+					<label for="estabelecimento" class="control-label">Estabelecimento</label>
+					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
+						<option value="">Selecione o estabelecimento</option>
+						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
+					</select>
+				</div>	
+			</div>
+						
+			<button type="submit" class="btn  btn-primary">Salvar</button>
+		</form>
+	</div>
+</section>
+
+<th:block layout:fragment="javascript-extra">
+</th:block>
+</html>

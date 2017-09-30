@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data">
+
+<head>
+	<title>Cadastro de estabelecimento</title>	
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1 th:if="${estabelecimento.novo}">Cadastro de estabelecimento</h1>
+					<h1 th:unless="${estabelecimento.novo}">Edição do estabelecimento: [[${estabelecimento.nome}]]</h1>
+				</div>
+				
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn  btn-default" th:href="@{/estabelecimentos}">
+							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="POST" th:object="${estabelecimento}" 
+				th:action="${estabelecimento.novo} ? @{/estabelecimentos/novo} : @{/estabelecimentos/{codigo}(codigo=${estabelecimento.codigo})}">
+			
+			<brewer:message/>
+			
+			<input type="hidden" th:field="*{codigo}"/>
+			<input type="hidden" th:field="*{endereco.codigo}"/>
+			<input type="hidden" th:field="*{responsavel.codigo}" id="codigoPessoa"/>
+			
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+				    <h3 class="panel-title">Dados do estabelecimento</h3>
+				</div>	
+				<div class="panel-body">
+			    	
+			    	<div class="row">
+						<div class="form-group  col-sm-12  bw-required" brewer:classforerror="nome">
+							<label for="nome" class="control-label">Nome</label>
+							<input type="text" class="form-control" id="nome" placeholder="Casa do João" 
+							 autofocus="autofocus" th:field="*{nome}"/>
+						</div>
+					</div>
+					
+					<div class="row">					
+						<div class="form-group  col-sm-2  bw-required" brewer:classforerror="endereco.cep">
+							<label for="cep" class="control-label">CEP</label>
+							<input type="text" class="form-control js-cep" id="cep"
+									onblur="pesquisacep(this.value);" th:field="*{endereco.cep}"/>
+						</div>
+						
+						<div class="form-group  col-sm-8  bw-required" brewer:classforerror="endereco.logradouro">
+							<label for="logradouro" class="control-label">Logradouro</label>
+							<input type="text" class="form-control" id="logradouro" th:field="*{endereco.logradouro}"/>
+						</div>	
+						
+						<div class="form-group  col-sm-2" brewer:classforerror="endereco.numero">
+							<label for="numero" class="control-label">Número</label>
+							<input type="text" class="form-control" id="numero" th:field="*{endereco.numero}"/>
+						</div>					
+					</div>
+					
+					<div class="row">												
+						<div class="form-group  col-sm-2" brewer:classforerror="endereco.complemento">
+							<label for="complemento" class="control-label">Complemento</label>
+							<input type="text" class="form-control" id="complemento" th:field="*{endereco.complemento}"/>
+						</div>
+						
+						<div class="form-group  col-sm-4" brewer:classforerror="endereco.bairro">
+							<label for="bairro" class="control-label">Bairro</label>
+							<input type="text" class="form-control" id="bairro" th:field="*{endereco.bairro}"/>
+						</div>
+						
+						<div class="form-group  col-sm-4 bw-required" brewer:classforerror="endereco.cidade">
+							<label for="cidade" class="control-label">Cidade</label>
+							<input type="text" class="form-control" id="cidade" th:field="*{endereco.cidade}"/>
+						</div>
+						
+						<div class="form-group  col-sm-2 bw-required" brewer:classforerror="endereco.estado">
+							<label for="estado" class="control-label">Estado</label>
+							<input type="text" class="form-control" id="estado" th:field="*{endereco.estado}"/>
+						</div>					
+					</div>
+			  	</div>
+			</div>
+			
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+				    <h3 class="panel-title">Dados do responsável</h3>
+				</div>	
+				<div class="panel-body">
+				
+					<div class="row">
+						<div class="form-group  col-sm-12  bw-required" brewer:classforerror="responsavel.nome">
+							<label for="nomePessoa" class="control-label">Nome</label>
+							<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{responsavel.nome}"/>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="form-group  col-sm-4  bw-required" brewer:classforerror="responsavel.tipoPessoa">
+							<label class="control-label">Tipo pessoa</label> 
+							<div>
+								<th:block th:each="tipoPessoa : ${tiposPessoa}">
+									<div class="radio  radio-inline">
+										<input type="radio" th:id="|id_${tipoPessoa}|" class="js-radio-tipo-pessoa" 
+											th:field="*{responsavel.tipoPessoa}" th:value="${tipoPessoa}" data:data="${tipoPessoa.data}"
+											data:documento="${tipoPessoa.documento}" data:mascara="${tipoPessoa.mascara}"> 
+										<label class="control-label" th:for="|id_${tipoPessoa}|" th:text="${tipoPessoa.descricao}"></label>
+									</div>
+								</th:block>
+							</div>
+						</div>
+						
+						<div class="form-group  col-sm-8  bw-required" brewer:classforerror="responsavel.cpfOuCnpj">
+							<label for="cpfOuCnpj" class="control-label">CPF/CNPJ</label>
+							<input type="text" class="form-control" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
+									data:url="@{/pessoas}" th:field="*{responsavel.cpfOuCnpj}" disabled/>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="form-group  col-sm-4" brewer:classforerror="responsavel.telefone">
+							<label for="telefone" class="control-label">Telefone</label>
+							<input type="text" class="form-control js-phone-number" id="telefone" th:field="*{responsavel.telefone}"/>
+						</div>	
+						
+						<div class="form-group  col-sm-4" brewer:classforerror="responsavel.dataNascimento">
+							<label for="dataNascimento" class="control-label">Data de nascimento/fundação</label>
+							<input type="text" class="form-control  js-date" id="dataNascimento" th:field="*{responsavel.dataNascimento}" autocomplete="off"/>
+						</div>	
+						
+						<div class="form-group col-sm-4" brewer:classforerror="responsavel.genero">
+							<label for="genero" class="control-label">Gênero</label>
+							<select id="genero" class="form-control" th:field="*{responsavel.genero}">
+								<option value="">Selecione o gênero</option>
+								<option th:each="genero : ${generos}" th:value="${genero}" th:text="${genero.descricao}"></option>
+							</select>
+						</div>			
+					</div>
+				</div>
+			</div>
+								
+			<button type="submit" class="btn  btn-primary">Salvar</button>
+		</form>
+	</div>
+</section>
+
+<th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/pessoa.mascara-cpf-cnpj.js}"></script>
+	<script th:src="@{/javascripts/servico-busca-cep.js}"></script>
+	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
+</th:block>
+</html>

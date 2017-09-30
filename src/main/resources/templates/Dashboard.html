@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com">
+
+<head>
+	<title>Dashboard</title>
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1>Dashboard</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		
+		<h1 th:text="${welcome} + ${#authentication.principal.usuario.pessoa.nome}">Usuário</h1>
+		
+		<div class="aw-error-panel__description">
+			No menu lateral esquerdo você pode escolher o que deseja fazer para gerenciar o sistema de segurança
+			<br/><br/>
+			
+		</div>	
+		
+	</div>
+</section>
+
+<th:block layout:fragment="javascript-extra">
+</th:block>
+</html>

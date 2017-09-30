@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data">
+
+<head>
+	<title>Cadastro de usuário</title>
+	
+	<link rel="stylesheet" type="text/css" th:href="@{/stylesheets/vendors/bootstrap-switch.min.css}"/>
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1 th:if="${usuario.novo}">Cadastro de usuário</h1>
+					<h1 th:unless="${usuario.novo}">Edição do usuário: [[${usuario.codigoNome}]]</h1>
+				</div>
+				
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn  btn-default" th:href="@{/usuarios}">
+							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="POST" th:object="${usuario}" 
+				th:action="${usuario.novo} ? @{/usuarios/novo} : @{/usuarios/{codigo}(codigo=${usuario.codigo})}">
+			
+			<brewer:message/>
+			
+			<input type="hidden" th:field="*{codigo}"/>
+			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" type="hidden" th:field="*{estabelecimento.codigo}"/>
+			<input type="hidden" th:field="*{pessoa.codigo}" id="codigoPessoa"/>
+										
+			<div class="row">
+				<div class="form-group  col-sm-8  bw-required" brewer:classforerror="pessoa.nome">
+					<label for="nomePessoa" class="control-label">Nome</label>
+					<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{pessoa.nome}"/>
+				</div>
+				
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
+					<label for="cpfOuCnpj" class="control-label">CPF</label>
+					<input type="text" class="form-control js-cpf" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
+							data:url="@{/pessoas}" th:field="*{pessoa.cpfOuCnpj}" />
+				</div>
+			</div>
+								
+			<div class="row">
+				<div class="form-group  col-sm-4" brewer:classforerror="pessoa.telefone">
+					<label for="telefone" class="control-label">Telefone</label>
+					<input type="text" class="form-control js-phone-number" id="telefone" th:field="*{pessoa.telefone}"/>
+				</div>	
+				
+				<div class="form-group  col-sm-4" brewer:classforerror="pessoa.dataNascimento">
+					<label for="dataNascimento" class="control-label">Data de nascimento</label>
+					<input type="text" class="form-control  js-date" id="dataNascimento" th:field="*{pessoa.dataNascimento}" autocomplete="off"/>
+				</div>	
+				
+				<div class="form-group col-sm-4" brewer:classforerror="pessoa.genero">
+					<label for="genero" class="control-label">Gênero</label>
+					<select id="genero" class="form-control" th:field="*{pessoa.genero}">
+						<option value="">Selecione o gênero</option>
+						<option th:each="genero : ${generos}" th:value="${genero}" th:text="${genero.descricao}"></option>
+					</select>
+				</div>			
+			</div>
+			
+			<div class="row">			
+				<div class="form-group  col-sm-12  bw-required" brewer:classforerror="email">
+					<label for="email" class="control-label">E-mail</label>
+					<input type="text" class="form-control" id="email" th:field="*{email}"/>
+				</div>	
+			</div>
+			
+			<div class="row">
+				<div class="form-group  col-sm-3" brewer:classforerror="senha" th:classappend="${usuario.novo} ? bw-required">
+					<label for="senha" class="control-label">Senha</label> 
+					<input type="password" class="form-control  js-senha" id="senha" th:field="*{senha}"/>
+				</div>
+				
+				<div class="form-group  col-sm-3" brewer:classforerror="confirmacaoSenha">
+					<label for="confirmacaoSenha" class="control-label">Confirmação de senha</label> 
+					<input type="password" class="form-control  js-senha" id="confirmacaoSenha" th:field="*{confirmacaoSenha}"/>
+				</div>
+				
+				<div class="form-group  col-sm-3  bw-required" brewer:classforerror="grupos">
+					<label class="control-label">Grupos</label> 
+					<div>
+						<th:block th:each="grupo : ${grupos}">
+	  						<div class="checkbox  checkbox-inline"> 
+		    					<input type="checkbox" th:value="${grupo.codigo}" th:field="*{grupos}"/>
+		    					<label th:for="${#ids.prev('grupos')}" th:text="${grupo.nome}"></label>
+	    					</div>
+	    				</th:block>
+					</div>
+				</div>
+				
+				<div class="form-group  col-sm-3" th:if="${#authentication.principal.usuario.codigo != usuario.codigo}">
+					<label class="control-label">Ativo</label>
+					<div>
+						<input type="checkbox" class="js-status" data-size="small" data-off-color="danger" 
+							data-on-text="Ativo" data-off-text="Inativo" th:field="*{ativo}"/>
+					</div>
+				</div>								
+			</div>	
+						
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+				<div class="form-group  col-sm-6 bw-required" brewer:classforerror="estabelecimento.codigo">
+					<label for="estabelecimento" class="control-label">Estabelecimento</label>
+					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
+						<option value="">Selecione o estabelecimento</option>
+						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
+					</select>
+				</div>	
+			</div>
+			
+			
+			<div class="row">	
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
+					<label for="rfid" class="control-label">RFID</label>
+					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
+				</div>	
+			</div>
+						
+			<button type="submit" class="btn  btn-primary">Salvar</button>
+		</form>
+	</div>
+</section>
+
+<th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
+	<script th:src="@{/javascripts/vendors/bootstrap-switch.min.js}"></script>
+	<script>
+		$('.js-status').bootstrapSwitch();		
+	</script>
+</th:block>
+</html>

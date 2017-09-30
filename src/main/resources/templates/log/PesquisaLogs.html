@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+	
+<head>
+	<title>Pesquisa de logs</title>
+</head>
+
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1>Pesquisa de logs</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="GET" th:object="${logFiltro}" th:action="@{/logs}">
+		
+			<div class="row">			
+				<div class="form-group  col-sm-3" brewer:classforerror="dataInicio">
+					<label for="dataInicio" class="control-label">Data de início</label>
+					<input type="text" class="form-control  js-date" id="dataInicio" th:field="*{dataInicio}" autocomplete="off"/>
+				</div>
+				
+				<div class="form-group  col-sm-2" brewer:classforerror="horaInicio">
+					<label for="horaInicio" class="control-label">Hora de início</label>
+					<div class="input-group clockpicker">
+					    <input type="text" class="form-control js-hora" id="horaInicio" th:field="*{horaInicio}">
+					    <span class="input-group-addon">
+					        <span class="glyphicon glyphicon-time"></span>
+					    </span>
+					</div>
+				</div>
+				
+				<div class="form-group  col-sm-3" brewer:classforerror="dataFinal">
+					<label for="dataFinal" class="control-label">Data final</label>
+					<input type="text" class="form-control  js-date" id="dataFinal" th:field="*{dataFinal}" autocomplete="off"/>
+				</div>
+				
+				<div class="form-group  col-sm-2" brewer:classforerror="horaFinal">
+					<label for="horaFinal" class="control-label">Hora final</label>
+					<div class="input-group clockpicker">
+					    <input type="text" class="form-control js-hora" id="horaFinal" th:field="*{horaFinal}">
+					    <span class="input-group-addon">
+					        <span class="glyphicon glyphicon-time"></span>
+					    </span>
+					</div>
+				</div>
+				
+				<div class="form-group  col-sm-2" style="padding-top:23px;">
+					<button type="submit" class="btn  btn-primary">Pesquisar</button>
+				</div>				
+			</div>
+			
+		</form>
+		
+		<div class="table-responsive  bw-tabela-simples">
+        	<table class="table  table-hover">
+	            <thead>
+	            	<tr>	            		
+	            		<th>Ação</th>
+	                	<th>Data</th>
+					</tr>
+				</thead>
+			
+	            <tbody>
+					<tr th:each="log : ${pagina.conteudo}">
+						<td th:text="${log.acao}"></td>
+						<td th:text="${log.dataHoraFormatado}"></td>			
+	                </tr>
+	                
+	                <tr th:if="${pagina.vazia}">
+	                	<td colspan="6">Nenhum log encontrado</td>
+	                </tr>
+	             </tbody>
+         	</table>
+    	 </div>
+    	 
+    	 <brewer:pagination page="${pagina}"/>
+	</div>
+</section>
+<th:block layout:fragment="javascript-extra">
+	<script>
+		$('.clockpicker').clockpicker({
+			donetext: 'Done',
+		    default: 'now',
+		    autoclose: true		    
+		});
+	</script>
+</th:block>
+</body>
+</html>

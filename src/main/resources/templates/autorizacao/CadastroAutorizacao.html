@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com">
+
+<head>
+	<title>Cadastro de autorização</title>
+	
+	<link rel="stylesheet" type="text/css" th:href="@{/stylesheets/vendors/bootstrap-switch.min.css}"/>
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1 th:if="${autorizacao.novo}">Cadastro de autorização</h1>
+					<h1 th:unless="${autorizacao.novo}">Edição da autorização</h1>
+				</div>
+				
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn  btn-default" th:href="@{/autorizacoes}">
+							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="POST" th:object="${autorizacao}" th:action="@{/autorizacoes/novo}">
+			
+			<brewer:message/>
+				
+			<input type="hidden" th:field="*{id.sequencia}"/>
+			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" type="hidden" th:field="*{id.estabelecimento.codigo}"/>
+						
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+				<div class="form-group  col-sm-6 bw-required" brewer:classforerror="id.estabelecimento.codigo">
+					<label for="estabelecimento" class="control-label">Estabelecimento</label>
+					<select id="estabelecimento" class="form-control" th:field="*{id.estabelecimento.codigo}">
+						<option value="">Selecione o estabelecimento</option>
+						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
+					</select>
+				</div>	
+			</div>
+			
+			<div class="row">
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="id.usuario">
+					<label for="usuario" class="control-label">Usuário</label>
+					<select id="usuario" class="form-control" th:field="*{id.usuario.codigo}">
+						<option value="">Selecione um usuário</option>
+						<option th:each="usuario : ${usuarios}" th:value="${usuario.codigo}" th:text="${usuario.codigoNome}"></option>
+					</select>
+				</div>
+					
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="id.porta">
+					<label for="porta" class="control-label">Porta</label>
+					<select id="porta" class="form-control" th:field="*{id.porta.codigo}">
+						<option value="">Selecione uma porta</option>
+						<option th:each="porta : ${portas}" th:value="${porta.codigo}" th:text="${porta.codigoDescricao}"></option>
+					</select>
+				</div>
+					
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="tipoAutorizacao">
+					<label for="tipo" class="control-label">Tipo de autorização</label>
+					<select id="tipo" class="form-control" th:field="*{tipoAutorizacao}" onchange="changeTipo()">
+						<option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="${tipo.descricao}"></option>
+					</select>
+				</div>
+			</div>	
+			
+			<div class="hidden" id="temporario">			
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="dataTemporaria">
+					<label for="dataTemporaria" class="control-label">Data</label>
+					<input type="text" class="form-control  js-date" id="dataTemporaria" th:field="*{dataTemporaria}" autocomplete="off"/>
+				</div>
+				
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaInicioTemporaria">
+					<label for="horaInicioTemporaria" class="control-label">Hora de início</label>
+					<div class="input-group clockpicker">
+					    <input type="text" class="form-control js-hora" id="horaInicioTemporaria" th:field="*{horaInicioTemporaria}">
+					    <span class="input-group-addon">
+					        <span class="glyphicon glyphicon-time"></span>
+					    </span>
+					</div>
+				</div>
+				
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaFimTemporaria">
+					<label for="horaFimTemporaria" class="control-label">Hora final</label>
+					<div class="input-group clockpicker">
+					    <input type="text" class="form-control js-hora" id="horaFimTemporaria" th:field="*{horaFimTemporaria}">
+					    <span class="input-group-addon">
+					        <span class="glyphicon glyphicon-time"></span>
+					    </span>
+					</div>
+				</div>				
+			</div>
+			
+			<div class="hidden" id="programado">				
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="diaSemana">
+					<label for="diaSemana" class="control-label">Dia da semana</label>
+					<select id="diaSemana" class="form-control" th:field="*{diaSemana}">
+						<option value="">Selecione um dia da semana</option>
+						<option th:each="dia : ${dias}" th:value="${dia}" th:text="${dia.descricao}"></option>
+					</select>
+				</div>
+				
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaInicio">
+					<label for="horaInicio" class="control-label">Hora de início</label>
+					<div class="input-group clockpicker">
+					    <input type="text" class="form-control js-hora" id="horaInicio" th:field="*{horaInicio}">
+					    <span class="input-group-addon">
+					        <span class="glyphicon glyphicon-time"></span>
+					    </span>
+					</div>
+				</div>
+				
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaFim">
+					<label for="horaFim" class="control-label">Hora final</label>
+					<div class="input-group clockpicker">
+					    <input type="text" class="form-control js-hora" id="horaFim" th:field="*{horaFim}">
+					    <span class="input-group-addon">
+					        <span class="glyphicon glyphicon-time"></span>
+					    </span>
+					</div>
+				</div>				
+			</div>
+						
+			<button type="submit" class="btn  btn-primary">Salvar</button>
+		</form>
+	</div>
+</section>
+
+<th:block layout:fragment="javascript-extra">
+	<script>
+		window.onload = function() {
+			changeTipo();
+		}
+	
+		function changeTipo() {
+			var select = document.getElementById('tipo');
+			var tipo = select.options[select.selectedIndex].value;
+			
+			switch(tipo) {
+				case "PROGRAMADO":
+					document.getElementById("programado").setAttribute("class", "row");
+					document.getElementById("temporario").setAttribute("class", "hidden");
+					break;
+				case "TEMPORARIO":
+					document.getElementById("programado").setAttribute("class", "hidden");
+					document.getElementById("temporario").setAttribute("class", "row");
+					break;
+				default:
+					document.getElementById("programado").setAttribute("class", "hidden");
+					document.getElementById("temporario").setAttribute("class", "hidden");
+			}
+		}
+		
+		$('.js-date').datepicker({
+			orientation: 'bottom',
+			language: 'pt-BR',
+			autoclose: true,
+			mask: '00/00/0000',
+			startDate: 'now'
+		});
+		
+		$('.clockpicker').clockpicker({
+			donetext: 'Done',
+		    default: 'now',
+		    autoclose: true		    
+		});
+	</script>
+</th:block>
+</html>
