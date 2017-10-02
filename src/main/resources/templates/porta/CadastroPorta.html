@@ -3,7 +3,8 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	xmlns:th="http://www.thymeleaf.org"
 	layout:decorate="~{layout/LayoutPadrao}"
-	xmlns:brewer="http://brewer.algaworks.com">
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data">
 
 <head>
 	<title>Cadastro de porta</title>
@@ -36,18 +37,18 @@
 			
 			<brewer:message/>
 			
-			<input type="hidden" th:field="*{codigo}"/>
-			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" type="hidden" th:field="*{estabelecimento.codigo}"/>
+			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" 
+					type="hidden" th:field="*{estabelecimento.codigo}" th:value="${#authentication.principal.usuario.estabelecimento.codigo}"/>
 						
 			<div class="row">
 				<div class="form-group  col-sm-2" brewer:classforerror="codigo">
 					<label for="codigo" class="control-label">Código</label>
-					<input type="text" class="form-control" id="codigo" th:field="*{codigo}" disabled/>
+					<input type="text" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}"/>
 				</div>
 				
 				<div class="form-group  col-sm-7  bw-required" brewer:classforerror="descricao">
 					<label for="descricao" class="control-label">Descrição</label>
-					<input type="text" class="form-control" id="descricao" autofocus="autofocus" th:field="*{descricao}"/>
+					<input type="text" class="form-control" id="descricao" th:field="*{descricao}"/>
 				</div>
 				
 				<div class="form-group  col-sm-3  bw-required" brewer:classforerror="senha">

@@ -1,6 +1,7 @@
 package br.com.utfpr.porta.modelo;
 
 import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,10 +10,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "porta")
@@ -32,15 +34,28 @@ public class Porta implements Serializable {
 	@Size(max = 50, message = "O tamanho da descrição deve estar entre 1 e 50")
 	private String descricao;
 	
+	@JsonIgnore
 	@NotBlank(message = "A senha é obrigatória")
 	private String senha;
-		
-	@Transient
-	private String codigoDescricao;
 	
 	@PostLoad
 	private void postLoad() {
-		this.codigoDescricao = codigo.toString().concat(" - ").concat(descricao);
+		this.senha = null;
+	}
+			
+	public String getCodigoDescricao() {
+		
+		String codigoDescricao = "";
+		
+		if(codigo != null) {
+			codigoDescricao = codigo.toString();
+		}
+		
+		if(descricao != null) {
+			codigoDescricao = codigoDescricao.isEmpty() ? descricao : " - ".concat(descricao);
+		}
+		
+		return codigoDescricao;
 	}
 	
 	public boolean isNovo() {
@@ -69,10 +84,6 @@ public class Porta implements Serializable {
 
 	public void setEstabelecimento(Estabelecimento estabelecimento) {
 		this.estabelecimento = estabelecimento;
-	}
-
-	public String getCodigoDescricao() {
-		return codigoDescricao;
 	}
 	
 	public String getSenha() {
