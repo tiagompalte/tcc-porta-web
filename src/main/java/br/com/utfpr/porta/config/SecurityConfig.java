@@ -13,10 +13,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import br.com.utfpr.porta.seguranca.AppUserDetailsService;
+import br.com.utfpr.porta.seguranca.Seguranca;
 
 @EnableWebSecurity
-@ComponentScan(basePackageClasses = AppUserDetailsService.class)
+@ComponentScan(basePackageClasses = Seguranca.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired

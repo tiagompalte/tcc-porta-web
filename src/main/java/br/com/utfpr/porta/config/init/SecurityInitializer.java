@@ -11,10 +11,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import br.com.utfpr.porta.seguranca.AppUserDetailsService;
+import br.com.utfpr.porta.seguranca.Seguranca;
 
 @EnableWebSecurity
-@ComponentScan(basePackageClasses = AppUserDetailsService.class)
+@ComponentScan(basePackageClasses = Seguranca.class)
 public class SecurityInitializer extends AbstractSecurityWebApplicationInitializer {
 
 	@Override

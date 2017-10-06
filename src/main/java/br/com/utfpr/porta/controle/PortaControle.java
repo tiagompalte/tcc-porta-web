@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +27,7 @@ import br.com.utfpr.porta.repositorio.Portas;
 import br.com.utfpr.porta.repositorio.filtro.PortaFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.PortaServico;
-import br.com.utfpr.porta.servico.excecao.ErroValidacaoSenha;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
-import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
 
 @Controller
 @RequestMapping("/portas")
@@ -43,6 +41,9 @@ public class PortaControle {
 	
 	@Autowired
 	private Estabelecimentos estabelecimentosRepositorio;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Porta porta) {
@@ -75,26 +76,33 @@ public class PortaControle {
 			return novo(porta);
 		}
 				
-		String senha = null;
 		try {
-			senha = portaServico.salvar(porta);
+			
+			if(porta.isNovo()) {						
+				porta.setSenha(this.passwordEncoder.encode(porta.getSenha()));
+			}
+			else {
+				
+				Porta portaDB = portaRepositorio.findOne(porta.getCodigo());
+				
+				if(portaDB == null) {
+					result.reject("Não foi encontrado na base de dados essa porta", "Não foi encontrado na base de dados essa porta");
+					return novo(porta);
+				}
+				else if(passwordEncoder.matches(porta.getSenha(), portaDB.getSenha()) == false) {					
+					result.reject("Senha não confere", "Senha não confere");
+					return novo(porta);
+				}
+			}
+			
+			portaServico.salvar(porta);
 		}
-		catch(ValidacaoBancoDadosExcecao e) {
+		catch(NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(porta);
-		}
-		catch(ErroValidacaoSenha e) {
-			result.reject(e.getMessage(), e.getMessage());
-			return novo(porta);
-		}
+		}		
 		
-		String mensagem = "Porta salva com sucesso";
-		
-		if(!StringUtils.isEmpty(senha)) {
-			mensagem = mensagem.concat(". SENHA: ".concat(senha));
-		}
-		
-		attributes.addFlashAttribute("mensagem", mensagem);
+		attributes.addFlashAttribute("mensagem", "Porta salva com sucesso");
 		return new ModelAndView("redirect:/portas/novo");
 	}
 	
