@@ -26,11 +26,7 @@
 				
 		<!-- Thymeleaf - Layout Dialect -->
 		<thymeleaf-layout-dialect.version>2.0.0</thymeleaf-layout-dialect.version>
-				
-		<!-- thumbnailator - Gerar Thumbnail -->
-		<!-- https://github.com/coobird/thumbnailator -->
-		<thumbnailator.version>0.4.8</thumbnailator.version>
-
+		
 		<!-- Thymeleaf extras data attribute -->
 		<thymeleaf-extras-data-attribute.version>2.0.1</thymeleaf-extras-data-attribute.version>
 
@@ -67,14 +63,6 @@
 				<version>${maven-war-pluging.version}</version>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.flywaydb</groupId>
-				<artifactId>flyway-maven-plugin</artifactId>
-				<version>${flyway-maven-plugin.version}</version>
-				<configuration>
-					<driver>com.mysql.jdbc.Driver</driver>
 				</configuration>
 			</plugin>
 		</plugins>
