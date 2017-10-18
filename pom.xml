@@ -45,6 +45,9 @@
 		<!-- Cache - Guava -->
 		<guava.version>19.0</guava.version>
 		
+		<!-- Porta Serviço -->
+		<portaservico.version>1.0.0</portaservico.version>
+		
 	</properties>
 	
 	<build>
@@ -169,10 +172,11 @@
 			<scope>compile</scope>
 		</dependency>
 
+		<!-- Porta Serviço -->
 		<dependency>
-			<groupId>br.com.utfpr</groupId>
-			<artifactId>porta-servico</artifactId>
-			<version>1.0.0</version>
+			<groupId>com.github.tiagompalte</groupId>
+			<artifactId>tcc-porta-servico</artifactId>
+			<version>${portaservico.version}</version>
 		</dependency>
 	</dependencies>
 	
