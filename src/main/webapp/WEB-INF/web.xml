@@ -16,4 +16,9 @@
 		<location>/500</location>
 	</error-page>
 	
+	<context-param>
+	   <param-name>spring.profiles.default</param-name>
+	   <param-value>local</param-value>
+	</context-param>
+	
 </web-app>
