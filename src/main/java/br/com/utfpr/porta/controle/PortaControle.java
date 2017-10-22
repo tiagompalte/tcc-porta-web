@@ -132,6 +132,9 @@ public class PortaControle {
 		else {
 			porta = portaRepositorio.findByCodigoAndEstabelecimento(codigo, UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
+		
+		//Para não aparecer na tela de cadastro/edição
+		porta.setSenha(null);
 			
 		ModelAndView mv = novo(porta);
 		mv.addObject(porta);
