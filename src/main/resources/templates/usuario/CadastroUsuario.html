@@ -133,16 +133,21 @@
 				</div>	
 				
 				<div class="form-group  col-sm-6" style="padding-top:23px;">
-		          	<div class="col-sm-3 control-label">
-		          		<span id="recording" class="text-danger hidden">
-		          			<strong>Gravando...</strong>
-		          		</span>&nbsp; <span id="time-display">00:00</span>
+		          	<div class="form-group  col-sm-2">
+		          		<div id="time-display">03:00</div>
 		          	</div>
-		          	<div class="form-group  col-sm-3  js-container-audio" th:attr="data-url-audios=@{/audios}">
-		            	<button type="button" id="record" class="btn btn-danger">Gravar</button>
-		            	<button type="button" id="cancel" class="btn btn-default hidden">Cancelar</button>
+		          	<div class="form-group  col-sm-4  js-container-audio" th:attr="data-url-audios=@{/audios}">
+		            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
+		            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-danger" disabled>
+		            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	<button type="button" id="play" onclick="playRecord()" class="btn btn-primary" disabled>
+		            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
+		            	</button>
 		          	</div>
-		        </div>			    
+		        </div>
 			</div>
 						
 			<button type="submit" class="btn  btn-primary">Salvar</button>
@@ -153,7 +158,10 @@
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
 	<script th:src="@{/javascripts/vendors/bootstrap-switch.min.js}"></script>
-	<script th:src="@{/javascripts/vendors/WebAudioRecorderWav.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>
+	<script th:src="@{/javascripts/vendors/easytimer.min.js}"></script>
 	<script th:src="@{/javascripts/gravador.js}"></script>
 	
 	<script>
