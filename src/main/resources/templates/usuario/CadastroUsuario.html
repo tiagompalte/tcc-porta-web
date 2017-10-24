@@ -132,22 +132,18 @@
 					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
 				</div>	
 				
-				<div class="form-group  col-sm-6" style="padding-top:23px;">
-		          	<div class="form-group  col-sm-2">
-		          		<div id="time-display">03:00</div>
-		          	</div>
-		          	<div class="form-group  col-sm-4  js-container-audio" th:attr="data-url-audios=@{/audios}">
-		            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
-		            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
-		            	</button>
-		            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-danger" disabled>
-		            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
-		            	</button>
-		            	<button type="button" id="play" onclick="playRecord()" class="btn btn-primary" disabled>
-		            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
-		            	</button>
-		          	</div>
-		        </div>
+				<div class="form-group  col-sm-6  js-container-audio" style="padding-top:23px;" th:attr="data-url-audios=@{/audios}">
+	          		<span id="timer">3.000 segundos</span>
+	            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
+	            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
+	            	</button>
+	            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-danger" disabled>
+	            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
+	            	</button>
+	            	<button type="button" id="play" onclick="playRecord()" class="btn btn-primary" disabled>
+	            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
+	            	</button>
+	          	</div>
 			</div>
 						
 			<button type="submit" class="btn  btn-primary">Salvar</button>

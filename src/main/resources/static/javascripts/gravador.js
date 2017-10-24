@@ -1,12 +1,44 @@
+var initial = 3000;
+var count = initial;
+var counter; //10 will  run it every 100th of a second
+var initialMillis;
 
-var timer = new Timer();
-timer.addEventListener('secondsUpdated', function (e) {
-    $('#time-display').html(timer.getTimeValues().toString(['seconds', 'secondTenths']));
-}); 
+function timer() {
+    if (count <= 0) {
+        clearInterval(counter);
+        stopRecording();
+        displayCount(0);
+        return;
+    }
+    var current = Date.now();
+    
+    count = count - (current - initialMillis);
+    initialMillis = current;
+    displayCount(count);
+}
 
-timer.addEventListener('targetAchieved', function (e) {
-    $('#time-display').html('03:00');
-});
+function displayCount(count) {
+    var res = count / 1000;
+    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " segundos";
+}
+
+function startTimer() {
+    clearInterval(counter);
+    initialMillis = Date.now();
+    counter = setInterval(timer, 1);
+}
+
+function stopTimer() {
+    clearInterval(counter);
+}
+
+function resetTimer() {
+    clearInterval(counter);
+    count = initial;
+    displayCount(count);
+}
+
+displayCount(initial);
 
 function startRecording() {
 	mic = new p5.AudioIn();
@@ -14,16 +46,17 @@ function startRecording() {
 	recorder = new p5.SoundRecorder();
 	recorder.setInput(mic);
 	soundFile = new p5.SoundFile();
-	timer.start({precision: 'secondTenths', countdown: true, startValues: {seconds: 3}});
 	recorder.record(soundFile);
-	setTimeout(stopRecording, 3000);
+	//setTimeout(3000, stopRecording());
+	resetTimer();
+	startTimer();
 	document.getElementById('record').setAttribute("disabled","disabled");
 	document.getElementById('cancel').removeAttribute("disabled");	
 }
 
-function stopRecording() {
-	timer.stop();
+function stopRecording() {	
 	recorder.stop();
+	stopTimer();
 	playRecord();
 	document.getElementById('play').removeAttribute("disabled");
 	document.getElementById('record').removeAttribute("disabled");
