@@ -40,27 +40,33 @@ function resetTimer() {
 
 displayCount(initial);
 
+var gravando = false;
 function startRecording() {
 	mic = new p5.AudioIn();
 	mic.start();
 	recorder = new p5.SoundRecorder();
 	recorder.setInput(mic);
 	soundFile = new p5.SoundFile();
-	recorder.record(soundFile);
-	//setTimeout(3000, stopRecording());
 	resetTimer();
 	startTimer();
+	recorder.record(soundFile);	
 	document.getElementById('record').setAttribute("disabled","disabled");
 	document.getElementById('cancel').removeAttribute("disabled");	
+	gravando = true;
 }
 
 function stopRecording() {	
 	recorder.stop();
 	stopTimer();
 	playRecord();
-	document.getElementById('play').removeAttribute("disabled");
+	document.getElementById('play').removeAttribute("disabled");	
 	document.getElementById('record').removeAttribute("disabled");
 	document.getElementById('cancel').setAttribute("disabled","disabled");
+	
+	if(gravando) {
+		salvarAudio();
+		gravando = false;
+	}
 }
 
 function playRecord() {
@@ -73,4 +79,82 @@ function adicionarCsrfToken(xhr) {
 	xhr.setRequestHeader(header, token);
 }
 
-//document.getElementsByClassName('js-container-audio')["0"].attributes[1].value
+function salvarAudio() {
+		
+	var dataview = encodeWAV(soundFile.buffer.getChannelData(0), soundFile.buffer.sampleRate);
+	var audioBlob = new Blob([dataview], { type: 'audio/wav' });
+	
+	var formData = new FormData();
+	formData.append("name", document.getElementById('audio').value);
+	formData.append("file", audioBlob);
+		
+	$.ajax({
+		url: $('.js-container-audio').data('url-audios'),	
+		type: "POST",
+        enctype: 'multipart/form-data',
+        processData: false,
+        contentType: false,
+        cache: false,
+        data: formData
+	});
+		
+}
+
+function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+}
+
+function encodeWAV(buf, sr){
+    var buffer = new ArrayBuffer(44 + buf.length * 2);
+    var view = new DataView(buffer);
+
+    /* RIFF identifier */
+    writeString(view, 0, 'RIFF');
+    /* chunk size (= file length - 8) */
+    view.setUint32(4, 36 + buf.length * 2, true);
+    /* RIFF type */
+    writeString(view, 8, 'WAVE');
+    /* format chunk identifier */
+    writeString(view, 12, 'fmt ');
+    /* format chunk length */
+    view.setUint32(16, 16, true);
+    /* sample format (raw) */
+    view.setUint16(20, 1, true);
+    /* channel count */
+    view.setUint16(22, 1, true);
+    /* sample rate */
+    view.setUint32(24, sr, true);
+    /* byte rate (sample rate * block align) */
+    view.setUint32(28, sr *2 , true);
+    /* block align (channel count * bytes per sample) */
+    view.setUint16(32, 2, true);
+    /* bits per sample */
+    view.setUint16(34, 16, true);
+    /* data chunk identifier */
+    writeString(view, 36, 'data');
+    /* data chunk length */
+    view.setUint32(40, buf.length * 2, true);
+
+    floatTo16BitPCM(view, 44, buf);
+
+    return view;
+  }    
+
+  function floatTo16BitPCM(output, offset, input){
+    for (var i = 0; i < input.length; i++, offset+=2){
+      var s = Math.max(-1, Math.min(1, input[i]));
+      output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
+  }
+
+  function writeString(view, offset, string){
+    for (var i = 0; i < string.length; i++){
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  }

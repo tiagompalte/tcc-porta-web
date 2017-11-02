@@ -115,6 +115,29 @@
 				</div>								
 			</div>	
 						
+			<div class="row">	
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
+					<label for="rfid" class="control-label">RFID</label>
+					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
+				</div>	
+				
+				<div class="form-group  col-sm-6  js-container-audio" style="padding-top:23px;" th:attr="data-url-audios=@{/audios}">
+					
+					<input type="hidden" th:field="*{audio}" id="audio"/>
+					
+	          		<span id="timer">3.000 segundos</span>
+	            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
+	            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
+	            	</button>
+	            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-warning" disabled>
+	            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
+	            	</button>
+	            	<button type="button" id="play" onclick="playRecord()" class="btn btn-success" disabled>
+	            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
+	            	</button>
+	          	</div>
+			</div>
+			
 			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
 				<div class="form-group  col-sm-6 bw-required" brewer:classforerror="estabelecimento.codigo">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
@@ -123,27 +146,6 @@
 						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
 					</select>
 				</div>	
-			</div>
-			
-			
-			<div class="row">	
-				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
-					<label for="rfid" class="control-label">RFID</label>
-					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
-				</div>	
-				
-				<div class="form-group  col-sm-6  js-container-audio" style="padding-top:23px;" th:attr="data-url-audios=@{/audios}">
-	          		<span id="timer">3.000 segundos</span>
-	            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
-	            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
-	            	</button>
-	            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-danger" disabled>
-	            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
-	            	</button>
-	            	<button type="button" id="play" onclick="playRecord()" class="btn btn-primary" disabled>
-	            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
-	            	</button>
-	          	</div>
 			</div>
 						
 			<button type="submit" class="btn  btn-primary">Salvar</button>
@@ -161,7 +163,8 @@
 	<script th:src="@{/javascripts/gravador.js}"></script>
 	
 	<script>
-		$('.js-status').bootstrapSwitch();		
+		$('.js-status').bootstrapSwitch();
+		document.getElementById('audio').value = generateUUID() + ".wav";
 	</script>
 </th:block>
 </html>

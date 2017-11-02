@@ -4,7 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface AudioStorage {
 	
-	public String salvarTemporariamente(MultipartFile[] files);
+	public void salvarTemporariamente(String name, MultipartFile file);
 
 	public byte[] recuperarAudioTemporaria(String nome);
 
