@@ -26,10 +26,12 @@ import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Autorizacao;
 import br.com.utfpr.porta.modelo.AutorizacaoId;
 import br.com.utfpr.porta.modelo.DiaSemana;
+import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Porta;
 import br.com.utfpr.porta.modelo.TipoAutorizacao;
 import br.com.utfpr.porta.modelo.Usuario;
 import br.com.utfpr.porta.repositorio.Autorizacoes;
+import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.Portas;
 import br.com.utfpr.porta.repositorio.Usuarios;
 import br.com.utfpr.porta.repositorio.filtro.AutorizacaoFiltro;
@@ -56,6 +58,9 @@ public class AutorizacaoControle {
 	@Autowired
 	private Portas portasRepositorio;
 	
+	@Autowired
+	private Estabelecimentos estabelecimentosRepositorio;
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Autorizacao autorizacao) {				
 		ModelAndView mv = new ModelAndView("autorizacao/CadastroAutorizacao");		
@@ -77,6 +82,13 @@ public class AutorizacaoControle {
 		if(portas == null) {
 			portas = new ArrayList<>();
 		}
+		
+		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+			List<Estabelecimento> estabelecimentos = estabelecimentosRepositorio.findAll();
+			if(estabelecimentos == null) {
+				estabelecimentos = new ArrayList<>();
+			}
+		}		
 				
 		mv.addObject("usuarios", usuarios);
 		mv.addObject("portas", portas);

@@ -2,6 +2,7 @@ var initial = 3000;
 var count = initial;
 var counter; //10 will  run it every 100th of a second
 var initialMillis;
+var soundFile;
 
 function timer() {
     if (count <= 0) {
@@ -20,6 +21,16 @@ function timer() {
 function displayCount(count) {
     var res = count / 1000;
     document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " segundos";
+}
+
+function carregarAudio() {
+	
+	if(document.getElementById('audio').value == null || document.getElementById('audio').value === '') {
+		return;
+	}
+	
+	document.getElementById('tocadorAudio').src = $('.js-container-audio').data('url-audios') + "/" + document.getElementById('audio').value;
+	document.getElementById('play').removeAttribute("disabled");
 }
 
 function startTimer() {
@@ -70,7 +81,13 @@ function stopRecording() {
 }
 
 function playRecord() {
-	soundFile.play();
+	if((soundFile === undefined || soundFile == null) && document.getElementById('tocadorAudio').src != null 
+			&& document.getElementById('tocadorAudio').src != '') {
+		document.getElementById('tocadorAudio').play();
+	}
+	else {
+		soundFile.play();
+	}	
 }
 
 function adicionarCsrfToken(xhr) {
@@ -85,6 +102,9 @@ function salvarAudio() {
 	var audioBlob = new Blob([dataview], { type: 'audio/wav' });
 	
 	var formData = new FormData();
+	if(document.getElementById('audio').value == null || document.getElementById('audio').value === '') {
+		document.getElementById('audio').value = generateUUID() + ".wav";
+	}
 	formData.append("name", document.getElementById('audio').value);
 	formData.append("file", audioBlob);
 		
