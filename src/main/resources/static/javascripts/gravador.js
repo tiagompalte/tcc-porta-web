@@ -3,6 +3,7 @@ var count = initial;
 var counter; //10 will  run it every 100th of a second
 var initialMillis;
 var soundFile;
+var mic;
 
 function timer() {
     if (count <= 0) {
@@ -33,6 +34,10 @@ function carregarAudio() {
 	document.getElementById('play').removeAttribute("disabled");
 }
 
+function verificarMicrofone() {
+	mic = new p5.AudioIn();
+}
+
 function startTimer() {
     clearInterval(counter);
     initialMillis = Date.now();
@@ -51,9 +56,12 @@ function resetTimer() {
 
 displayCount(initial);
 
-var gravando = false;
-function startRecording() {
-	mic = new p5.AudioIn();
+function startRecording() {	
+	
+	if(mic === undefined || mic == null) {
+		return;
+	}
+	
 	mic.start();
 	recorder = new p5.SoundRecorder();
 	recorder.setInput(mic);
@@ -62,8 +70,7 @@ function startRecording() {
 	startTimer();
 	recorder.record(soundFile);	
 	document.getElementById('record').setAttribute("disabled","disabled");
-	document.getElementById('cancel').removeAttribute("disabled");	
-	gravando = true;
+	document.getElementById('cancel').removeAttribute("disabled");
 }
 
 function stopRecording() {	
@@ -74,10 +81,9 @@ function stopRecording() {
 	document.getElementById('record').removeAttribute("disabled");
 	document.getElementById('cancel').setAttribute("disabled","disabled");
 	
-	if(gravando) {
-		salvarAudio();
-		gravando = false;
-	}
+	if(document.getElementById('audio').value == null || document.getElementById('audio').value === '') {
+		document.getElementById('audio').value = generateUUID() + ".wav";
+	}	
 }
 
 function playRecord() {
@@ -97,14 +103,15 @@ function adicionarCsrfToken(xhr) {
 }
 
 function salvarAudio() {
+	
+	if(soundFile === undefined || soundFile == null || soundFile.buffer == null) {
+		return;
+	}
 		
 	var dataview = encodeWAV(soundFile.buffer.getChannelData(0), soundFile.buffer.sampleRate);
 	var audioBlob = new Blob([dataview], { type: 'audio/wav' });
 	
-	var formData = new FormData();
-	if(document.getElementById('audio').value == null || document.getElementById('audio').value === '') {
-		document.getElementById('audio').value = generateUUID() + ".wav";
-	}
+	var formData = new FormData();	
 	formData.append("name", document.getElementById('audio').value);
 	formData.append("file", audioBlob);
 		

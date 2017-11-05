@@ -121,24 +121,25 @@
 					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
 				</div>	
 				
-				<div class="form-group  col-sm-6  js-container-audio" style="padding-top:23px;" th:attr="data-url-audios=@{/audios}">
+				<div class="form-group  col-sm-6  js-container-audio  bw-required" th:attr="data-url-audios=@{/audios}">
 					
-					<input type="hidden" th:field="*{nomeAudio}" id="audio"/>
-					
-	          		<span id="timer">3.000 segundos</span>
-	            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
-	            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
-	            	</button>
-	            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-warning" disabled>
-	            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
-	            	</button>
-	            	<button type="button" id="play" onclick="playRecord()" class="btn btn-success" disabled>
-	            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
-	            	</button>
-	            	
-	            	<audio id="tocadorAudio" src="">
-						<p>Seu navegador não suporta o elemento audio</p>
-					</audio>
+					<label for="divAudio" class="control-label">Senha falada</label>
+					<div class="well well-sm" id="divAudio">
+						<input type="hidden" th:field="*{nomeAudio}" id="audio"/>
+						
+		          		<span id="timer" style="padding-right: 20px;">3.000 segundos</span>
+		            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
+		            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-warning" disabled>
+		            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	<button type="button" id="play" onclick="playRecord()" class="btn btn-success" disabled>
+		            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	
+		            	<audio id="tocadorAudio" src=""></audio>
+					</div>
 	          	</div>
 			</div>
 			
@@ -152,7 +153,7 @@
 				</div>	
 			</div>
 						
-			<button type="submit" class="btn  btn-primary">Salvar</button>
+			<button type="submit" class="btn  btn-primary" onclick="salvarAudio()">Salvar</button>
 		</form>
 	</div>
 </section>
@@ -169,6 +170,7 @@
 	<script>
 		$('.js-status').bootstrapSwitch();
 		carregarAudio();
+		verificarMicrofone();
 	</script>
 </th:block>
 </html>

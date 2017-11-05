@@ -43,7 +43,8 @@
 			<div class="row">
 				<div class="form-group  col-sm-2" brewer:classforerror="codigo">
 					<label for="codigo" class="control-label">Código</label>
-					<input type="text" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}"/>
+					<input type="text" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}" 
+							th:disabled="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}"/>
 				</div>
 				
 				<div class="form-group  col-sm-7  bw-required" brewer:classforerror="descricao">
@@ -58,7 +59,7 @@
 			</div>
 			
 			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
-				<div class="form-group  col-sm-6 bw-required" brewer:classforerror="estabelecimento.codigo">
+				<div class="form-group  col-sm-9 bw-required" brewer:classforerror="estabelecimento.codigo">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
 					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
 						<option value="">Selecione o estabelecimento</option>

@@ -41,10 +41,12 @@
 			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" type="hidden" th:field="*{id.estabelecimento.codigo}"/>
 						
 			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
-				<div class="form-group  col-sm-6 bw-required" brewer:classforerror="id.estabelecimento.codigo">
+				<div class="form-group  col-sm-4 bw-required" brewer:classforerror="id.estabelecimento.codigo">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
-					<select id="estabelecimento" class="form-control" th:field="*{id.estabelecimento.codigo}">
-						<option value="">Selecione o estabelecimento</option>
+					<select id="estabelecimento" class="form-control  js-container-estabelecimento" 
+							th:field="*{id.estabelecimento.codigo}" th:attr="data-url-audios=@{/autorizacoes/estabelecimento/}"
+							th:disabled="${!autorizacao.novo}">
+						<option value="">Selecione um estabelecimento</option>						
 						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
 					</select>
 				</div>	
@@ -53,7 +55,7 @@
 			<div class="row">
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="id.usuario">
 					<label for="usuario" class="control-label">Usuário</label>
-					<select id="usuario" class="form-control" th:field="*{id.usuario.codigo}">
+					<select id="usuario" class="form-control" th:field="*{id.usuario.codigo}" th:disabled="${!autorizacao.novo}">
 						<option value="">Selecione um usuário</option>
 						<option th:each="usuario : ${usuarios}" th:value="${usuario.codigo}" th:text="${usuario.codigoNome}"></option>
 					</select>
@@ -61,7 +63,7 @@
 					
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="id.porta">
 					<label for="porta" class="control-label">Porta</label>
-					<select id="porta" class="form-control" th:field="*{id.porta.codigo}">
+					<select id="porta" class="form-control" th:field="*{id.porta.codigo}" th:disabled="${!autorizacao.novo}">
 						<option value="">Selecione uma porta</option>
 						<option th:each="porta : ${portas}" th:value="${porta.codigo}" th:text="${porta.codigoDescricao}"></option>
 					</select>
@@ -69,7 +71,7 @@
 					
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="tipoAutorizacao">
 					<label for="tipo" class="control-label">Tipo de autorização</label>
-					<select id="tipo" class="form-control" th:field="*{tipoAutorizacao}" onchange="changeTipo()">
+					<select id="tipo" class="form-control  js-container-tipo" th:field="*{tipoAutorizacao}">
 						<option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="${tipo.descricao}"></option>
 					</select>
 				</div>
@@ -139,11 +141,8 @@
 
 <th:block layout:fragment="javascript-extra">
 	<script>
-		window.onload = function() {
-			changeTipo();
-		}
-	
-		function changeTipo() {
+					
+		$('.js-container-tipo').change(function() {
 			var select = document.getElementById('tipo');
 			var tipo = select.options[select.selectedIndex].value;
 			
@@ -160,8 +159,19 @@
 					document.getElementById("programado").setAttribute("class", "hidden");
 					document.getElementById("temporario").setAttribute("class", "hidden");
 			}
-		}
+		});
 		
+		$('.js-container-estabelecimento').change(function() {
+			
+			if(document.getElementById("estabelecimento").selectedOptions[0].value == null 
+					|| document.getElementById("estabelecimento").selectedOptions[0].value == '') {
+				return;
+			}
+			
+			window.location.href = $('.js-container-estabelecimento').data('url-audios') + document.getElementById("estabelecimento").selectedOptions[0].value;
+			
+		});
+				
 		$('.js-date').datepicker({
 			orientation: 'bottom',
 			language: 'pt-BR',

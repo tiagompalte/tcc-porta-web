@@ -25,11 +25,6 @@ public class AudioControle {
 		thread.start();
 	}
 	
-	@GetMapping("/temp/{nome:.*}")
-	public byte[] recuperarAudioTemporaria(@PathVariable String nome) {
-		return audioStorage.recuperarAudioTemporaria(nome);
-	}
-	
 	@GetMapping("/{nome:.*}")
 	public byte[] recuperar(@PathVariable String nome) {
 		return audioStorage.recuperar(nome);

@@ -32,6 +32,7 @@ import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.UsuarioServico;
 import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
+import br.com.utfpr.porta.servico.excecao.RfidUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.SenhaObrigatoriaUsuarioExcecao;
 import br.com.utfpr.porta.storage.AudioStorage;
 
@@ -94,21 +95,17 @@ public class UsuarioControle {
 			}
 			
 			usuarioServico.salvar(usuario);
-			
-			if(StringUtils.isEmpty(usuario.getNomeAudio())) {
-				throw new NullPointerException("É obrigatório gravar a senha falada");
-			}
-			else {
-				audioStorage.salvar(usuario.getNomeAudio());
-			}
-						
+									
 		} catch (EmailUsuarioJaCadastradoExcecao e) {
 			result.rejectValue("email", e.getMessage(), e.getMessage());
 			return novo(usuario);
 		} catch (SenhaObrigatoriaUsuarioExcecao e) {
 			result.rejectValue("senha", e.getMessage(), e.getMessage());
 			return novo(usuario);
-		} catch(NullPointerException e) {
+		} catch (RfidUsuarioJaCadastradoExcecao e) {
+			result.rejectValue("rfid", e.getMessage(), e.getMessage());
+			return novo(usuario);
+		} catch (NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(usuario);
 		} 
@@ -171,7 +168,7 @@ public class UsuarioControle {
 			
 		} catch (ImpossivelExcluirEntidadeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} 
 		return ResponseEntity.ok().build();
