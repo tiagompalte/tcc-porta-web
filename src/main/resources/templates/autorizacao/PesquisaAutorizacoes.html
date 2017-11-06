@@ -33,9 +33,9 @@
 	
 	<div class="container-fluid">
 		<form method="GET" th:object="${autorizacaoFiltro}" th:action="@{/autorizacoes}">
-		
+				
 			<div class="row">
-				<div class="form-group  col-sm-4" brewer:classforerror="usuario">
+				<div class="form-group  col-sm-4">
 					<label for="usuario" class="control-label">Usuário</label>
 					<select id="usuario" class="form-control" th:field="*{usuario.codigo}">
 						<option value="">Selecione um usuário</option>
@@ -43,7 +43,7 @@
 					</select>
 				</div>
 					
-				<div class="form-group  col-sm-4" brewer:classforerror="porta">
+				<div class="form-group  col-sm-4">
 					<label for="porta" class="control-label">Porta</label>
 					<select id="porta" class="form-control" th:field="*{porta.codigo}">
 						<option value="">Selecione uma porta</option>
@@ -51,7 +51,7 @@
 					</select>
 				</div>
 					
-				<div class="form-group  col-sm-4" brewer:classforerror="tipoAutorizacao">
+				<div class="form-group  col-sm-4">
 					<label for="tipo" class="control-label">Tipo de autorização</label>
 					<select id="tipo" class="form-control" th:field="*{tipoAutorizacao}">
 						<option value="">Selecione um tipo de autorização</option>

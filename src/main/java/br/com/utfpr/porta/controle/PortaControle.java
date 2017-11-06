@@ -1,5 +1,7 @@
 package br.com.utfpr.porta.controle;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -111,13 +113,16 @@ public class PortaControle {
 			@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest) {
 		
 		ModelAndView mv = new ModelAndView("/porta/PesquisaPortas");
-		
+		 
 		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
 			portaFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
+		else {
+			List<Estabelecimento> listaEstabelecimentos = estabelecimentosRepositorio.findAll();
+			mv.addObject("estabelecimentos", listaEstabelecimentos);
+		}
 				
-		PageWrapper<Porta> paginaWrapper = new PageWrapper<>(
-				portaRepositorio.filtrar(portaFiltro, pageable), httpServletRequest);
+		PageWrapper<Porta> paginaWrapper = new PageWrapper<>(portaRepositorio.filtrar(portaFiltro, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
 	}
@@ -151,10 +156,14 @@ public class PortaControle {
 		
 		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
 			Porta porta = portaRepositorio.findOne(codigo);
-			Estabelecimento estabelecimento = new Estabelecimento();
-			estabelecimento.setCodigo(Long.parseLong("1"));
-			porta.setEstabelecimento(estabelecimento);
-			portaRepositorio.save(porta);
+			Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(Long.parseLong("1"));
+			try {				
+				portaServico.modificarEstabelecimento(porta, estabelecimento);
+			} catch (ImpossivelExcluirEntidadeException e) {
+				return ResponseEntity.badRequest().body(e.getMessage());
+			} catch(NullPointerException e) {
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}			
 		}
 		else {
 			try {

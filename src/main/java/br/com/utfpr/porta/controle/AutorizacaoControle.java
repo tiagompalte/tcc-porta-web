@@ -160,15 +160,27 @@ public class AutorizacaoControle {
 	public ModelAndView pesquisar(AutorizacaoFiltro autorizacaoFiltro, @PageableDefault(size = 5) Pageable pageable,
 			HttpServletRequest httpServletRequest) {
 		
-		ModelAndView mv = new ModelAndView("/autorizacao/PesquisaAutorizacoes");		
-		carregarDependencias(mv, null);
+		ModelAndView mv = new ModelAndView("/autorizacao/PesquisaAutorizacoes");
+		
+		List<Usuario> listaUsuarios = null;
+		List<Porta> listaPortas = null;
 		
 		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
 			autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			listaPortas = portasRepositorio.findByEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		}
+		else {
+			listaUsuarios = usuariosRepositorio.findAll();
+			listaPortas = portasRepositorio.findAll();
 		}
 		
-		PageWrapper<Autorizacao> paginaWrapper = new PageWrapper<>(autorizacoesRepositorio.filtrar(autorizacaoFiltro, pageable)
-				, httpServletRequest);
+		mv.addObject("usuarios", listaUsuarios);
+		mv.addObject("portas", listaPortas);
+		mv.addObject("tipos", TipoAutorizacao.values());
+		
+		PageWrapper<Autorizacao> paginaWrapper = new PageWrapper<>(
+				autorizacoesRepositorio.filtrar(autorizacaoFiltro, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
 	}

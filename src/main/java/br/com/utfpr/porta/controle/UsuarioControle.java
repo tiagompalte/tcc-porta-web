@@ -89,9 +89,15 @@ public class UsuarioControle {
 		
 		try {
 			
-			if(usuario.isNovo()) {
+			if(usuario.isNovo() || (!usuario.isNovo() && !StringUtils.isEmpty(usuario.getSenha()))) {
 				usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
 				usuario.setConfirmacaoSenha(usuario.getSenha());
+			}
+			else if(StringUtils.isEmpty(usuario.getSenha())) {
+				Usuario usuarioBase = usuariosRepositorio.findOne(usuario.getCodigo());
+				if(usuarioBase != null) {
+					usuario.setSenha(usuarioBase.getSenha());
+				}
 			}
 			
 			usuarioServico.salvar(usuario);
