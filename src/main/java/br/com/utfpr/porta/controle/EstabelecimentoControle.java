@@ -36,7 +36,7 @@ public class EstabelecimentoControle {
 	
 	@Autowired
 	private EstabelecimentoServico estabelecimentoServico;
-	
+		
 	@RequestMapping("/novo")
 	public ModelAndView novo(Estabelecimento estabelecimento) {
 		ModelAndView mv = new ModelAndView("estabelecimento/CadastroEstabelecimento");
@@ -82,7 +82,7 @@ public class EstabelecimentoControle {
 		mv.addObject(estabelecimento);		
 		return mv;
 	}
-	
+		
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
 		try {
@@ -94,5 +94,5 @@ public class EstabelecimentoControle {
 		}
 		return ResponseEntity.ok().build();
 	}
-
+	
 }

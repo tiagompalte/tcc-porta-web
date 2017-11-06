@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,9 @@ import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.UsuarioServico;
 import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
+import br.com.utfpr.porta.servico.excecao.RfidUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.SenhaObrigatoriaUsuarioExcecao;
+import br.com.utfpr.porta.storage.AudioStorage;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -51,6 +54,9 @@ public class UsuarioControle {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private AudioStorage audioStorage;
 	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Usuario usuario) {
@@ -83,23 +89,32 @@ public class UsuarioControle {
 		
 		try {
 			
-			if(usuario.isNovo()) {
+			if(usuario.isNovo() || (!usuario.isNovo() && !StringUtils.isEmpty(usuario.getSenha()))) {
 				usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
 				usuario.setConfirmacaoSenha(usuario.getSenha());
 			}
+			else if(StringUtils.isEmpty(usuario.getSenha())) {
+				Usuario usuarioBase = usuariosRepositorio.findOne(usuario.getCodigo());
+				if(usuarioBase != null) {
+					usuario.setSenha(usuarioBase.getSenha());
+				}
+			}
 			
 			usuarioServico.salvar(usuario);
-			
+									
 		} catch (EmailUsuarioJaCadastradoExcecao e) {
 			result.rejectValue("email", e.getMessage(), e.getMessage());
 			return novo(usuario);
 		} catch (SenhaObrigatoriaUsuarioExcecao e) {
 			result.rejectValue("senha", e.getMessage(), e.getMessage());
 			return novo(usuario);
-		} catch(NullPointerException e) {
+		} catch (RfidUsuarioJaCadastradoExcecao e) {
+			result.rejectValue("rfid", e.getMessage(), e.getMessage());
+			return novo(usuario);
+		} catch (NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(usuario);
-		}
+		} 
 		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
 		return new ModelAndView("redirect:/usuarios/novo");
@@ -136,19 +151,32 @@ public class UsuarioControle {
 		}
 		
 		ModelAndView mv = novo(usuario);
-		mv.addObject(usuario);		
+		mv.addObject(usuario);
 		return mv;
 	}
 	
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
+		
 		try {
+			
+			Usuario usuario = usuariosRepositorio.findOne(codigo);
+			
+			if(usuario == null || usuario.getCodigo() == null) {
+				throw new NullPointerException("Usuário não encontrado");
+			}
+			
 			usuarioServico.excluir(codigo);
+			
+			if(StringUtils.isEmpty(usuario.getNomeAudio()) == false) {
+				audioStorage.excluir(usuario.getNomeAudio());
+			}			
+			
 		} catch (ImpossivelExcluirEntidadeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+		} 
 		return ResponseEntity.ok().build();
 	}
 		

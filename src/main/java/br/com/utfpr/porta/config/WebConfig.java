@@ -109,12 +109,10 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		return cacheManager;
 	}
 	
-//	@Bean
-//	public MessageSource messageSource() {
-//		ReloadableResourceBundleMessageSource bundle = new ReloadableResourceBundleMessageSource();
-//		bundle.setBasename("classpath:/messages");
-//		bundle.setDefaultEncoding("UTF-8"); // http://www.utf8-chartable.de/
-//		return bundle;
-//	}
+	//@Scheduled(cron="0 0 0 * * SUN-SAT") //segundo, minuto, hora, dia, mês, dia da semana 
+	//public void limpezaBaseDadosAutorizacoesTemporarias() {
+		//thread para limpeza da base de dados de autorizações temporárias já realizadas
+    
+	//}
 
 }

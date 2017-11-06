@@ -1,7 +1,7 @@
 package br.com.utfpr.porta.controle;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,10 +26,12 @@ import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Autorizacao;
 import br.com.utfpr.porta.modelo.AutorizacaoId;
 import br.com.utfpr.porta.modelo.DiaSemana;
+import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Porta;
 import br.com.utfpr.porta.modelo.TipoAutorizacao;
 import br.com.utfpr.porta.modelo.Usuario;
 import br.com.utfpr.porta.repositorio.Autorizacoes;
+import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.Portas;
 import br.com.utfpr.porta.repositorio.Usuarios;
 import br.com.utfpr.porta.repositorio.filtro.AutorizacaoFiltro;
@@ -56,30 +58,47 @@ public class AutorizacaoControle {
 	@Autowired
 	private Portas portasRepositorio;
 	
+	@Autowired
+	private Estabelecimentos estabelecimentosRepositorio;
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Autorizacao autorizacao) {				
 		ModelAndView mv = new ModelAndView("autorizacao/CadastroAutorizacao");		
-		carregarDependencias(mv);		
+		carregarDependencias(mv, autorizacao);		
 		return mv;
 	}
 
-	private void carregarDependencias(ModelAndView mv) {
+	private void carregarDependencias(ModelAndView mv, Autorizacao autorizacao) {
 		
 		mv.addObject("tipos", TipoAutorizacao.values());
 		mv.addObject("dias", DiaSemana.values());
 		
-		List<Usuario> usuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-		if(usuarios == null) {
-			usuarios = new ArrayList<>();
+		List<Estabelecimento> estabelecimentos = null;
+		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+			estabelecimentos = estabelecimentosRepositorio.findAll();
+			mv.addObject("estabelecimentos", estabelecimentos);
+		}	
+		
+		Estabelecimento estabelecimento = null;
+		if(estabelecimentos == null) {
+			estabelecimento = UsuarioSistema.getUsuarioLogado().getEstabelecimento();
+		}
+		else if(autorizacao != null && autorizacao.getId() != null && autorizacao.getId().getEstabelecimento() != null) {
+			estabelecimento = autorizacao.getId().getEstabelecimento();
 		}
 		
-		List<Porta> portas = portasRepositorio.findByEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-		if(portas == null) {
-			portas = new ArrayList<>();
-		}
+		if(estabelecimento != null) {
+			List<Usuario> usuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(estabelecimento);
+			if(usuarios != null && usuarios.isEmpty() == false) {
+				mv.addObject("usuarios", usuarios);
+			}
+			
+			List<Porta> portas = portasRepositorio.findByEstabelecimento(estabelecimento);
+			if(portas != null && portas.isEmpty() == false) {
+				mv.addObject("portas", portas);
+			}
+		}	
 				
-		mv.addObject("usuarios", usuarios);
-		mv.addObject("portas", portas);
 	}
 	
 	@PostMapping({ "/novo", "{\\+d}" })
@@ -91,7 +110,7 @@ public class AutorizacaoControle {
 		
 		try {
 			
-			if(autorizacao.isNovo()) {
+			if(autorizacao.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
 				autorizacao.getId().setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 			}
 						
@@ -136,50 +155,70 @@ public class AutorizacaoControle {
 		attributes.addFlashAttribute("mensagem", "Autorização salva com sucesso");
 		return new ModelAndView("redirect:/autorizacoes/novo");
 	}
-	
+		
 	@GetMapping
 	public ModelAndView pesquisar(AutorizacaoFiltro autorizacaoFiltro, @PageableDefault(size = 5) Pageable pageable,
 			HttpServletRequest httpServletRequest) {
 		
-		ModelAndView mv = new ModelAndView("/autorizacao/PesquisaAutorizacoes");		
-		carregarDependencias(mv);
+		ModelAndView mv = new ModelAndView("/autorizacao/PesquisaAutorizacoes");
+		
+		List<Usuario> listaUsuarios = null;
+		List<Porta> listaPortas = null;
 		
 		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
 			autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			listaPortas = portasRepositorio.findByEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		}
+		else {
+			listaUsuarios = usuariosRepositorio.findAll();
+			listaPortas = portasRepositorio.findAll();
 		}
 		
-		PageWrapper<Autorizacao> paginaWrapper = new PageWrapper<>(autorizacoesRepositorio.filtrar(autorizacaoFiltro, pageable)
-				, httpServletRequest);
+		mv.addObject("usuarios", listaUsuarios);
+		mv.addObject("portas", listaPortas);
+		mv.addObject("tipos", TipoAutorizacao.values());
+		
+		PageWrapper<Autorizacao> paginaWrapper = new PageWrapper<>(
+				autorizacoesRepositorio.filtrar(autorizacaoFiltro, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
 	}
 	
 	@GetMapping("/{codigoUsuario}/{codigoPorta}/{sequencia}")
-	public ModelAndView editar(@PathVariable Long codigoUsuario, @PathVariable Long codigoPorta, 
-			@PathVariable Long sequencia) {
+	public ModelAndView editar(@PathVariable Long codigoUsuario, @PathVariable Long codigoPorta, @PathVariable Long sequencia) {
 		
-		Usuario usr = new Usuario();
-		usr.setCodigo(codigoUsuario);		
+		ModelAndView mv = new ModelAndView("autorizacao/CadastroAutorizacao");
+		
+		Usuario usuario = new Usuario();
+		usuario.setCodigo(codigoUsuario);
+		
 		Porta porta = new Porta();
-		porta.setCodigo(codigoPorta);
+		porta.setCodigo(codigoPorta);		
 		
-		AutorizacaoId id = new AutorizacaoId();		
-		id.setUsuario(usr);
-		id.setPorta(porta);
-		
-		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-			usr = usuariosRepositorio.findOne(codigoUsuario);
-			id.setEstabelecimento(usr.getEstabelecimento());
-		}
-		else {
-			id.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-		}
-		
+		List<Usuario> usuarios = Arrays.asList(usuario);
+		List<Porta> portas = Arrays.asList(porta);
+		List<Estabelecimento> estabelecimentos = Arrays.asList(usuario.getEstabelecimento());
+				
+		AutorizacaoId id = new AutorizacaoId();
 		id.setSequencia(sequencia);
-		
+		id.setUsuario(usuario);
+		id.setPorta(porta);
+		id.setEstabelecimento(usuario.getEstabelecimento());
+						
 		Autorizacao autorizacao = autorizacoesRepositorio.findOne(id);
-		ModelAndView mv = novo(autorizacao);
-		mv.addObject(autorizacao);		
+		
+		if(autorizacao == null) {
+			mv = new ModelAndView("redirect:/500");
+			return mv;
+		}
+		
+		mv.addObject(autorizacao);
+		mv.addObject("tipos", TipoAutorizacao.values());
+		mv.addObject("dias", DiaSemana.values());
+		mv.addObject("usuarios", usuarios);
+		mv.addObject("portas", portas);
+		mv.addObject("estabelecimentos", estabelecimentos);
 		return mv;
 	}
 	
@@ -211,6 +250,47 @@ public class AutorizacaoControle {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/estabelecimento/{codigoEstabelecimento}")
+	public ModelAndView modificarListaUsuariosPortasPorEstabelecimento(@PathVariable Long codigoEstabelecimento) {
+		
+		Autorizacao autorizacao = new Autorizacao();
+		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+			return novo(autorizacao);
+		}
+		
+		ModelAndView mv = new ModelAndView("autorizacao/CadastroAutorizacao");	
+		
+		mv.addObject("tipos", TipoAutorizacao.values());
+		mv.addObject("dias", DiaSemana.values());
+		
+		Estabelecimento estabelecimento = estabelecimentosRepositorio.findByCodigo(codigoEstabelecimento);
+		
+		List<Estabelecimento> listaEstabelecimentos = estabelecimentosRepositorio.findAll();
+		mv.addObject("estabelecimentos", listaEstabelecimentos);
+		
+		if(estabelecimento == null) {
+			mv.addObject("autorizacao", autorizacao);
+			return mv;
+		}
+		
+		AutorizacaoId id = new AutorizacaoId();
+		id.setEstabelecimento(estabelecimento);
+		autorizacao.setId(id);
+		mv.addObject("autorizacao", autorizacao);
+		
+		List<Porta> listaPortas = portasRepositorio.findByEstabelecimento(estabelecimento);
+		if(listaPortas != null) {			
+			mv.addObject("portas", listaPortas);
+		}
+		
+		List<Usuario> listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(estabelecimento);
+		if(listaUsuarios != null) {
+			mv.addObject("usuarios", listaUsuarios);
+		}
+		
+		return mv;
 	}
 	
 }

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>br.com.utfpr</groupId>
   <artifactId>porta-web</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <packaging>war</packaging>
   <name>PortaWeb</name>
   <description>Página web do projeto de TCC</description>
@@ -46,14 +46,14 @@
 		<guava.version>19.0</guava.version>
 		
 		<!-- Porta Serviço -->
-		<portaservico.version>1.0.1</portaservico.version>
+		<portaservico.version>1.0.3</portaservico.version>
 		
 		<!-- Apache Commons DBCP -->
 		<commons-dbcp2.version>2.1.1</commons-dbcp2.version>
 		
 		<!-- MySQL Connector -->
 		<mysql-connector-java.version>5.1.39</mysql-connector-java.version>
-				
+						
 	</properties>
 	
 	<build>

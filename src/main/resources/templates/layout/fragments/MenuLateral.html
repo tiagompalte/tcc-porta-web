@@ -21,25 +21,6 @@
           			</a>
           			
           			<ul class="aw-menu__list  aw-menu__list--sublist">
-			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/autorizacoes.*}">
-			            	<a th:href="@{/autorizacoes}">Autorizações</a>
-			            </li>
-          			</ul>
-          			
-          			<ul class="aw-menu__list  aw-menu__list--sublist" 
-          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
-			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/estabelecimentos.*}">
-			            	<a th:href="@{/estabelecimentos}">Estabelecimentos</a>
-			            </li>
-          			</ul>
-          			
-          			<ul class="aw-menu__list  aw-menu__list--sublist">
-			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/logs.*}">
-			            	<a th:href="@{/logs}">Log</a>
-			            </li>
-          			</ul>
-          			
-          			<ul class="aw-menu__list  aw-menu__list--sublist">
 			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/portas.*}">
 			            	<a th:href="@{/portas}">Portas</a>
 			            </li>
@@ -51,6 +32,23 @@
 			            </li>
           			</ul>
           			
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/autorizacoes.*}">
+			            	<a th:href="@{/autorizacoes}">Autorizações</a>
+			            </li>
+          			</ul>
+          			
+          			<ul class="aw-menu__list  aw-menu__list--sublist" 
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/estabelecimentos.*}">
+			            	<a th:href="@{/estabelecimentos}">Estabelecimentos</a>
+			            </li>
+          			</ul>
+          			          			
+        		</li>
+        		
+        		<li class="aw-menu__item" brewer:menu="@{/logs.*}">
+          			<a th:href="@{/logs}"><i class="fa  fa-fw  fa-history"></i><span>Logs</span></a>
         		</li>
         		
       		</ul>

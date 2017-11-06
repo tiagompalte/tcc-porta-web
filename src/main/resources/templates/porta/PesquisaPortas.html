@@ -33,6 +33,17 @@
 	
 	<div class="container-fluid">
 		<form method="GET" th:object="${portaFiltro}" th:action="@{/portas}">
+			
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+				<div class="form-group  col-sm-6">
+					<label for="estabelecimento" class="control-label">Estabelecimento</label>
+					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
+						<option value="">Selecione o estabelecimento</option>
+						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
+					</select>
+				</div>	
+			</div>
+		
 			<div class="row">
 				<div class="form-group  col-sm-6">
 					<label class="control-label" for="descricao">Descrição</label>
@@ -99,7 +110,6 @@
 	</div>
 </section>
 <th:block layout:fragment="javascript-extra">
-	<script th:src="@{/javascripts/multiselecao.js}"></script>
 </th:block>
 </body>
 </html>

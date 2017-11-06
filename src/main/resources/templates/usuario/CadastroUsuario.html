@@ -25,7 +25,7 @@
 				<div class="col-xs-2">
 					<div class="aw-page-header-controls">
 						<a class="btn  btn-default" th:href="@{/usuarios}">
-							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
+							<i class="glyphicon glyphicon-search"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
 						</a>
 					</div>
 				</div>
@@ -115,6 +115,34 @@
 				</div>								
 			</div>	
 						
+			<div class="row">	
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
+					<label for="rfid" class="control-label">RFID</label>
+					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
+				</div>	
+				
+				<div class="form-group  col-sm-6  js-container-audio  bw-required" th:attr="data-url-audios=@{/audios}">
+					
+					<label for="divAudio" class="control-label">Senha falada</label>
+					<div class="well well-sm" id="divAudio">
+						<input type="hidden" th:field="*{nomeAudio}" id="audio"/>
+						
+		          		<span id="timer" style="padding-right: 20px;">3.000 segundos</span>
+		            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
+		            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-warning" disabled>
+		            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	<button type="button" id="play" onclick="playRecord()" class="btn btn-success" disabled>
+		            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	
+		            	<audio id="tocadorAudio" src=""></audio>
+					</div>
+	          	</div>
+			</div>
+			
 			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
 				<div class="form-group  col-sm-6 bw-required" brewer:classforerror="estabelecimento.codigo">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
@@ -124,16 +152,8 @@
 					</select>
 				</div>	
 			</div>
-			
-			
-			<div class="row">	
-				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
-					<label for="rfid" class="control-label">RFID</label>
-					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
-				</div>	
-			</div>
 						
-			<button type="submit" class="btn  btn-primary">Salvar</button>
+			<button type="submit" class="btn  btn-primary" onclick="salvarAudio()">Salvar</button>
 		</form>
 	</div>
 </section>
@@ -141,8 +161,16 @@
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
 	<script th:src="@{/javascripts/vendors/bootstrap-switch.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>
+	<script th:src="@{/javascripts/vendors/easytimer.min.js}"></script>
+	<script th:src="@{/javascripts/gravador.js}"></script>
+	
 	<script>
-		$('.js-status').bootstrapSwitch();		
+		$('.js-status').bootstrapSwitch();
+		carregarAudio();
+		verificarMicrofone();
 	</script>
 </th:block>
 </html>
