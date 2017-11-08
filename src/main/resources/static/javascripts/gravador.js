@@ -36,6 +36,7 @@ function carregarAudio() {
 
 function verificarMicrofone() {
 	mic = new p5.AudioIn();
+	mic.start();
 }
 
 function startTimer() {
@@ -62,7 +63,6 @@ function startRecording() {
 		return;
 	}
 	
-	mic.start();
 	recorder = new p5.SoundRecorder();
 	recorder.setInput(mic);
 	soundFile = new p5.SoundFile();
@@ -83,7 +83,8 @@ function stopRecording() {
 	
 	if(document.getElementById('audio').value == null || document.getElementById('audio').value === '') {
 		document.getElementById('audio').value = generateUUID() + ".wav";
-	}	
+	}
+	
 }
 
 function playRecord() {
