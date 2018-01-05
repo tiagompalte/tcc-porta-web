@@ -93,7 +93,7 @@ Brewer.Security = (function() {
 Brewer.MaskSenha = (function() {
 	
 	function MaskSenha() {
-		this.inputSenha = $('.js-senha');
+		this.inputSenha = $('.js-senha-teclado');
 	}
 	
 	MaskSenha.prototype.enable = function() {

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutSimples2}"
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data">
+
+<head>
+	<title>Novo usuário</title>
+	
+	<link rel="stylesheet" type="text/css" th:href="@{/stylesheets/vendors/bootstrap-switch.min.css}"/>
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-12">
+					<h1>Novo usuário</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="POST" th:object="${usuario}" th:action="@{/salvarNovoUsuario}">
+			
+			<brewer:message/>
+			
+			<input type="hidden" th:field="*{codigo}"/>
+			<input type="hidden" th:field="*{pessoa.codigo}" id="codigoPessoa"/>
+										
+			<div class="row">
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
+					<label for="cpfOuCnpj" class="control-label">CPF</label>
+					<input type="text" class="form-control js-cpf" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
+							data:url="@{/pessoas}" th:field="*{pessoa.cpfOuCnpj}" />
+				</div>
+				
+				<div class="form-group  col-sm-8  bw-required" brewer:classforerror="pessoa.nome">
+					<label for="nomePessoa" class="control-label">Nome</label>
+					<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{pessoa.nome}"/>
+				</div>				
+			</div>
+								
+			<div class="row">
+				<div class="form-group  col-sm-4" brewer:classforerror="pessoa.telefone">
+					<label for="telefone" class="control-label">Telefone</label>
+					<input type="text" class="form-control js-phone-number" id="telefone" th:field="*{pessoa.telefone}"/>
+				</div>	
+				
+				<div class="form-group  col-sm-4" brewer:classforerror="pessoa.dataNascimento">
+					<label for="dataNascimento" class="control-label">Data de nascimento</label>
+					<input type="text" class="form-control  js-date" id="dataNascimento" th:field="*{pessoa.dataNascimento}" autocomplete="off"/>
+				</div>	
+				
+				<div class="form-group col-sm-4" brewer:classforerror="pessoa.genero">
+					<label for="genero" class="control-label">Gênero</label>
+					<select id="genero" class="form-control" th:field="*{pessoa.genero}">
+						<option value="">Selecione o gênero</option>
+						<option th:each="genero : ${generos}" th:value="${genero}" th:text="${genero.descricao}"></option>
+					</select>
+				</div>			
+			</div>
+			
+			<div class="row">			
+				<div class="form-group  col-sm-12  bw-required" brewer:classforerror="email">
+					<label for="email" class="control-label">E-mail</label>
+					<input type="text" class="form-control" id="email" th:field="*{email}"/>
+				</div>	
+			</div>
+			
+			<div class="row">
+				<div class="form-group  col-sm-6" brewer:classforerror="senhaSite" th:classappend="bw-required">
+					<label for="senhaSite" class="control-label">Senha do site</label> 
+					<input type="password" class="form-control" id="senhaSite" th:field="*{senhaSite}"/>
+				</div>
+				
+				<div class="form-group  col-sm-6" brewer:classforerror="confirmacaoSenhaSite">
+					<label for="confirmacaoSenhaSite" class="control-label">Confirmação da senha do site</label> 
+					<input type="password" class="form-control" id="confirmacaoSenhaSite" th:field="*{confirmacaoSenhaSite}"/>
+				</div>													
+			</div>
+			
+			<div class="row">
+				<div class="form-group  col-sm-6" brewer:classforerror="senhaTeclado" th:classappend="bw-required">
+					<label for="senhaTeclado" class="control-label">Senha da porta</label> 
+					<input type="password" class="form-control  js-senha-teclado" id="senhaTeclado" th:field="*{senhaTeclado}"/>					
+				</div>
+				
+				<div class="form-group  col-sm-6" brewer:classforerror="confirmacaoSenhaTeclado">
+					<label for="confirmacaoSenhaTeclado" class="control-label">Confirmação da senha da porta</label> 
+					<input type="password" class="form-control  js-senha-teclado" id="confirmacaoSenhaTeclado" th:field="*{confirmacaoSenhaTeclado}"/>
+				</div>													
+			</div>	
+						
+			<div class="row">	
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
+					<label for="rfid" class="control-label">RFID</label>
+					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
+				</div>	
+				
+				<div class="form-group  col-sm-6  js-container-audio  bw-required" th:attr="data-url-audios=@{/audios}">
+					
+					<label for="divAudio" class="control-label">Senha falada</label>
+					<div class="well well-sm" id="divAudio">
+						<input type="hidden" th:field="*{nomeAudio}" id="audio"/>
+						
+		          		<span id="timer" style="padding-right: 20px;">3.000 segundos</span>
+		            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
+		            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-warning" disabled>
+		            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	<button type="button" id="play" onclick="playRecord()" class="btn btn-success" disabled>
+		            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
+		            	</button>
+		            	
+		            	<audio id="tocadorAudio" src=""></audio>
+					</div>
+	          	</div>
+			</div>
+									
+			<button type="submit" class="btn  btn-primary" onclick="salvarAudio()">Salvar</button>
+		</form>
+	</div>
+</section>
+
+<th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
+	<script th:src="@{/javascripts/vendors/bootstrap-switch.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>
+	<script th:src="@{/javascripts/vendors/easytimer.min.js}"></script>
+	<script th:src="@{/javascripts/gravador.js}"></script>
+	
+	<script>
+		$('.js-status').bootstrapSwitch();
+		carregarAudio();
+		verificarMicrofone();
+	</script>
+</th:block>
+</html>

@@ -32,6 +32,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring()
 			.antMatchers("/layout/**")
 			.antMatchers("/images/**")
+			.antMatchers("/javascripts/**")
+			.antMatchers("/stylesheets/**")
+			.antMatchers("/novoUsuario")
+			.antMatchers("/salvarNovoUsuario")
+			.antMatchers("/novoEstabelecimento")
+			.antMatchers("/salvarNovoEstabelecimento")
 			.antMatchers("/");
 	}
 	
