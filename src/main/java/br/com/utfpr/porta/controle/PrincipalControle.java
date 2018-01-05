@@ -22,7 +22,7 @@ import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.SenhaObrigatoriaUsuarioExcecao;
 
 @Controller
-public class SeguracaoControle {
+public class PrincipalControle {
 	
 	@Autowired
 	private UsuarioServico usuarioServico;
