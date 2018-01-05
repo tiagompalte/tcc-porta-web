@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.modelo.Usuario;
+import br.com.utfpr.porta.servico.EstabelecimentoServico;
 import br.com.utfpr.porta.servico.UsuarioServico;
 import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.SenhaObrigatoriaUsuarioExcecao;
@@ -26,6 +28,9 @@ public class PrincipalControle {
 	
 	@Autowired
 	private UsuarioServico usuarioServico;
+	
+	@Autowired
+	private EstabelecimentoServico estabelecimentoServico;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -90,6 +95,32 @@ public class PrincipalControle {
 			return novoUsuario(usuario);
 		} 
 		
+		return new ModelAndView("redirect:/login");
+	}
+	
+	@GetMapping("/novoEstabelecimento")
+	public ModelAndView novoEstabelecimento(Estabelecimento estabelecimento) {
+		ModelAndView mv = new ModelAndView("estabelecimento/NovoEstabelecimento");
+		mv.addObject("tiposPessoa", TipoPessoa.values());
+		mv.addObject("generos", Genero.values());
+		return mv;
+	}
+	
+	@PostMapping({ "/salvarNovoEstabelecimento", "{\\+d}" })
+	public ModelAndView salvarNovoEstabelecimento(@Valid Estabelecimento estabelecimento, BindingResult result, RedirectAttributes attributes) {
+		
+		if (result.hasErrors()) {
+			return novoEstabelecimento(estabelecimento);
+		}
+		
+		try {
+			estabelecimentoServico.salvar(estabelecimento);
+		}
+		catch(Exception e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return novoEstabelecimento(estabelecimento);
+		}
+				
 		return new ModelAndView("redirect:/login");
 	}
 	
