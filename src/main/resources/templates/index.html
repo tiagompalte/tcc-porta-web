@@ -29,12 +29,18 @@
 		<div class="container-fluid">
 	
 	    <div class="navbar-header">
-	     	<a class="navbar-brand  hidden-xs" href="#">
+	     	<a class="navbar-brand  hidden-xs" href="@{/}">
 	        	<img alt="Porta" th:src="@{/images/logo.png}"/>
 	      	</a>
 	    </div>
 	
-	    <ul class="nav navbar-nav  navbar-right">	    
+	    <ul class="nav navbar-nav  navbar-right"> 
+	    	<li>
+	    		<a th:href="@{/novoUsuario}">Novo Usuário</a>
+	    	</li>
+	    	<li>
+	    		<a th:href="@{/novoEstabelecimento}">Novo Estabelecimento</a>
+	    	</li>
 	    	<li>
 	        	<a th:href="@{/login}">Login</a>
 	      	</li> 
@@ -100,7 +106,7 @@
 
         <footer>
             <div class="container-fluid">
-				<span class="aw-footer-disclaimer">2017 Porta Eletrônica</span>
+				<span class="aw-footer-disclaimer">2018 Porta Eletrônica</span>
 			</div>
         </footer>
 

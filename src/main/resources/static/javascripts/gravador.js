@@ -5,6 +5,16 @@ var initialMillis;
 var soundFile;
 var mic;
 
+function succes(stream) {}
+
+function fail(error) {	
+	alert("Não foi encontrado nenhum microfone disponível");
+	this.divGroupAudio = document.getElementById('divGroupAudio');
+	this.divGroupAudio.style.display = 'none';
+}
+
+navigator.getUserMedia({audio : true}, succes, fail);
+
 function timer() {
     if (count <= 0) {
         clearInterval(counter);
@@ -34,11 +44,6 @@ function carregarAudio() {
 	document.getElementById('play').removeAttribute("disabled");
 }
 
-function verificarMicrofone() {
-	mic = new p5.AudioIn();
-	mic.start();
-}
-
 function startTimer() {
     clearInterval(counter);
     initialMillis = Date.now();
@@ -58,19 +63,22 @@ function resetTimer() {
 displayCount(initial);
 
 function startRecording() {	
-	
-	if(mic === undefined || mic == null) {
-		return;
+		
+	try {		
+		mic = new p5.AudioIn();
+		mic.start();	
+		recorder = new p5.SoundRecorder();
+		recorder.setInput(mic);
+		soundFile = new p5.SoundFile();
+		resetTimer();
+		startTimer();
+		recorder.record(soundFile);	
+		document.getElementById('record').setAttribute("disabled","disabled");
+		document.getElementById('cancel').removeAttribute("disabled");
 	}
-	
-	recorder = new p5.SoundRecorder();
-	recorder.setInput(mic);
-	soundFile = new p5.SoundFile();
-	resetTimer();
-	startTimer();
-	recorder.record(soundFile);	
-	document.getElementById('record').setAttribute("disabled","disabled");
-	document.getElementById('cancel').removeAttribute("disabled");
+	catch(err) {
+		alert(err);
+	}
 }
 
 function stopRecording() {	

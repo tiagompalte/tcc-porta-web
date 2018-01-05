@@ -90,17 +90,17 @@ Brewer.Security = (function() {
 	
 }());
 
-Brewer.MaskSenha = (function() {
+Brewer.MaskSenhaTeclado = (function() {
 	
-	function MaskSenha() {
-		this.inputSenha = $('.js-senha-teclado');
+	function MaskSenhaTeclado() {
+		this.inputSenhaTeclado = $('.js-senha-teclado');
 	}
 	
-	MaskSenha.prototype.enable = function() {
-		this.inputSenha.mask('0000');
+	MaskSenhaTeclado.prototype.enable = function() {
+		this.inputSenhaTeclado.mask('0000');
 	}
 	
-	return MaskSenha;
+	return MaskSenhaTeclado;
 	
 }());
 
@@ -158,8 +158,8 @@ $(function() {
 	var security = new Brewer.Security();
 	security.enable();
 	
-	var senha = new Brewer.MaskSenha();
-	senha.enable();
+	var senhaTeclado = new Brewer.MaskSenhaTeclado();
+	senhaTeclado.enable();
 	
 	var cpf = new Brewer.MaskCpf();
 	cpf.enable();

@@ -30,10 +30,10 @@ import br.com.utfpr.porta.repositorio.Usuarios;
 import br.com.utfpr.porta.repositorio.filtro.UsuarioFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.UsuarioServico;
+import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
 import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
 import br.com.utfpr.porta.servico.excecao.RfidUsuarioJaCadastradoExcecao;
-import br.com.utfpr.porta.servico.excecao.SenhaObrigatoriaUsuarioExcecao;
 import br.com.utfpr.porta.storage.AudioStorage;
 
 @Controller
@@ -68,7 +68,6 @@ public class UsuarioControle {
 		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
 		mv.addObject("tiposPessoa", TipoPessoa.values());
 		mv.addObject("generos", Genero.values());
-		mv.addObject("grupos", gruposRepositorio.findByVisivelPaginaTrue());
 		
 		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
 			mv.addObject("estabelecimentos", estabelecimentosRepositorio.findAll());
@@ -89,14 +88,14 @@ public class UsuarioControle {
 		
 		try {
 			
-			if(usuario.isNovo() || (!usuario.isNovo() && !StringUtils.isEmpty(usuario.getSenha()))) {
-				usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
-				usuario.setConfirmacaoSenha(usuario.getSenha());
+			if(usuario.isNovo() || (!usuario.isNovo() && !StringUtils.isEmpty(usuario.getSenhaSite()))) {
+				usuario.setSenhaSite(this.passwordEncoder.encode(usuario.getSenhaSite()));
+				usuario.setConfirmacaoSenhaSite(usuario.getSenhaSite());
 			}
-			else if(StringUtils.isEmpty(usuario.getSenha())) {
+			else if(StringUtils.isEmpty(usuario.getSenhaSite())) {
 				Usuario usuarioBase = usuariosRepositorio.findOne(usuario.getCodigo());
 				if(usuarioBase != null) {
-					usuario.setSenha(usuarioBase.getSenha());
+					usuario.setSenhaSite(usuarioBase.getSenhaSite());
 				}
 			}
 			
@@ -105,13 +104,13 @@ public class UsuarioControle {
 		} catch (EmailUsuarioJaCadastradoExcecao e) {
 			result.rejectValue("email", e.getMessage(), e.getMessage());
 			return novo(usuario);
-		} catch (SenhaObrigatoriaUsuarioExcecao e) {
-			result.rejectValue("senha", e.getMessage(), e.getMessage());
-			return novo(usuario);
 		} catch (RfidUsuarioJaCadastradoExcecao e) {
 			result.rejectValue("rfid", e.getMessage(), e.getMessage());
 			return novo(usuario);
-		} catch (NullPointerException e) {
+		} catch (CampoNaoInformadoExcecao e) {
+			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
+			return novo(usuario);
+		}  catch (NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(usuario);
 		} 

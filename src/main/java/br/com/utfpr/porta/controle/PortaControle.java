@@ -53,14 +53,14 @@ public class PortaControle {
 		ModelAndView mv = new ModelAndView("porta/CadastroPorta");
 		
 		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-			porta.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			//porta.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		
 		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
 			mv.addObject("estabelecimentos", estabelecimentosRepositorio.findAll());
 		}
 		else {
-			mv.addObject("estabelecimentos", UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			//mv.addObject("estabelecimentos", UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		
 		return mv;
@@ -115,7 +115,7 @@ public class PortaControle {
 		ModelAndView mv = new ModelAndView("/porta/PesquisaPortas");
 		 
 		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-			portaFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			//portaFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		else {
 			List<Estabelecimento> listaEstabelecimentos = estabelecimentosRepositorio.findAll();

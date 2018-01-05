@@ -37,7 +37,7 @@ import br.com.utfpr.porta.repositorio.Usuarios;
 import br.com.utfpr.porta.repositorio.filtro.AutorizacaoFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.AutorizacaoServico;
-import br.com.utfpr.porta.servico.excecao.CampoNuloExcecao;
+import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
 import br.com.utfpr.porta.servico.excecao.HoraInicialPosteriorHoraFinalExcecao;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
 import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
@@ -81,17 +81,17 @@ public class AutorizacaoControle {
 		
 		Estabelecimento estabelecimento = null;
 		if(estabelecimentos == null) {
-			estabelecimento = UsuarioSistema.getUsuarioLogado().getEstabelecimento();
+			estabelecimento = estabelecimentosRepositorio.findByResponsavel(UsuarioSistema.getUsuarioLogado().getPessoa());
 		}
 		else if(autorizacao != null && autorizacao.getId() != null && autorizacao.getId().getEstabelecimento() != null) {
 			estabelecimento = autorizacao.getId().getEstabelecimento();
 		}
 		
 		if(estabelecimento != null) {
-			List<Usuario> usuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(estabelecimento);
-			if(usuarios != null && usuarios.isEmpty() == false) {
-				mv.addObject("usuarios", usuarios);
-			}
+//			List<Usuario> usuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(estabelecimento);
+//			if(usuarios != null && usuarios.isEmpty() == false) {
+//				mv.addObject("usuarios", usuarios);
+//			}
 			
 			List<Porta> portas = portasRepositorio.findByEstabelecimento(estabelecimento);
 			if(portas != null && portas.isEmpty() == false) {
@@ -111,7 +111,7 @@ public class AutorizacaoControle {
 		try {
 			
 			if(autorizacao.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-				autorizacao.getId().setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+				autorizacao.getId().setEstabelecimento(autorizacao.getId().getPorta().getEstabelecimento());
 			}
 						
 			if(autorizacao.getTipoAutorizacao() != null && 
@@ -138,7 +138,7 @@ public class AutorizacaoControle {
 			
 			autorizacaoServico.salvar(autorizacao);
 		}
-		catch(CampoNuloExcecao e) {
+		catch(CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return novo(autorizacao);
 		}
@@ -166,9 +166,9 @@ public class AutorizacaoControle {
 		List<Porta> listaPortas = null;
 		
 		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-			autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-			listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-			listaPortas = portasRepositorio.findByEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			//autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			//listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			//listaPortas = portasRepositorio.findByEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		else {
 			listaUsuarios = usuariosRepositorio.findAll();
@@ -198,13 +198,13 @@ public class AutorizacaoControle {
 		
 		List<Usuario> usuarios = Arrays.asList(usuario);
 		List<Porta> portas = Arrays.asList(porta);
-		List<Estabelecimento> estabelecimentos = Arrays.asList(usuario.getEstabelecimento());
+		List<Estabelecimento> estabelecimentos = Arrays.asList(porta.getEstabelecimento());
 				
 		AutorizacaoId id = new AutorizacaoId();
 		id.setSequencia(sequencia);
 		id.setUsuario(usuario);
 		id.setPorta(porta);
-		id.setEstabelecimento(usuario.getEstabelecimento());
+		id.setEstabelecimento(porta.getEstabelecimento());
 						
 		Autorizacao autorizacao = autorizacoesRepositorio.findOne(id);
 		
@@ -234,10 +234,10 @@ public class AutorizacaoControle {
 		id.setPorta(porta);
 		
 		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-			id.setEstabelecimento(usr.getEstabelecimento());
+			//id.setEstabelecimento(usr.getEstabelecimento());
 		}
 		else {
-			id.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			//id.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		
 		id.setSequencia(sequencia);
@@ -285,10 +285,10 @@ public class AutorizacaoControle {
 			mv.addObject("portas", listaPortas);
 		}
 		
-		List<Usuario> listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(estabelecimento);
-		if(listaUsuarios != null) {
-			mv.addObject("usuarios", listaUsuarios);
-		}
+		//List<Usuario> listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(estabelecimento);
+		//if(listaUsuarios != null) {
+		//	mv.addObject("usuarios", listaUsuarios);
+		//}
 		
 		return mv;
 	}

@@ -56,7 +56,7 @@ public class LogControle {
 		}
 		
 		PageWrapper<Log> paginaWrapper = new PageWrapper<>(logsRepositorio.filtrar(
-				getUsuarioLogado().getUsuario().getEstabelecimento(), dataHoraInicio, dataHoraFinal, pageable), 
+				logFiltro.getEstabelecimento(), dataHoraInicio, dataHoraFinal, pageable), 
 				httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		

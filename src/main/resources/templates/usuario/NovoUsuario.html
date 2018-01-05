@@ -31,6 +31,7 @@
 			
 			<input type="hidden" th:field="*{codigo}"/>
 			<input type="hidden" th:field="*{pessoa.codigo}" id="codigoPessoa"/>
+			<input type="hidden" th:field="*{pessoa.tipoPessoa}" th:value="${tipoPessoa}"/>
 										
 			<div class="row">
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
@@ -75,12 +76,12 @@
 			<div class="row">
 				<div class="form-group  col-sm-6" brewer:classforerror="senhaSite" th:classappend="bw-required">
 					<label for="senhaSite" class="control-label">Senha do site</label> 
-					<input type="password" class="form-control" id="senhaSite" th:field="*{senhaSite}"/>
+					<input type="password" class="form-control" id="senhaSite" th:field="*{senhaSite}" th:maxlength="12"/>
 				</div>
 				
 				<div class="form-group  col-sm-6" brewer:classforerror="confirmacaoSenhaSite">
 					<label for="confirmacaoSenhaSite" class="control-label">Confirmação da senha do site</label> 
-					<input type="password" class="form-control" id="confirmacaoSenhaSite" th:field="*{confirmacaoSenhaSite}"/>
+					<input type="password" class="form-control" id="confirmacaoSenhaSite" th:field="*{confirmacaoSenhaSite}" th:maxlength="12"/>
 				</div>													
 			</div>
 			
@@ -102,7 +103,8 @@
 					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
 				</div>	
 				
-				<div class="form-group  col-sm-6  js-container-audio  bw-required" th:attr="data-url-audios=@{/audios}">
+				<div class="form-group  col-sm-6  js-container-audio  bw-required" 
+					th:attr="data-url-audios=@{/audios}" id="divGroupAudio" brewer:classforerror="nomeAudio">
 					
 					<label for="divAudio" class="control-label">Senha falada</label>
 					<div class="well well-sm" id="divAudio">
@@ -139,9 +141,10 @@
 	<script th:src="@{/javascripts/gravador.js}"></script>
 	
 	<script>
-		$('.js-status').bootstrapSwitch();
 		carregarAudio();
-		verificarMicrofone();
+		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
+		$('#senhaTeclado').tooltip({'trigger':'focus', 'title': 'Digite 4 dígitos'});
+		$('#rfid').tooltip({'trigger':'focus', 'title': 'Código do cartão de entrada'});
 	</script>
 </th:block>
 </html>

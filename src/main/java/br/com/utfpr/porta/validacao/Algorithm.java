@@ -37,8 +37,6 @@ public class Algorithm {
 		for (i=0; i<NUM_AMOSTRAS + 2*DELAY_MAX; i++) {
 			bufferRecebido[i] = (bufferRecebido[i])/(maxValue);
 		}
-
-		return;
 	}
 
 	private static float autoCorr(float[] buffer) {

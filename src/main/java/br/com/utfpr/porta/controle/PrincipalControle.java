@@ -1,12 +1,13 @@
 package br.com.utfpr.porta.controle;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +19,11 @@ import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.modelo.Usuario;
+import br.com.utfpr.porta.repositorio.Grupos;
 import br.com.utfpr.porta.servico.EstabelecimentoServico;
 import br.com.utfpr.porta.servico.UsuarioServico;
+import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
 import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
-import br.com.utfpr.porta.servico.excecao.SenhaObrigatoriaUsuarioExcecao;
 
 @Controller
 public class PrincipalControle {
@@ -33,7 +35,7 @@ public class PrincipalControle {
 	private EstabelecimentoServico estabelecimentoServico;
 	
 	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private Grupos gruposRepositorio;
 		
 	@GetMapping("/login")
 	public String login(@AuthenticationPrincipal User user) {
@@ -65,7 +67,6 @@ public class PrincipalControle {
 	@GetMapping("/novoUsuario")
 	public ModelAndView novoUsuario(Usuario usuario) {
 		ModelAndView mv = new ModelAndView("usuario/NovoUsuario");
-		mv.addObject("tiposPessoa", TipoPessoa.values());
 		mv.addObject("generos", Genero.values());
 		return mv;
 	}
@@ -77,23 +78,22 @@ public class PrincipalControle {
 			return novoUsuario(usuario);
 		}
 		
-		try {
+		try {	
 			
-			usuario.setSenhaSite(this.passwordEncoder.encode(usuario.getSenhaSite()));
-			usuario.setConfirmacaoSenhaSite(usuario.getSenhaSite());
-			
+			usuario.setGrupos(Arrays.asList(gruposRepositorio.findByCodigo(Long.getLong("3")))); //usuário
+						
 			usuarioServico.salvar(usuario);
 									
 		} catch (EmailUsuarioJaCadastradoExcecao e) {
 			result.rejectValue("email", e.getMessage(), e.getMessage());
 			return novoUsuario(usuario);
-		} catch (SenhaObrigatoriaUsuarioExcecao e) {
-			result.rejectValue("senha_site", e.getMessage(), e.getMessage());
+		} catch (CampoNaoInformadoExcecao e) {
+			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return novoUsuario(usuario);
 		} catch (NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoUsuario(usuario);
-		} 
+		}
 		
 		return new ModelAndView("redirect:/login");
 	}
@@ -114,15 +114,17 @@ public class PrincipalControle {
 		}
 		
 		try {
+			
+			estabelecimento.getResponsavel().setGrupos(Arrays.asList(gruposRepositorio.findByCodigo(Long.parseLong("2")))); //anfitrião
+						
 			estabelecimentoServico.salvar(estabelecimento);
-		}
-		catch(Exception e) {
+			
+		} catch(Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
-		}
+		} 
 				
 		return new ModelAndView("redirect:/login");
 	}
 	
-
 }
