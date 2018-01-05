@@ -1,6 +1,7 @@
 package br.com.utfpr.porta.controle;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
+import br.com.utfpr.porta.modelo.Grupo;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.modelo.Usuario;
 import br.com.utfpr.porta.repositorio.Grupos;
@@ -71,7 +73,7 @@ public class PrincipalControle {
 		return mv;
 	}
 	
-	@PostMapping({ "/salvarNovoUsuario", "{\\+d}" })
+	@PostMapping({ "/novoUsuario", "{\\+d}" })
 	public ModelAndView salvarNovoUsuario(@Valid Usuario usuario, BindingResult result, RedirectAttributes attributes) {
 		
 		if (result.hasErrors()) {
@@ -80,7 +82,10 @@ public class PrincipalControle {
 		
 		try {	
 			
-			usuario.setGrupos(Arrays.asList(gruposRepositorio.findByCodigo(Long.getLong("3")))); //usuário
+			Grupo grupo_usuario = gruposRepositorio.findByCodigo(Long.parseLong("3"));
+			List<Grupo> lista_grupo = new ArrayList<>();
+			lista_grupo.add(grupo_usuario);			
+			usuario.setGrupos(lista_grupo);
 						
 			usuarioServico.salvar(usuario);
 									
@@ -95,6 +100,7 @@ public class PrincipalControle {
 			return novoUsuario(usuario);
 		}
 		
+		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
 		return new ModelAndView("redirect:/login");
 	}
 	
@@ -106,7 +112,7 @@ public class PrincipalControle {
 		return mv;
 	}
 	
-	@PostMapping({ "/salvarNovoEstabelecimento", "{\\+d}" })
+	@PostMapping({ "/novoEstabelecimento", "{\\+d}" })
 	public ModelAndView salvarNovoEstabelecimento(@Valid Estabelecimento estabelecimento, BindingResult result, RedirectAttributes attributes) {
 		
 		if (result.hasErrors()) {
@@ -115,7 +121,10 @@ public class PrincipalControle {
 		
 		try {
 			
-			estabelecimento.getResponsavel().setGrupos(Arrays.asList(gruposRepositorio.findByCodigo(Long.parseLong("2")))); //anfitrião
+			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(Long.parseLong("2"));
+			List<Grupo> lista_grupo = new ArrayList<>();
+			lista_grupo.add(grupo_anfitriao);			
+			estabelecimento.getResponsavel().setGrupos(lista_grupo);
 						
 			estabelecimentoServico.salvar(estabelecimento);
 			
@@ -123,7 +132,8 @@ public class PrincipalControle {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
 		} 
-				
+		
+		attributes.addFlashAttribute("mensagem", "Estabelecimento salvo com sucesso");
 		return new ModelAndView("redirect:/login");
 	}
 	

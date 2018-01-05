@@ -36,9 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/stylesheets/**")
 			.antMatchers("/pessoas/**")
 			.antMatchers("/novoUsuario")
-			.antMatchers("/salvarNovoUsuario")
 			.antMatchers("/novoEstabelecimento")
-			.antMatchers("/salvarNovoEstabelecimento")
 			.antMatchers("/");
 	}
 	
