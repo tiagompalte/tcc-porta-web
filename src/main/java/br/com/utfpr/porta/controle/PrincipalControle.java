@@ -26,6 +26,8 @@ import br.com.utfpr.porta.servico.EstabelecimentoServico;
 import br.com.utfpr.porta.servico.UsuarioServico;
 import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
 import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
+import br.com.utfpr.porta.servico.excecao.EnderecoJaCadastradoExcecao;
+import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
 
 @Controller
 public class PrincipalControle {
@@ -98,6 +100,9 @@ public class PrincipalControle {
 		} catch (NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoUsuario(usuario);
+		} catch(Exception e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return novoUsuario(usuario);
 		}
 		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
@@ -128,10 +133,22 @@ public class PrincipalControle {
 						
 			estabelecimentoServico.salvar(estabelecimento);
 			
+		} catch(NullPointerException e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return novoEstabelecimento(estabelecimento);
+		} catch(EnderecoJaCadastradoExcecao e) {
+			result.rejectValue("endereco", e.getMessage(), e.getMessage());
+			return novoEstabelecimento(estabelecimento);
+		} catch (ValidacaoBancoDadosExcecao e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return novoEstabelecimento(estabelecimento);
+		} catch (CampoNaoInformadoExcecao e) {
+			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
+			return novoEstabelecimento(estabelecimento);
 		} catch(Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
-		} 
+		}
 		
 		attributes.addFlashAttribute("mensagem", "Estabelecimento salvo com sucesso");
 		return new ModelAndView("redirect:/login");
