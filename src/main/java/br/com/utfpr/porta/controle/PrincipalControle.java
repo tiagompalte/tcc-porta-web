@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -21,7 +22,10 @@ import br.com.utfpr.porta.modelo.Genero;
 import br.com.utfpr.porta.modelo.Grupo;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.modelo.Usuario;
+import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.Grupos;
+import br.com.utfpr.porta.repositorio.Usuarios;
+import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.EstabelecimentoServico;
 import br.com.utfpr.porta.servico.UsuarioServico;
 import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
@@ -36,7 +40,13 @@ public class PrincipalControle {
 	private UsuarioServico usuarioServico;
 	
 	@Autowired
+	private Usuarios usuariosRepositorio;
+	
+	@Autowired
 	private EstabelecimentoServico estabelecimentoServico;
+	
+	@Autowired
+	private Estabelecimentos estabelecimentosRepositorio;
 	
 	@Autowired
 	private Grupos gruposRepositorio;
@@ -109,6 +119,20 @@ public class PrincipalControle {
 		return new ModelAndView("redirect:/login");
 	}
 	
+	@GetMapping("/usuarioCadastro/{codigo}")
+	public ModelAndView editarUsuario(@PathVariable Long codigo) {
+		
+		if(UsuarioSistema.getUsuarioLogado().getCodigo().compareTo(codigo) != 0) {
+			return new ModelAndView("redirect:/403");
+		}
+		
+		Usuario usuario = usuariosRepositorio.findOne(codigo);
+		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
+		mv.addObject("generos", Genero.values());
+		mv.addObject(usuario);		
+		return mv;
+	}
+	
 	@GetMapping("/novoEstabelecimento")
 	public ModelAndView novoEstabelecimento(Estabelecimento estabelecimento) {
 		ModelAndView mv = new ModelAndView("estabelecimento/NovoEstabelecimento");
@@ -117,7 +141,7 @@ public class PrincipalControle {
 		return mv;
 	}
 	
-	@PostMapping({ "/novoEstabelecimento", "{\\+d}" })
+	@PostMapping("/novoEstabelecimento")
 	public ModelAndView salvarNovoEstabelecimento(@Valid Estabelecimento estabelecimento, BindingResult result, RedirectAttributes attributes) {
 		
 		if (result.hasErrors()) {
@@ -154,4 +178,67 @@ public class PrincipalControle {
 		return new ModelAndView("redirect:/login");
 	}
 	
+	@GetMapping("/estabelecimentoCadastro/{codigo}")
+	public ModelAndView editarEstabelecimento(@PathVariable Long codigo) {
+		
+		if(UsuarioSistema.getUsuarioLogado().getEstabelecimento() != null
+				&& UsuarioSistema.getUsuarioLogado().getEstabelecimento().getCodigo().compareTo(codigo) != 0) {
+			return new ModelAndView("redirect:/403");
+		}
+		
+		Estabelecimento estabelecimento = estabelecimentosRepositorio.findByCodigo(codigo);
+		ModelAndView mv = carregarLayoutEdicaoEstabelecimento(estabelecimento);	
+		return mv;
+	}
+	
+	private ModelAndView carregarLayoutEdicaoEstabelecimento(Estabelecimento estabelecimento) {
+		ModelAndView mv = new ModelAndView("estabelecimento/CadastroEstabelecimento");
+		mv.addObject("tiposPessoa", TipoPessoa.values());
+		mv.addObject("generos", Genero.values());
+		mv.addObject(estabelecimento);		
+		return mv;
+	}
+	
+	@PostMapping("/estabelecimentoCadastro/{codigo}")
+	public ModelAndView salvarEdicaoEstabelecimento(@Valid Estabelecimento estabelecimento, BindingResult result, RedirectAttributes attributes) {
+		
+		if (result.hasErrors()) {
+			carregarLayoutEdicaoEstabelecimento(estabelecimento);
+		}
+		
+		if(UsuarioSistema.getUsuarioLogado().getEstabelecimento() != null
+				&& UsuarioSistema.getUsuarioLogado().getEstabelecimento().getCodigo().compareTo(estabelecimento.getCodigo()) != 0) {
+			return new ModelAndView("redirect:/403");
+		}
+		
+		try {
+			
+			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(Long.parseLong("2"));
+			List<Grupo> lista_grupo = new ArrayList<>();
+			lista_grupo.add(grupo_anfitriao);			
+			estabelecimento.getResponsavel().setGrupos(lista_grupo);
+			
+			estabelecimentoServico.salvar(estabelecimento);
+			
+		} catch(NullPointerException e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
+		} catch(EnderecoJaCadastradoExcecao e) {
+			result.rejectValue("endereco", e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
+		} catch (ValidacaoBancoDadosExcecao e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
+		} catch (CampoNaoInformadoExcecao e) {
+			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
+		} catch(Exception e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
+		}
+		
+		attributes.addFlashAttribute("mensagem", "Estabelecimento salvo com sucesso");
+		return new ModelAndView("redirect:/estabelecimentoCadastro/".concat(estabelecimento.getCodigo().toString()));		
+	}
+		
 }

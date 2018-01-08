@@ -35,5 +35,13 @@ public class UsuarioSistema extends User {
 	public static boolean isPossuiPermissao(String role) {		
 		return SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority(role));
 	}
+	
+	public static String getCodigoEstabelecimento() {		
+		return ((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario().getEstabelecimento().getCodigo().toString();
+	}
+	
+	public static String getCodigoUsuario() {		
+		return ((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario().getCodigo().toString();
+	}
 
 }

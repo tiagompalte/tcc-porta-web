@@ -81,7 +81,7 @@ public class AutorizacaoControle {
 		
 		Estabelecimento estabelecimento = null;
 		if(estabelecimentos == null) {
-			estabelecimento = estabelecimentosRepositorio.findByResponsavel(UsuarioSistema.getUsuarioLogado().getPessoa());
+			estabelecimento = estabelecimentosRepositorio.findByResponsavel(UsuarioSistema.getUsuarioLogado());
 		}
 		else if(autorizacao != null && autorizacao.getId() != null && autorizacao.getId().getEstabelecimento() != null) {
 			estabelecimento = autorizacao.getId().getEstabelecimento();

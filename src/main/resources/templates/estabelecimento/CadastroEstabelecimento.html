@@ -33,13 +33,18 @@
 	
 	<div class="container-fluid">
 		<form method="POST" th:object="${estabelecimento}" 
-				th:action="${estabelecimento.novo} ? @{/estabelecimentos/novo} : @{/estabelecimentos/{codigo}(codigo=${estabelecimento.codigo})}">
+				th:action="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_PROPRIO_ESTABELECIMENTO')} ? @{/estabelecimentoCadastro/{codigo}(codigo=${estabelecimento.codigo})} : (${estabelecimento.novo} ? @{/estabelecimentos/novo} : @{/estabelecimentos/{codigo}(codigo=${estabelecimento.codigo})})">
 			
 			<brewer:message/>
 			
 			<input type="hidden" th:field="*{codigo}"/>
 			<input type="hidden" th:field="*{endereco.codigo}"/>
+			<input type="hidden" th:field="*{ativo}"/>
 			<input type="hidden" th:field="*{responsavel.codigo}" id="codigoPessoa"/>
+			<input type="hidden" th:field="*{responsavel.pessoa.codigo}"/>
+			<input type="hidden" th:field="*{responsavel.ativo}"/>
+			<input type="hidden" th:field="*{responsavel.senhaTeclado}"/>
+			<input type="hidden" th:field="*{responsavel.confirmacaoSenhaTeclado}"/>
 			
 			<div class="panel panel-primary">
 				<div class="panel-heading">
@@ -92,7 +97,7 @@
 						<div class="form-group  col-sm-2 bw-required" brewer:classforerror="endereco.estado">
 							<label for="estado" class="control-label">Estado</label>
 							<input type="text" class="form-control" id="estado" th:field="*{endereco.estado}"/>
-						</div>					
+						</div>
 					</div>
 			  	</div>
 			</div>
@@ -104,20 +109,13 @@
 				<div class="panel-body">
 				
 					<div class="row">
-						<div class="form-group  col-sm-12  bw-required" brewer:classforerror="responsavel.nome">
-							<label for="nomePessoa" class="control-label">Nome</label>
-							<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{responsavel.nome}"/>
-						</div>
-					</div>
-					
-					<div class="row">
-						<div class="form-group  col-sm-4  bw-required" brewer:classforerror="responsavel.tipoPessoa">
+						<div class="form-group  col-sm-4  bw-required" brewer:classforerror="responsavel.pessoa.tipoPessoa">
 							<label class="control-label">Tipo pessoa</label> 
 							<div>
 								<th:block th:each="tipoPessoa : ${tiposPessoa}">
 									<div class="radio  radio-inline">
 										<input type="radio" th:id="|id_${tipoPessoa}|" class="js-radio-tipo-pessoa" 
-											th:field="*{responsavel.tipoPessoa}" th:value="${tipoPessoa}" data:data="${tipoPessoa.data}"
+											th:field="*{responsavel.pessoa.tipoPessoa}" th:value="${tipoPessoa}" data:data="${tipoPessoa.data}"
 											data:documento="${tipoPessoa.documento}" data:mascara="${tipoPessoa.mascara}"> 
 										<label class="control-label" th:for="|id_${tipoPessoa}|" th:text="${tipoPessoa.descricao}"></label>
 									</div>
@@ -125,32 +123,59 @@
 							</div>
 						</div>
 						
-						<div class="form-group  col-sm-8  bw-required" brewer:classforerror="responsavel.cpfOuCnpj">
+						<div class="form-group  col-sm-8  bw-required" brewer:classforerror="responsavel.pessoa.cpfOuCnpj">
 							<label for="cpfOuCnpj" class="control-label">CPF/CNPJ</label>
 							<input type="text" class="form-control" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
-									data:url="@{/pessoas}" th:field="*{responsavel.cpfOuCnpj}" disabled/>
+									data:url="@{/pessoas}" th:field="*{responsavel.pessoa.cpfOuCnpj}" disabled/>
+						</div>
+					</div>
+				
+					<div class="row">
+						<div class="form-group  col-sm-12  bw-required" brewer:classforerror="responsavel.pessoa.nome">
+							<label for="nomePessoa" class="control-label">Nome</label>
+							<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{responsavel.pessoa.nome}"/>
 						</div>
 					</div>
 					
-					<div class="row">
-						<div class="form-group  col-sm-4" brewer:classforerror="responsavel.telefone">
+					
+					<div class="row">								
+						<div class="form-group  col-sm-4" brewer:classforerror="responsavel.pessoa.telefone">
 							<label for="telefone" class="control-label">Telefone</label>
-							<input type="text" class="form-control js-phone-number" id="telefone" th:field="*{responsavel.telefone}"/>
+							<input type="text" class="form-control js-phone-number" id="telefone" th:field="*{responsavel.pessoa.telefone}"/>
 						</div>	
 						
-						<div class="form-group  col-sm-4" brewer:classforerror="responsavel.dataNascimento">
+						<div class="form-group  col-sm-4" brewer:classforerror="responsavel.pessoa.dataNascimento">
 							<label for="dataNascimento" class="control-label">Data de nascimento/fundação</label>
-							<input type="text" class="form-control  js-date" id="dataNascimento" th:field="*{responsavel.dataNascimento}" autocomplete="off"/>
-						</div>	
-						
-						<div class="form-group col-sm-4" brewer:classforerror="responsavel.genero">
+							<input type="text" class="form-control  js-date" id="dataNascimento" th:field="*{responsavel.pessoa.dataNascimento}" autocomplete="off"/>
+						</div>
+							
+						<div class="form-group col-sm-4" brewer:classforerror="responsavel.pessoa.genero" id="divGenero">
 							<label for="genero" class="control-label">Gênero</label>
-							<select id="genero" class="form-control" th:field="*{responsavel.genero}">
+							<select id="genero" class="form-control" th:field="*{responsavel.pessoa.genero}">
 								<option value="">Selecione o gênero</option>
 								<option th:each="genero : ${generos}" th:value="${genero}" th:text="${genero.descricao}"></option>
 							</select>
-						</div>			
+						</div>							
 					</div>
+					
+					<div class="row">			
+						<div class="form-group  col-sm-12  bw-required" brewer:classforerror="responsavel.email">
+							<label for="email" class="control-label">E-mail</label>
+							<input type="text" class="form-control" id="email" th:field="*{responsavel.email}"/>
+						</div>	
+					</div>
+					
+					<div class="row">
+						<div class="form-group  col-sm-6" brewer:classforerror="responsavel.senhaSite" th:classappend="bw-required">
+							<label for="senhaSite" class="control-label">Senha do site</label> 
+							<input type="password" class="form-control" id="senhaSite" th:field="*{responsavel.senhaSite}" th:maxlength="12"/>
+						</div>
+						
+						<div class="form-group  col-sm-6" brewer:classforerror="responsavel.confirmacaoSenhaSite">
+							<label for="confirmacaoSenhaSite" class="control-label">Confirmação da senha do site</label> 
+							<input type="password" class="form-control" id="confirmacaoSenhaSite" th:field="*{responsavel.confirmacaoSenhaSite}" th:maxlength="12"/>
+						</div>													
+					</div>					
 				</div>
 			</div>
 								

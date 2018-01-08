@@ -51,10 +51,7 @@ public class UsuarioControle {
 	
 	@Autowired
 	private Estabelecimentos estabelecimentosRepositorio;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
+		
 	@Autowired
 	private AudioStorage audioStorage;
 	
@@ -87,18 +84,7 @@ public class UsuarioControle {
 		}
 		
 		try {
-			
-			if(usuario.isNovo() || (!usuario.isNovo() && !StringUtils.isEmpty(usuario.getSenhaSite()))) {
-				usuario.setSenhaSite(this.passwordEncoder.encode(usuario.getSenhaSite()));
-				usuario.setConfirmacaoSenhaSite(usuario.getSenhaSite());
-			}
-			else if(StringUtils.isEmpty(usuario.getSenhaSite())) {
-				Usuario usuarioBase = usuariosRepositorio.findOne(usuario.getCodigo());
-				if(usuarioBase != null) {
-					usuario.setSenhaSite(usuarioBase.getSenhaSite());
-				}
-			}
-			
+						
 			usuarioServico.salvar(usuario);
 									
 		} catch (EmailUsuarioJaCadastradoExcecao e) {
@@ -142,12 +128,12 @@ public class UsuarioControle {
 	public ModelAndView editar(@PathVariable Long codigo) {
 		
 		Usuario usuario;
-		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+//		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
 			usuario = usuariosRepositorio.buscarComGrupos(codigo);
-		}
-		else {
-			usuario = usuariosRepositorio.buscarComGruposEstabelecimento(codigo, UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-		}
+//		}
+//		else {
+//			usuario = usuariosRepositorio.buscarComGruposEstabelecimento(codigo, UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+//		}
 		
 		ModelAndView mv = novo(usuario);
 		mv.addObject(usuario);
