@@ -85,7 +85,7 @@ public class PrincipalControle {
 		return mv;
 	}
 	
-	@PostMapping({ "/novoUsuario", "{\\+d}" })
+	@PostMapping("/novoUsuario")
 	public ModelAndView salvarNovoUsuario(@Valid Usuario usuario, BindingResult result, RedirectAttributes attributes) {
 		
 		if (result.hasErrors()) {
@@ -119,18 +119,57 @@ public class PrincipalControle {
 		return new ModelAndView("redirect:/login");
 	}
 	
+	private ModelAndView carregarLayoutEdicaoUsuario(Usuario usuario) {
+		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
+		mv.addObject("generos", Genero.values());
+		mv.addObject(usuario);		
+		return mv;
+	}
+	
 	@GetMapping("/usuarioCadastro/{codigo}")
 	public ModelAndView editarUsuario(@PathVariable Long codigo) {
 		
 		if(UsuarioSistema.getUsuarioLogado().getCodigo().compareTo(codigo) != 0) {
 			return new ModelAndView("redirect:/403");
 		}
-		
+				
 		Usuario usuario = usuariosRepositorio.findOne(codigo);
-		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
-		mv.addObject("generos", Genero.values());
-		mv.addObject(usuario);		
+		ModelAndView mv = carregarLayoutEdicaoUsuario(usuario);		
 		return mv;
+	}
+	
+	@PostMapping("/usuarioCadastro/{codigo}")
+	public ModelAndView salvarEdicaoUsuario(@Valid Usuario usuario, BindingResult result, RedirectAttributes attributes) {
+		
+		if (result.hasErrors()) {
+			return carregarLayoutEdicaoUsuario(usuario);
+		}
+		
+		try {	
+			
+			Grupo grupo_usuario = gruposRepositorio.findByCodigo(Long.parseLong("3"));
+			List<Grupo> lista_grupo = new ArrayList<>();
+			lista_grupo.add(grupo_usuario);			
+			usuario.setGrupos(lista_grupo);
+						
+			usuarioServico.salvar(usuario);
+									
+		} catch (EmailUsuarioJaCadastradoExcecao e) {
+			result.rejectValue("email", e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoUsuario(usuario);
+		} catch (CampoNaoInformadoExcecao e) {
+			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoUsuario(usuario);
+		} catch (NullPointerException e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoUsuario(usuario);
+		} catch(Exception e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return carregarLayoutEdicaoUsuario(usuario);
+		}
+		
+		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
+		return new ModelAndView("redirect:/usuarioCadastro/".concat(usuario.getCodigo().toString()));
 	}
 	
 	@GetMapping("/novoEstabelecimento")
@@ -157,10 +196,10 @@ public class PrincipalControle {
 						
 			estabelecimentoServico.salvar(estabelecimento);
 			
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
-		} catch(EnderecoJaCadastradoExcecao e) {
+		} catch (EnderecoJaCadastradoExcecao e) {
 			result.rejectValue("endereco", e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
 		} catch (ValidacaoBancoDadosExcecao e) {
@@ -169,7 +208,7 @@ public class PrincipalControle {
 		} catch (CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
 		}
@@ -220,10 +259,10 @@ public class PrincipalControle {
 			
 			estabelecimentoServico.salvar(estabelecimento);
 			
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
-		} catch(EnderecoJaCadastradoExcecao e) {
+		} catch (EnderecoJaCadastradoExcecao e) {
 			result.rejectValue("endereco", e.getMessage(), e.getMessage());
 			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
 		} catch (ValidacaoBancoDadosExcecao e) {
@@ -232,7 +271,7 @@ public class PrincipalControle {
 		} catch (CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
 		}

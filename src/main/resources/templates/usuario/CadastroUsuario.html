@@ -35,13 +35,14 @@
 	
 	<div class="container-fluid">
 		<form method="POST" th:object="${usuario}" 
-				th:action="${usuario.novo} ? @{/usuarios/novo} : @{/usuarios/{codigo}(codigo=${usuario.codigo})}">
+				th:action="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_PROPRIO_USUARIO')} ? @{/usuarioCadastro/{codigo}(codigo=${usuario.codigo})} : (${usuario.novo} ? @{/usuarios/novo} : @{/usuarios/{codigo}(codigo=${usuario.codigo})})">
 			
 			<brewer:message/>
 			
 			<input type="hidden" th:field="*{codigo}"/>
-			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" type="hidden" th:field="*{estabelecimento.codigo}"/>
+			<input type="hidden" th:field="*{estabelecimento.codigo}"/>
 			<input type="hidden" th:field="*{pessoa.codigo}" id="codigoPessoa"/>
+			<input type="hidden" th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}" th:field="*{ativo}">
 										
 			<div class="row">
 				<div class="form-group  col-sm-8  bw-required" brewer:classforerror="pessoa.nome">
@@ -94,26 +95,16 @@
 					<input type="password" class="form-control  js-senha" id="confirmacaoSenhaSite" th:field="*{confirmacaoSenhaSite}"/>
 				</div>
 				
-				<div class="form-group  col-sm-3  bw-required" brewer:classforerror="grupos">
-					<label class="control-label">Grupos</label> 
-					<div>
-						<th:block th:each="grupo : ${grupos}">
-	  						<div class="checkbox  checkbox-inline"> 
-		    					<input type="checkbox" th:value="${grupo.codigo}" th:field="*{grupos}"/>
-		    					<label th:for="${#ids.prev('grupos')}" th:text="${grupo.nome}"></label>
-	    					</div>
-	    				</th:block>
-					</div>
+				<div class="form-group  col-sm-3" brewer:classforerror="senhaTeclado" th:classappend="bw-required">
+					<label for="senhaTeclado" class="control-label">Senha da porta</label> 
+					<input type="password" class="form-control  js-senha-teclado" id="senhaTeclado" th:field="*{senhaTeclado}"/>					
 				</div>
 				
-				<div class="form-group  col-sm-3" th:if="${#authentication.principal.usuario.codigo != usuario.codigo}">
-					<label class="control-label">Ativo</label>
-					<div>
-						<input type="checkbox" class="js-status" data-size="small" data-off-color="danger" 
-							data-on-text="Ativo" data-off-text="Inativo" th:field="*{ativo}"/>
-					</div>
-				</div>								
-			</div>	
+				<div class="form-group  col-sm-3" brewer:classforerror="confirmacaoSenhaTeclado">
+					<label for="confirmacaoSenhaTeclado" class="control-label">Confirmação da senha da porta</label> 
+					<input type="password" class="form-control  js-senha-teclado" id="confirmacaoSenhaTeclado" th:field="*{confirmacaoSenhaTeclado}"/>
+				</div>
+			</div>
 						
 			<div class="row">	
 				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
@@ -121,7 +112,8 @@
 					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
 				</div>	
 				
-				<div class="form-group  col-sm-6  js-container-audio  bw-required" th:attr="data-url-audios=@{/audios}">
+				<div class="form-group  col-sm-6  js-container-audio  bw-required" 
+					th:attr="data-url-audios=@{/audios}" id="divGroupAudio" brewer:classforerror="nomeAudio">
 					
 					<label for="divAudio" class="control-label">Senha falada</label>
 					<div class="well well-sm" id="divAudio">
@@ -143,16 +135,30 @@
 	          	</div>
 			</div>
 			
-			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
-				<div class="form-group  col-sm-6 bw-required" brewer:classforerror="estabelecimento.codigo">
-					<label for="estabelecimento" class="control-label">Estabelecimento</label>
-					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
-						<option value="">Selecione o estabelecimento</option>
-						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
-					</select>
-				</div>	
+			<div class="row"
+				th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}">				
+				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="grupos">
+					<label class="control-label">Grupos</label> 
+					<div>
+						<th:block th:each="grupo : ${grupos}">
+	  						<div class="checkbox  checkbox-inline"> 
+		    					<input type="checkbox" th:value="${grupo.codigo}" th:field="*{grupos}"/>
+		    					<label th:for="${#ids.prev('grupos')}" th:text="${grupo.nome}"></label>
+	    					</div>
+	    				</th:block>
+					</div>
+				</div>
+				
+				<div class="form-group  col-sm-4" 
+					th:if="${#authentication.principal.usuario.codigo != usuario.codigo}">
+					<label class="control-label">Ativo</label>
+					<div>
+						<input type="checkbox" class="js-status" data-size="small" data-off-color="danger" 
+							data-on-text="Ativo" data-off-text="Inativo" th:field="*{ativo}"/>
+					</div>
+				</div>								
 			</div>
-						
+									
 			<button type="submit" class="btn  btn-primary" onclick="salvarAudio()">Salvar</button>
 		</form>
 	</div>

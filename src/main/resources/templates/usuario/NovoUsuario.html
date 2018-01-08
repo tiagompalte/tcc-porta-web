@@ -74,24 +74,22 @@
 			</div>
 			
 			<div class="row">
-				<div class="form-group  col-sm-6" brewer:classforerror="senhaSite" th:classappend="bw-required">
+				<div class="form-group  col-sm-3" brewer:classforerror="senhaSite" th:classappend="bw-required">
 					<label for="senhaSite" class="control-label">Senha do site</label> 
 					<input type="password" class="form-control" id="senhaSite" th:field="*{senhaSite}" th:maxlength="12"/>
 				</div>
 				
-				<div class="form-group  col-sm-6" brewer:classforerror="confirmacaoSenhaSite">
+				<div class="form-group  col-sm-3" brewer:classforerror="confirmacaoSenhaSite">
 					<label for="confirmacaoSenhaSite" class="control-label">Confirmação da senha do site</label> 
 					<input type="password" class="form-control" id="confirmacaoSenhaSite" th:field="*{confirmacaoSenhaSite}" th:maxlength="12"/>
-				</div>													
-			</div>
-			
-			<div class="row">
-				<div class="form-group  col-sm-6" brewer:classforerror="senhaTeclado" th:classappend="bw-required">
+				</div>			
+				
+				<div class="form-group  col-sm-3" brewer:classforerror="senhaTeclado" th:classappend="bw-required">
 					<label for="senhaTeclado" class="control-label">Senha da porta</label> 
 					<input type="password" class="form-control  js-senha-teclado" id="senhaTeclado" th:field="*{senhaTeclado}"/>					
 				</div>
 				
-				<div class="form-group  col-sm-6" brewer:classforerror="confirmacaoSenhaTeclado">
+				<div class="form-group  col-sm-3" brewer:classforerror="confirmacaoSenhaTeclado">
 					<label for="confirmacaoSenhaTeclado" class="control-label">Confirmação da senha da porta</label> 
 					<input type="password" class="form-control  js-senha-teclado" id="confirmacaoSenhaTeclado" th:field="*{confirmacaoSenhaTeclado}"/>
 				</div>													
