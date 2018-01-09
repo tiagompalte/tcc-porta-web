@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/usuarios").hasRole("VISUALIZAR_USUARIO")
 				.antMatchers("/usuarios/**").hasRole("EDITAR_TODOS_USUARIOS")
 				.antMatchers("/usuarioCadastro").hasRole("EDITAR_PROPRIO_USUARIO")
-				.antMatchers("/pessoas").hasRole("EDITAR_TODOS_USUARIOS")
+				.antMatchers("/pessoas/**").hasRole("EDITAR_TODOS_USUARIOS")
 				.antMatchers("/estabelecimentos/**").hasRole("EDITAR_TODOS_ESTABELECIMENTOS")
 				.antMatchers("/estabelecimentoCadastro").hasRole("EDITAR_PROPRIO_ESTABELECIMENTO")
 				.antMatchers("/parametros").hasRole("CADASTRAR_PARAMETRO")

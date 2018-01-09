@@ -37,12 +37,12 @@
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
 					<label for="cpfOuCnpj" class="control-label">CPF</label>
 					<input type="text" class="form-control js-cpf" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
-							data:url="@{/pessoas}" th:field="*{pessoa.cpfOuCnpj}" />
+							data:url="@{/pessoas}" th:field="*{pessoa.cpfOuCnpj}" autofocus="autofocus" />
 				</div>
 				
 				<div class="form-group  col-sm-8  bw-required" brewer:classforerror="pessoa.nome">
 					<label for="nomePessoa" class="control-label">Nome</label>
-					<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{pessoa.nome}"/>
+					<input type="text" class="form-control" id="nomePessoa" th:field="*{pessoa.nome}"/>
 				</div>				
 			</div>
 								
@@ -54,9 +54,9 @@
 				
 				<div class="form-group  col-sm-4" brewer:classforerror="pessoa.dataNascimento">
 					<label for="dataNascimento" class="control-label">Data de nascimento</label>
-					<input type="text" class="form-control  js-date" id="dataNascimento" th:field="*{pessoa.dataNascimento}" autocomplete="off"/>
+					<input type="text" class="form-control js-date" id="dataNascimento" th:field="*{pessoa.dataNascimento}" autocomplete="off"/>
 				</div>	
-				
+								
 				<div class="form-group col-sm-4" brewer:classforerror="pessoa.genero">
 					<label for="genero" class="control-label">Gênero</label>
 					<select id="genero" class="form-control" th:field="*{pessoa.genero}">
@@ -131,7 +131,6 @@
 
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
-	<script th:src="@{/javascripts/vendors/bootstrap-switch.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>
@@ -139,7 +138,7 @@
 	<script th:src="@{/javascripts/gravador.js}"></script>
 	
 	<script>
-		carregarAudio();
+		carregarAudio();								
 		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
 		$('#senhaTeclado').tooltip({'trigger':'focus', 'title': 'Digite 4 dígitos'});
 		$('#rfid').tooltip({'trigger':'focus', 'title': 'Código do cartão de entrada'});

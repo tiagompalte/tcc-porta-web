@@ -177,6 +177,9 @@
 		$('.js-status').bootstrapSwitch();
 		carregarAudio();
 		verificarMicrofone();
+		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
+		$('#senhaTeclado').tooltip({'trigger':'focus', 'title': 'Digite 4 dígitos'});
+		$('#rfid').tooltip({'trigger':'focus', 'title': 'Código do cartão de entrada'});
 	</script>
 </th:block>
 </html>
