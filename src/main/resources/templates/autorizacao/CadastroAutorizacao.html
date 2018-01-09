@@ -38,9 +38,9 @@
 			<brewer:message/>
 				
 			<input type="hidden" th:field="*{id.sequencia}"/>
-			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" type="hidden" th:field="*{id.estabelecimento.codigo}"/>
+			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}" type="hidden" th:field="*{id.estabelecimento.codigo}"/>
 						
-			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
 				<div class="form-group  col-sm-4 bw-required" brewer:classforerror="id.estabelecimento.codigo">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
 					<select id="estabelecimento" class="form-control  js-container-estabelecimento" 
@@ -54,7 +54,7 @@
 			
 			<div class="row">
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="id.usuario">
-					<label for="usuario" class="control-label">Usuário</label>
+					<label for="usuario" class="control-label">Usuário</label>					
 					<select id="usuario" class="form-control" th:field="*{id.usuario.codigo}" th:disabled="${!autorizacao.novo}">
 						<option value="">Selecione um usuário</option>
 						<option th:each="usuario : ${usuarios}" th:value="${usuario.codigo}" th:text="${usuario.codigoNome}"></option>
@@ -133,6 +133,9 @@
 					</div>
 				</div>				
 			</div>
+			
+			<input type="hidden" th:field="*{id.usuario.codigo}"/>
+			<input type="hidden" th:field="*{id.porta.codigo}"/>
 						
 			<button type="submit" class="btn  btn-primary">Salvar</button>
 		</form>
@@ -141,8 +144,8 @@
 
 <th:block layout:fragment="javascript-extra">
 	<script>
-					
-		$('.js-container-tipo').change(function() {
+	
+		function carregarTipos() {
 			var select = document.getElementById('tipo');
 			var tipo = select.options[select.selectedIndex].value;
 			
@@ -159,7 +162,9 @@
 					document.getElementById("programado").setAttribute("class", "hidden");
 					document.getElementById("temporario").setAttribute("class", "hidden");
 			}
-		});
+		}
+					
+		$('.js-container-tipo').change(carregarTipos());
 		
 		$('.js-container-estabelecimento').change(function() {
 			

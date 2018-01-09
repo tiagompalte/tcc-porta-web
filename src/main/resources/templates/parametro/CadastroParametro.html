@@ -40,7 +40,8 @@
 			<div class="row">
 				<div class="form-group  col-sm-3  bw-required" brewer:classforerror="codigo">
 					<label for="codigo" class="control-label">Código</label>
-					<input type="text" class="form-control" id="codigo" style="text-transform:uppercase" autofocus="autofocus" th:field="*{codigo}" />
+					<input type="text" class="form-control" id="codigo" style="text-transform:uppercase" autofocus="autofocus" th:field="*{codigo}" 
+							th:disabled="${!parametro.novo}"/>
 				</div>
 				
 				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="descricao">

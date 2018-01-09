@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,11 +28,13 @@ import br.com.utfpr.porta.modelo.Autorizacao;
 import br.com.utfpr.porta.modelo.AutorizacaoId;
 import br.com.utfpr.porta.modelo.DiaSemana;
 import br.com.utfpr.porta.modelo.Estabelecimento;
+import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.Porta;
 import br.com.utfpr.porta.modelo.TipoAutorizacao;
 import br.com.utfpr.porta.modelo.Usuario;
 import br.com.utfpr.porta.repositorio.Autorizacoes;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
+import br.com.utfpr.porta.repositorio.Parametros;
 import br.com.utfpr.porta.repositorio.Portas;
 import br.com.utfpr.porta.repositorio.Usuarios;
 import br.com.utfpr.porta.repositorio.filtro.AutorizacaoFiltro;
@@ -61,6 +64,9 @@ public class AutorizacaoControle {
 	@Autowired
 	private Estabelecimentos estabelecimentosRepositorio;
 	
+	@Autowired
+	private Parametros parametroRepositorio;
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Autorizacao autorizacao) {				
 		ModelAndView mv = new ModelAndView("autorizacao/CadastroAutorizacao");		
@@ -74,7 +80,7 @@ public class AutorizacaoControle {
 		mv.addObject("dias", DiaSemana.values());
 		
 		List<Estabelecimento> estabelecimentos = null;
-		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
 			estabelecimentos = estabelecimentosRepositorio.findAll();
 			mv.addObject("estabelecimentos", estabelecimentos);
 		}	
@@ -87,17 +93,20 @@ public class AutorizacaoControle {
 			estabelecimento = autorizacao.getId().getEstabelecimento();
 		}
 		
+		Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");		
+		if(par_cod_grp_usuario == null || StringUtils.isEmpty(par_cod_grp_usuario.getValor())) {
+			throw new NullPointerException("COD_GRP_USUARIO não foi parametrizado");
+		}
+		
 		if(estabelecimento != null) {
-//			List<Usuario> usuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(estabelecimento);
-//			if(usuarios != null && usuarios.isEmpty() == false) {
-//				mv.addObject("usuarios", usuarios);
-//			}
-			
 			List<Porta> portas = portasRepositorio.findByEstabelecimento(estabelecimento);
 			if(portas != null && portas.isEmpty() == false) {
 				mv.addObject("portas", portas);
 			}
 		}	
+		
+		List<Usuario> usuarios = usuariosRepositorio.buscarPorGrupoCodigoAndAtivo(par_cod_grp_usuario.getValorLong());
+		mv.addObject("usuarios", usuarios);
 				
 	}
 	
@@ -109,9 +118,9 @@ public class AutorizacaoControle {
 		}
 		
 		try {
-			
-			if(autorizacao.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-				autorizacao.getId().setEstabelecimento(autorizacao.getId().getPorta().getEstabelecimento());
+						
+			if(autorizacao.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {				
+				autorizacao.getId().setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 			}
 						
 			if(autorizacao.getTipoAutorizacao() != null && 
@@ -151,6 +160,10 @@ public class AutorizacaoControle {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(autorizacao);
 		}
+		catch(Exception e) {
+			result.reject(e.getMessage(), e.getMessage());
+			return novo(autorizacao);
+		}
 		
 		attributes.addFlashAttribute("mensagem", "Autorização salva com sucesso");
 		return new ModelAndView("redirect:/autorizacoes/novo");
@@ -165,15 +178,20 @@ public class AutorizacaoControle {
 		List<Usuario> listaUsuarios = null;
 		List<Porta> listaPortas = null;
 		
-		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-			//autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-			//listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-			//listaPortas = portasRepositorio.findByEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+			autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());			
+			listaPortas = portasRepositorio.findByEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		else {
-			listaUsuarios = usuariosRepositorio.findAll();
 			listaPortas = portasRepositorio.findAll();
 		}
+		
+		Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");		
+		if(par_cod_grp_usuario == null || StringUtils.isEmpty(par_cod_grp_usuario.getValor())) {
+			throw new NullPointerException("COD_GRP_USUARIO não foi parametrizado");
+		}
+		
+		listaUsuarios = usuariosRepositorio.buscarPorGrupoCodigoAndAtivo(par_cod_grp_usuario.getValorLong());
 		
 		mv.addObject("usuarios", listaUsuarios);
 		mv.addObject("portas", listaPortas);
@@ -190,11 +208,11 @@ public class AutorizacaoControle {
 		
 		ModelAndView mv = new ModelAndView("autorizacao/CadastroAutorizacao");
 		
-		Usuario usuario = new Usuario();
-		usuario.setCodigo(codigoUsuario);
-		
-		Porta porta = new Porta();
-		porta.setCodigo(codigoPorta);		
+		Usuario usuario = usuariosRepositorio.findOne(codigoUsuario);		
+		Porta porta = portasRepositorio.findOne(codigoPorta);
+		if(porta == null || usuario == null) {
+			return new ModelAndView("redirect:/500");
+		}
 		
 		List<Usuario> usuarios = Arrays.asList(usuario);
 		List<Porta> portas = Arrays.asList(porta);
@@ -209,8 +227,7 @@ public class AutorizacaoControle {
 		Autorizacao autorizacao = autorizacoesRepositorio.findOne(id);
 		
 		if(autorizacao == null) {
-			mv = new ModelAndView("redirect:/500");
-			return mv;
+			return new ModelAndView("redirect:/500");
 		}
 		
 		mv.addObject(autorizacao);
@@ -232,14 +249,7 @@ public class AutorizacaoControle {
 		AutorizacaoId id = new AutorizacaoId();		
 		id.setUsuario(usr);
 		id.setPorta(porta);
-		
-		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
-			//id.setEstabelecimento(usr.getEstabelecimento());
-		}
-		else {
-			//id.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-		}
-		
+		id.setEstabelecimento(porta.getEstabelecimento());				
 		id.setSequencia(sequencia);
 		
 		try {
@@ -256,7 +266,7 @@ public class AutorizacaoControle {
 	public ModelAndView modificarListaUsuariosPortasPorEstabelecimento(@PathVariable Long codigoEstabelecimento) {
 		
 		Autorizacao autorizacao = new Autorizacao();
-		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+		if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
 			return novo(autorizacao);
 		}
 		
@@ -285,10 +295,13 @@ public class AutorizacaoControle {
 			mv.addObject("portas", listaPortas);
 		}
 		
-		//List<Usuario> listaUsuarios = usuariosRepositorio.findByEstabelecimentoAndAtivoTrue(estabelecimento);
-		//if(listaUsuarios != null) {
-		//	mv.addObject("usuarios", listaUsuarios);
-		//}
+		Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");		
+		if(par_cod_grp_usuario == null || StringUtils.isEmpty(par_cod_grp_usuario.getValor())) {
+			throw new NullPointerException("COD_GRP_USUARIO não foi parametrizado");
+		}
+		
+		List<Usuario> listaUsuarios = usuariosRepositorio.buscarPorGrupoCodigoAndAtivo(par_cod_grp_usuario.getValorLong());		
+		mv.addObject("usuarios", listaUsuarios);
 		
 		return mv;
 	}
