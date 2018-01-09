@@ -67,6 +67,13 @@
 			            	</a>
 			            </li>
           			</ul>
+          			
+          			<ul class="aw-menu__list  aw-menu__list--sublist" 
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_PARAMETRO')}">
+			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/parametros.*}">
+			            	<a th:href="@{/parametros}">Parâmetros</a>
+			            </li>
+          			</ul>
           			          			
         		</li>
         		

@@ -20,10 +20,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
 import br.com.utfpr.porta.modelo.Grupo;
+import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.modelo.Usuario;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.Grupos;
+import br.com.utfpr.porta.repositorio.Parametros;
 import br.com.utfpr.porta.repositorio.Usuarios;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.EstabelecimentoServico;
@@ -50,6 +52,9 @@ public class PrincipalControle {
 	
 	@Autowired
 	private Grupos gruposRepositorio;
+	
+	@Autowired
+	private Parametros parametroRepositorio;
 		
 	@GetMapping("/login")
 	public String login(@AuthenticationPrincipal User user) {
@@ -94,7 +99,13 @@ public class PrincipalControle {
 		
 		try {	
 			
-			Grupo grupo_usuario = gruposRepositorio.findByCodigo(Long.parseLong("3"));
+			Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");
+			
+			if(par_cod_grp_usuario == null) {
+				throw new NullPointerException("COD_GRP_USUARIO não parametrizado");
+			}
+			
+			Grupo grupo_usuario = gruposRepositorio.findByCodigo(par_cod_grp_usuario.getValorLong());
 			List<Grupo> lista_grupo = new ArrayList<>();
 			lista_grupo.add(grupo_usuario);			
 			usuario.setGrupos(lista_grupo);
@@ -147,7 +158,13 @@ public class PrincipalControle {
 		
 		try {	
 			
-			Grupo grupo_usuario = gruposRepositorio.findByCodigo(Long.parseLong("3"));
+			Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");
+			
+			if(par_cod_grp_usuario == null) {
+				throw new NullPointerException("COD_GRP_USUARIO não parametrizado");
+			}
+			
+			Grupo grupo_usuario = gruposRepositorio.findByCodigo(par_cod_grp_usuario.getValorLong());
 			List<Grupo> lista_grupo = new ArrayList<>();
 			lista_grupo.add(grupo_usuario);			
 			usuario.setGrupos(lista_grupo);
@@ -189,7 +206,13 @@ public class PrincipalControle {
 		
 		try {
 			
-			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(Long.parseLong("2"));
+			Parametro par_cod_grp_anfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			
+			if(par_cod_grp_anfitriao == null) {
+				throw new NullPointerException("COD_GRP_ANFITRIAO não parametrizado");
+			}
+			
+			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(par_cod_grp_anfitriao.getValorLong());
 			List<Grupo> lista_grupo = new ArrayList<>();
 			lista_grupo.add(grupo_anfitriao);			
 			estabelecimento.getResponsavel().setGrupos(lista_grupo);
@@ -252,7 +275,13 @@ public class PrincipalControle {
 		
 		try {
 			
-			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(Long.parseLong("2"));
+			Parametro par_cod_grp_anfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			
+			if(par_cod_grp_anfitriao == null) {
+				throw new NullPointerException("COD_GRP_ANFITRIAO não parametrizado");
+			}
+			
+			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(par_cod_grp_anfitriao.getValorLong());
 			List<Grupo> lista_grupo = new ArrayList<>();
 			lista_grupo.add(grupo_anfitriao);			
 			estabelecimento.getResponsavel().setGrupos(lista_grupo);

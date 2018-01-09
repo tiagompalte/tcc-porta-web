@@ -34,7 +34,7 @@
 	<div class="container-fluid">
 		<form method="GET" th:object="${portaFiltro}" th:action="@{/portas}">
 			
-			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
 				<div class="form-group  col-sm-6">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
 					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
@@ -60,12 +60,6 @@
         	<table class="table  table-hover">
 	            <thead>
 	            	<tr>
-	            		<th class="table-usuarios-col-status">
-	            			<div class="checkbox  aw-checkbox-no-margin">
-	            				<input type="checkbox" class="js-selecao-todos"/>
-	            				<label></label>
-	            			</div>
-	            		</th>
 	            		<th>Código</th>
 	                	<th>Descrição</th>
 	                	<th>Estabelecimento</th>
@@ -75,12 +69,6 @@
 			
 	            <tbody>
 					<tr th:each="porta : ${pagina.conteudo}">
-						<td>
-							<div class="checkbox  aw-checkbox-no-margin">
-	            				<input type="checkbox" class="js-selecao" data:codigo="${porta.codigo}">
-	            				<label></label>
-	            			</div>
-						</td>
 						<td th:text="${porta.codigo}"></td>
 						<td th:text="${porta.descricao}"></td>
 						<td th:text="${porta.estabelecimento.codigoNome}"></td>
