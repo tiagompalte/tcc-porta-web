@@ -24,6 +24,9 @@
 		</div>
 	</div>
 	
+	<input type="hidden" name="_csrf" th:value="${csrfTokenFake}"/>
+	<input type="hidden" name="_csrf_header" th:value="${csrfHeaderNameFake}"/>
+	
 	<div class="container-fluid">
 		<form method="POST" th:object="${usuario}" th:action="@{/novoUsuario}">
 			
@@ -36,8 +39,8 @@
 			<div class="row">
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
 					<label for="cpfOuCnpj" class="control-label">CPF</label>
-					<input type="text" class="form-control js-cpf" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
-							data:url="@{/pessoas}" th:field="*{pessoa.cpfOuCnpj}" autofocus="autofocus" />
+					<input type="text" class="form-control js-cpf" id="cpfOuCnpj"
+							th:field="*{pessoa.cpfOuCnpj}" autofocus="autofocus" />
 				</div>
 				
 				<div class="form-group  col-sm-8  bw-required" brewer:classforerror="pessoa.nome">
@@ -94,7 +97,7 @@
 					<input type="password" class="form-control  js-senha-teclado" id="confirmacaoSenhaTeclado" th:field="*{confirmacaoSenhaTeclado}"/>
 				</div>													
 			</div>	
-						
+			
 			<div class="row">	
 				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
 					<label for="rfid" class="control-label">RFID</label>
@@ -108,7 +111,7 @@
 					<div class="well well-sm" id="divAudio">
 						<input type="hidden" th:field="*{nomeAudio}" id="audio"/>
 						
-		          		<span id="timer" style="padding-right: 20px;">3.000 segundos</span>
+		          		<span id="timer" style="padding-right: 20px;">2.000 segundos</span>
 		            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
 		            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
 		            	</button>
@@ -123,14 +126,13 @@
 					</div>
 	          	</div>
 			</div>
-									
+							
 			<button type="submit" class="btn  btn-primary" onclick="salvarAudio()">Salvar</button>
 		</form>
 	</div>
 </section>
 
 <th:block layout:fragment="javascript-extra">
-	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>

@@ -72,6 +72,11 @@
 							</th:block>
 						</td>
 	                 	<td class="text-center">
+	                 		<a class="btn  btn-link  btn-xs  js-tooltip" title="Autorizar" 
+								th:href="@{/autorizacoes/novo/usuario/{codigo}(codigo=${usuario.codigo})}"
+								th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_AUTORIZACAO')}"> 
+								<i class="fa fa-key"></i>
+							</a>
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
 								th:href="@{/usuarios/{codigo}(codigo=${usuario.codigo})}"
 								th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}"> 

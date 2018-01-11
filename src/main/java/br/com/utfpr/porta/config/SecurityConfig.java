@@ -36,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/stylesheets/**")			
 			.antMatchers("/novoUsuario")
 			.antMatchers("/novoEstabelecimento")
+			.antMatchers("/audios")
 			.antMatchers("/");
 	}
 	
@@ -57,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.formLogin()
 				.loginPage("/login")
 				.permitAll()
-				.defaultSuccessUrl("/dashboard")
+				.defaultSuccessUrl("/dashboard", true)
 				.and()
 			.logout()
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

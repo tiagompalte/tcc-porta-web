@@ -1,4 +1,4 @@
-var initial = 3000;
+var initial = 2000;
 var count = initial;
 var counter; //10 will  run it every 100th of a second
 var initialMillis;
@@ -105,18 +105,12 @@ function playRecord() {
 	}	
 }
 
-function adicionarCsrfToken(xhr) {
-	var token = $('input[name=_csrf]').val();
-	var header = $('input[name=_csrf_header').val();
-	xhr.setRequestHeader(header, token);
-}
-
 function salvarAudio() {
 	
 	if(soundFile === undefined || soundFile == null || soundFile.buffer == null) {
 		return;
 	}
-		
+			
 	var dataview = encodeWAV(soundFile.buffer.getChannelData(0), soundFile.buffer.sampleRate);
 	var audioBlob = new Blob([dataview], { type: 'audio/wav' });
 	
@@ -133,7 +127,6 @@ function salvarAudio() {
         cache: false,
         data: formData
 	});
-		
 }
 
 function generateUUID() {

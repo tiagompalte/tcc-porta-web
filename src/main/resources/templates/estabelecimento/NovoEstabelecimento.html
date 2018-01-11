@@ -112,8 +112,7 @@
 						
 						<div class="form-group  col-sm-8  bw-required" brewer:classforerror="responsavel.pessoa.cpfOuCnpj">
 							<label for="cpfOuCnpj" class="control-label">CPF/CNPJ</label>
-							<input type="text" class="form-control" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
-									data:url="@{/pessoas}" th:field="*{responsavel.pessoa.cpfOuCnpj}" disabled/>
+							<input type="text" class="form-control" id="cpfOuCnpj" th:field="*{responsavel.pessoa.cpfOuCnpj}" disabled/>
 						</div>
 					</div>
 				
@@ -174,7 +173,6 @@
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/pessoa.mascara-cpf-cnpj.js}"></script>
 	<script th:src="@{/javascripts/servico-busca-cep.js}"></script>
-	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>	
 	<script>
 		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
 	</script>	

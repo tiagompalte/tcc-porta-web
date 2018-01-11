@@ -2,6 +2,7 @@ package br.com.utfpr.porta.controle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -86,6 +87,8 @@ public class PrincipalControle {
 	@GetMapping("/novoUsuario")
 	public ModelAndView novoUsuario(Usuario usuario) {
 		ModelAndView mv = new ModelAndView("usuario/NovoUsuario");
+		mv.addObject("csrfTokenFake", UUID.randomUUID());
+		mv.addObject("csrfHeaderNameFake", UUID.randomUUID());
 		mv.addObject("generos", Genero.values());
 		return mv;
 	}
@@ -109,6 +112,8 @@ public class PrincipalControle {
 			List<Grupo> lista_grupo = new ArrayList<>();
 			lista_grupo.add(grupo_usuario);			
 			usuario.setGrupos(lista_grupo);
+			
+			//usuario.setAtivo(false);
 						
 			usuarioServico.salvar(usuario);
 									

@@ -168,6 +168,22 @@ public class AutorizacaoControle {
 		attributes.addFlashAttribute("mensagem", "Autorização salva com sucesso");
 		return new ModelAndView("redirect:/autorizacoes/novo");
 	}
+	
+	@RequestMapping("/novo/usuario/{codigo}")
+	public ModelAndView autorizarUsuario(@PathVariable Long codigo, Autorizacao autorizacao) {	
+		
+		ModelAndView mv = new ModelAndView("autorizacao/CadastroAutorizacao");		
+		Usuario usuario = usuariosRepositorio.findOne(codigo);		
+		if(usuario != null) {
+			AutorizacaoId id = new AutorizacaoId();
+			id.setUsuario(usuario);
+			autorizacao.setId(id);
+		}
+		
+		carregarDependencias(mv, autorizacao);		
+		
+		return mv;
+	}
 		
 	@GetMapping
 	public ModelAndView pesquisar(AutorizacaoFiltro autorizacaoFiltro, @PageableDefault(size = 5) Pageable pageable,
