@@ -14,13 +14,13 @@ import br.com.utfpr.porta.storage.s3.AudioStorageS3;
 @ComponentScan(basePackageClasses = Servico.class)
 public class ServiceConfig {
 	
-//	@Profile("local")
-//	@Bean
-//	public AudioStorage audioStorageLocal() {
-//		return new AudioStorageLocal();
-//	}
-//	
-//	@Profile("prod")
+	@Profile("local")
+	@Bean
+	public AudioStorage audioStorageLocal() {
+		return new AudioStorageLocal();
+	}
+	
+	@Profile("prod")
 	@Bean
 	public AudioStorage audioStorageS3() {
 		return new AudioStorageS3();
