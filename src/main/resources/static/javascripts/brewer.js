@@ -132,6 +132,20 @@ Brewer.MaskHora = (function() {
 	
 }());
 
+Brewer.MaskDataHora = (function() {
+	
+	function MaskDataHora() {
+		this.inputDataHora = $('.js-datahora');
+	}
+	
+	MaskDataHora.prototype.enable = function() {				
+		this.inputDataHora.mask('00/00/0000 00:00');
+	}
+	
+	return MaskDataHora;
+	
+}());
+
 numeral.language('pt-br');
 
 Brewer.formatarMoeda = function(valor) {
@@ -166,5 +180,8 @@ $(function() {
 	
 	var hora = new Brewer.MaskHora();
 	hora.enable();
+	
+	var dataHora = new Brewer.MaskDataHora();
+	dataHora.enable();
 	
 });

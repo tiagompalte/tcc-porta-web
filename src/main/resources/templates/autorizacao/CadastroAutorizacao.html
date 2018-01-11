@@ -71,38 +71,33 @@
 					
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="tipoAutorizacao">
 					<label for="tipo" class="control-label">Tipo de autorização</label>
-					<select id="tipo" class="form-control  js-container-tipo" th:field="*{tipoAutorizacao}">
+					<select id="tipo" class="form-control  js-container-tipo" th:field="*{tipoAutorizacao}" onchange="carregarTipos()">
 						<option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="${tipo.descricao}"></option>
 					</select>
 				</div>
 			</div>	
 			
-			<div class="hidden" id="temporario">			
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="dataTemporaria">
-					<label for="dataTemporaria" class="control-label">Data</label>
-					<input type="text" class="form-control  js-date" id="dataTemporaria" th:field="*{dataTemporaria}" autocomplete="off"/>
-				</div>
-				
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaInicioTemporaria">
-					<label for="horaInicioTemporaria" class="control-label">Hora de início</label>
-					<div class="input-group clockpicker">
-					    <input type="text" class="form-control js-hora" id="horaInicioTemporaria" th:field="*{horaInicioTemporaria}">
-					    <span class="input-group-addon">
-					        <span class="glyphicon glyphicon-time"></span>
-					    </span>
-					</div>
-				</div>
-				
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaFimTemporaria">
-					<label for="horaFimTemporaria" class="control-label">Hora final</label>
-					<div class="input-group clockpicker">
-					    <input type="text" class="form-control js-hora" id="horaFimTemporaria" th:field="*{horaFimTemporaria}">
-					    <span class="input-group-addon">
-					        <span class="glyphicon glyphicon-time"></span>
-					    </span>
-					</div>
-				</div>				
-			</div>
+			<div class="hidden" id="temporario">
+		        <div class='form-group  col-sm-6  bw-required' brewer:classforerror="dataHoraInicio">
+		        	<label for="dataHoraInicio" class="control-label">Data hora inicial</label>
+		        	<div class="input-group date">
+			            <input type='text' class="form-control js-datahora" id="dataHoraInicio" th:field="*{dataHoraInicio}" />
+			            <span class="input-group-addon">
+		                    <span class="glyphicon glyphicon-calendar"></span>
+		                </span>
+	                </div>
+		        </div>
+		        
+		        <div class='form-group  col-sm-6  bw-required' brewer:classforerror="dataHoraFim">
+		        	<label for="dataHoraFim" class="control-label">Data hora final</label>
+		        	<div class="input-group date">
+			            <input type='text' class="form-control js-datahora" id="dataHoraFim" th:field="*{dataHoraFim}" />
+			            <span class="input-group-addon">
+		                    <span class="glyphicon glyphicon-calendar"></span>
+		                </span>
+	                </div>
+		        </div>		        
+		    </div>						
 			
 			<div class="hidden" id="programado">				
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="diaSemana">
@@ -145,6 +140,29 @@
 <th:block layout:fragment="javascript-extra">
 	<script>
 	
+		$(function () {
+	        $('#dataHoraInicio').datetimepicker({
+	        	minDate: 'now',
+	        	defaultDate: 'now',
+	        	locale: 'pt-br',
+	        	sideBySide: true
+	        });
+	        $('#dataHoraFim').datetimepicker({
+	        	minDate: 'now',
+	        	locale: 'pt-br',
+	        	sideBySide: true,
+	            useCurrent: false //Important! See issue #1075
+	        });
+	        $("#dataHoraInicio").on("dp.change", function (e) {
+	            $('#dataHoraFim').data("DateTimePicker").minDate(e.date);
+	        });
+	        $("#dataHoraFim").on("dp.change", function (e) {
+	            $('#dataHoraInicio').data("DateTimePicker").maxDate(e.date);
+	        });
+	        
+	        carregarTipos();
+	    });
+	
 		function carregarTipos() {
 			var select = document.getElementById('tipo');
 			var tipo = select.options[select.selectedIndex].value;
@@ -163,8 +181,6 @@
 					document.getElementById("temporario").setAttribute("class", "hidden");
 			}
 		}
-					
-		$('.js-container-tipo').change(carregarTipos());
 		
 		$('.js-container-estabelecimento').change(function() {
 			

@@ -1,6 +1,5 @@
 package br.com.utfpr.porta.controle;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -123,28 +122,6 @@ public class AutorizacaoControle {
 				autorizacao.getId().setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 			}
 						
-			if(autorizacao.getTipoAutorizacao() != null && 
-					autorizacao.getTipoAutorizacao().compareTo(TipoAutorizacao.TEMPORARIO) == 0) {
-				if(autorizacao.getDataTemporaria() != null) {
-					if(autorizacao.getHoraInicioTemporaria() != null) {
-						autorizacao.setDataHoraInicio(LocalDateTime.of(autorizacao.getDataTemporaria(), autorizacao.getHoraInicioTemporaria()));
-					}
-					else {
-						autorizacao.setDataHoraInicio(null);
-					}
-					if(autorizacao.getHoraFimTemporaria() != null) {
-						autorizacao.setDataHoraFim(LocalDateTime.of(autorizacao.getDataTemporaria(), autorizacao.getHoraFimTemporaria()));
-					}	
-					else {
-						autorizacao.setDataHoraFim(null);
-					}
-				}
-				else {
-					autorizacao.setDataHoraInicio(null);
-					autorizacao.setDataHoraFim(null);
-				}
-			}
-			
 			autorizacaoServico.salvar(autorizacao);
 		}
 		catch(CampoNaoInformadoExcecao e) {

@@ -89,7 +89,7 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 	@Bean
 	public FormattingConversionService mvcConversionService() {		
 		DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
-		conversionService.addConverter(new GrupoConversor());
+		conversionService.addConverter(new GrupoConversor());		
 		return conversionService;
 	}
 		
