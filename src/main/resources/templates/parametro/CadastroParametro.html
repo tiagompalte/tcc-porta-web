@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data">
+
+<head>
+	<title>Cadastro de parâmetro</title>
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1 th:if="${parametro.novo}"> Cadastro de parâmetro</h1>
+					<h1 th:unless="${parametro.novo}">Edição do parâmetro: [[${parametro.codigo}]]</h1>
+				</div>
+				
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn  btn-default" th:href="@{/parametros}">
+							<i class="glyphicon glyphicon-search"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="POST" th:object="${parametro}" 
+				th:action="${parametro.novo} ? @{/parametros/novo} : @{/parametros/{codigo}(codigo=${parametro.codigo})}">
+			
+			<brewer:message/>
+			
+			<div class="row">
+				<div class="form-group  col-sm-3  bw-required" brewer:classforerror="codigo">
+					<label for="codigo" class="control-label">Código</label>
+					<input type="text" class="form-control" id="codigo" style="text-transform:uppercase" autofocus="autofocus" th:field="*{codigo}" 
+							th:disabled="${!parametro.novo}"/>
+				</div>
+				
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="descricao">
+					<label for="descricao" class="control-label">Descrição</label>
+					<input type="text" class="form-control" id="descricao" th:field="*{descricao}"/>
+				</div>
+				
+				<div class="form-group  col-sm-3  bw-required" brewer:classforerror="valor">
+					<label for="valor" class="control-label">Valor</label>
+					<input type="text" class="form-control" id="valor" th:field="*{valor}"/>
+				</div>								
+			</div>
+			
+			<input type="hidden" th:field="*{codigo}"/>
+									
+			<button type="submit" class="btn  btn-primary">Salvar</button>
+		</form>
+	</div>
+</section>
+
+<th:block layout:fragment="javascript-extra">
+</th:block>
+</html>

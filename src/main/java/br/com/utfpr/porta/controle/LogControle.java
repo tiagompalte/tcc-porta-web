@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +17,6 @@ import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Log;
 import br.com.utfpr.porta.repositorio.Logs;
 import br.com.utfpr.porta.repositorio.filtro.LogFiltro;
-import br.com.utfpr.porta.seguranca.UsuarioSistema;
 
 @Controller
 @RequestMapping("/logs")
@@ -56,15 +54,11 @@ public class LogControle {
 		}
 		
 		PageWrapper<Log> paginaWrapper = new PageWrapper<>(logsRepositorio.filtrar(
-				getUsuarioLogado().getUsuario().getEstabelecimento(), dataHoraInicio, dataHoraFinal, pageable), 
+				logFiltro.getEstabelecimento(), dataHoraInicio, dataHoraFinal, pageable), 
 				httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		
 		return mv;
-	}
-	
-	private UsuarioSistema getUsuarioLogado() {
-		return (UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	}
+	}	
 	
 }

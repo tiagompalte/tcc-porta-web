@@ -23,8 +23,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Estabelecimento;
+import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.Porta;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
+import br.com.utfpr.porta.repositorio.Parametros;
 import br.com.utfpr.porta.repositorio.Portas;
 import br.com.utfpr.porta.repositorio.filtro.PortaFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
@@ -47,16 +49,19 @@ public class PortaControle {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	private Parametros parametrosRepositorio;
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Porta porta) {
 		
 		ModelAndView mv = new ModelAndView("porta/CadastroPorta");
 		
-		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
 			porta.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		
-		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
 			mv.addObject("estabelecimentos", estabelecimentosRepositorio.findAll());
 		}
 		else {
@@ -73,7 +78,7 @@ public class PortaControle {
 			return novo(porta);
 		}
 		
-		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
 			result.reject("Usuário sem permissão para cadastrar nova porta", "Usuário sem permissão para cadastrar nova porta");
 			return novo(porta);
 		}
@@ -99,11 +104,11 @@ public class PortaControle {
 			
 			portaServico.salvar(porta);
 		}
-		catch(NullPointerException e) {
+		catch(Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(porta);
-		}		
-		
+		}
+				
 		attributes.addFlashAttribute("mensagem", "Porta salva com sucesso");
 		return new ModelAndView("redirect:/portas/novo");
 	}
@@ -114,7 +119,7 @@ public class PortaControle {
 		
 		ModelAndView mv = new ModelAndView("/porta/PesquisaPortas");
 		 
-		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+		if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
 			portaFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		else {
@@ -131,7 +136,7 @@ public class PortaControle {
 	public ModelAndView editar(@PathVariable Long codigo) {
 		
 		Porta porta;
-		if(UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
 			porta = portaRepositorio.findOne(codigo);
 		}
 		else {
@@ -154,9 +159,16 @@ public class PortaControle {
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
 		
-		if(!UsuarioSistema.isPossuiPermissao("ROLE_CADASTRAR_ESTABELECIMENTO")) {
+		if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+			
+			Parametro par_cod_est_sistema = parametrosRepositorio.findOne("COD_EST_SISTEMA");
+			
+			if(par_cod_est_sistema == null) {
+				throw new NullPointerException("COD_EST_SISTEMA não parametrizado");
+			}			
+			
 			Porta porta = portaRepositorio.findOne(codigo);
-			Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(Long.parseLong("1"));
+			Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(par_cod_est_sistema.getValorLong());
 			try {				
 				portaServico.modificarEstabelecimento(porta, estabelecimento);
 			} catch (ImpossivelExcluirEntidadeException e) {

@@ -1,5 +1,8 @@
 package br.com.utfpr.porta.controle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -21,8 +24,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
+import br.com.utfpr.porta.modelo.Grupo;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
+import br.com.utfpr.porta.repositorio.Grupos;
 import br.com.utfpr.porta.repositorio.filtro.EstabelecimentoFiltro;
 import br.com.utfpr.porta.servico.EstabelecimentoServico;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
@@ -36,6 +41,9 @@ public class EstabelecimentoControle {
 	
 	@Autowired
 	private EstabelecimentoServico estabelecimentoServico;
+	
+	@Autowired
+	private Grupos gruposRepositorio;
 		
 	@RequestMapping("/novo")
 	public ModelAndView novo(Estabelecimento estabelecimento) {
@@ -53,6 +61,12 @@ public class EstabelecimentoControle {
 		}
 		
 		try {
+			
+			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(Long.parseLong("2"));
+			List<Grupo> lista_grupo = new ArrayList<>();
+			lista_grupo.add(grupo_anfitriao);			
+			estabelecimento.getResponsavel().setGrupos(lista_grupo);
+			
 			estabelecimentoServico.salvar(estabelecimento);
 		}
 		catch(Exception e) {

@@ -10,8 +10,8 @@
     	<nav class="aw-menu  js-menu">
       		<ul class="aw-menu__list">
 
-        		<li class="aw-menu__item" brewer:menu="@{/}">
-          			<a th:href="@{/}"><i class="fa  fa-fw  fa-home"></i><span>Dashboard</span></a>
+        		<li class="aw-menu__item" brewer:menu="@{/dashboard}">
+          			<a th:href="@{/dashboard}"><i class="fa  fa-fw  fa-home"></i><span>Dashboard</span></a>
         		</li>
 
         		<li class="aw-menu__item  is-expanded">
@@ -20,28 +20,58 @@
             			<i class="aw-menu__navigation-icon  fa"></i>
           			</a>
           			
-          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          			<ul class="aw-menu__list  aw-menu__list--sublist"
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_PORTA')}">
 			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/portas.*}">
 			            	<a th:href="@{/portas}">Portas</a>
 			            </li>
           			</ul>
 
-          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          			<ul class="aw-menu__list  aw-menu__list--sublist"
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_VISUALIZAR_USUARIO')}">
 			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/usuarios.*}">
 			            	<a th:href="@{/usuarios}">Usuários</a>
 			            </li>
           			</ul>
           			
-          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          			<ul class="aw-menu__list  aw-menu__list--sublist"
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_PROPRIO_USUARIO')}">
+			            <li class="aw-menu__item  aw-menu__item--link" 
+			            	brewer:menu="@{/usuarioCadastro/{codigo}(codigo=${#authentication.principal.codigoUsuario})}">
+			            	<a th:href="@{/usuarioCadastro/{codigo}(codigo=${#authentication.principal.codigoUsuario})}">
+			            		Editar Cadastro de Usuário
+			            	</a>
+			            </li>
+          			</ul>
+          			
+          			<ul class="aw-menu__list  aw-menu__list--sublist" 
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_AUTORIZACAO')}">
 			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/autorizacoes.*}">
 			            	<a th:href="@{/autorizacoes}">Autorizações</a>
 			            </li>
           			</ul>
           			
           			<ul class="aw-menu__list  aw-menu__list--sublist" 
-          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
 			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/estabelecimentos.*}">
 			            	<a th:href="@{/estabelecimentos}">Estabelecimentos</a>
+			            </li>
+          			</ul>
+          			
+          			<ul class="aw-menu__list  aw-menu__list--sublist" 
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_PROPRIO_ESTABELECIMENTO')}">
+			            <li class="aw-menu__item  aw-menu__item--link" 
+			            	brewer:menu="@{/estabelecimentoCadastro/{codigo}(codigo=${#authentication.principal.codigoEstabelecimento})}">
+			            	<a th:href="@{/estabelecimentoCadastro/{codigo}(codigo=${#authentication.principal.codigoEstabelecimento})}">
+			            		Editar Cadastro de Estabelecimento
+			            	</a>
+			            </li>
+          			</ul>
+          			
+          			<ul class="aw-menu__list  aw-menu__list--sublist" 
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_PARAMETRO')}">
+			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/parametros.*}">
+			            	<a th:href="@{/parametros}">Parâmetros</a>
 			            </li>
           			</ul>
           			          			

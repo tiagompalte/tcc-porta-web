@@ -90,17 +90,17 @@ Brewer.Security = (function() {
 	
 }());
 
-Brewer.MaskSenha = (function() {
+Brewer.MaskSenhaTeclado = (function() {
 	
-	function MaskSenha() {
-		this.inputSenha = $('.js-senha');
+	function MaskSenhaTeclado() {
+		this.inputSenhaTeclado = $('.js-senha-teclado');
 	}
 	
-	MaskSenha.prototype.enable = function() {
-		this.inputSenha.mask('0000');
+	MaskSenhaTeclado.prototype.enable = function() {
+		this.inputSenhaTeclado.mask('0000');
 	}
 	
-	return MaskSenha;
+	return MaskSenhaTeclado;
 	
 }());
 
@@ -132,6 +132,20 @@ Brewer.MaskHora = (function() {
 	
 }());
 
+Brewer.MaskDataHora = (function() {
+	
+	function MaskDataHora() {
+		this.inputDataHora = $('.js-datahora');
+	}
+	
+	MaskDataHora.prototype.enable = function() {				
+		this.inputDataHora.mask('00/00/0000 00:00');
+	}
+	
+	return MaskDataHora;
+	
+}());
+
 numeral.language('pt-br');
 
 Brewer.formatarMoeda = function(valor) {
@@ -158,13 +172,16 @@ $(function() {
 	var security = new Brewer.Security();
 	security.enable();
 	
-	var senha = new Brewer.MaskSenha();
-	senha.enable();
+	var senhaTeclado = new Brewer.MaskSenhaTeclado();
+	senhaTeclado.enable();
 	
 	var cpf = new Brewer.MaskCpf();
 	cpf.enable();
 	
 	var hora = new Brewer.MaskHora();
 	hora.enable();
+	
+	var dataHora = new Brewer.MaskDataHora();
+	dataHora.enable();
 	
 });

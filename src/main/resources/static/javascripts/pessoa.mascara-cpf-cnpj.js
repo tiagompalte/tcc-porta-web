@@ -28,6 +28,16 @@ Brewer.MascaraCpfCnpj = (function() {
 		this.inputCpfCnpj.mask(tipoPessoaSelecionada.data('mascara'));
 		this.inputCpfCnpj.removeAttr('disabled');
 		this.labelData.text(tipoPessoaSelecionada.data('data'));
+		
+		this.divGenero = document.getElementById('divGenero');
+		
+		if(tipoPessoaSelecionada.data('documento') == 'CPF') {
+			this.divGenero.style.display = 'block';
+		}
+		else {
+			this.divGenero.style.display = 'none';
+		}
+		
 	}
 	
 	return MascaraCpfCnpj;

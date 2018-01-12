@@ -1,9 +1,19 @@
-var initial = 3000;
+var initial = 2000;
 var count = initial;
 var counter; //10 will  run it every 100th of a second
 var initialMillis;
 var soundFile;
 var mic;
+
+function succes(stream) {}
+
+function fail(error) {	
+	alert("Não foi encontrado nenhum microfone disponível");
+	this.divGroupAudio = document.getElementById('divGroupAudio');
+	this.divGroupAudio.style.display = 'none';
+}
+
+navigator.getUserMedia({audio : true}, succes, fail);
 
 function timer() {
     if (count <= 0) {
@@ -34,11 +44,6 @@ function carregarAudio() {
 	document.getElementById('play').removeAttribute("disabled");
 }
 
-function verificarMicrofone() {
-	mic = new p5.AudioIn();
-	mic.start();
-}
-
 function startTimer() {
     clearInterval(counter);
     initialMillis = Date.now();
@@ -58,19 +63,22 @@ function resetTimer() {
 displayCount(initial);
 
 function startRecording() {	
-	
-	if(mic === undefined || mic == null) {
-		return;
+		
+	try {		
+		mic = new p5.AudioIn();
+		mic.start();	
+		recorder = new p5.SoundRecorder();
+		recorder.setInput(mic);
+		soundFile = new p5.SoundFile();
+		resetTimer();
+		startTimer();
+		recorder.record(soundFile);	
+		document.getElementById('record').setAttribute("disabled","disabled");
+		document.getElementById('cancel').removeAttribute("disabled");
 	}
-	
-	recorder = new p5.SoundRecorder();
-	recorder.setInput(mic);
-	soundFile = new p5.SoundFile();
-	resetTimer();
-	startTimer();
-	recorder.record(soundFile);	
-	document.getElementById('record').setAttribute("disabled","disabled");
-	document.getElementById('cancel').removeAttribute("disabled");
+	catch(err) {
+		alert(err);
+	}
 }
 
 function stopRecording() {	
@@ -97,18 +105,12 @@ function playRecord() {
 	}	
 }
 
-function adicionarCsrfToken(xhr) {
-	var token = $('input[name=_csrf]').val();
-	var header = $('input[name=_csrf_header').val();
-	xhr.setRequestHeader(header, token);
-}
-
 function salvarAudio() {
 	
 	if(soundFile === undefined || soundFile == null || soundFile.buffer == null) {
 		return;
 	}
-		
+			
 	var dataview = encodeWAV(soundFile.buffer.getChannelData(0), soundFile.buffer.sampleRate);
 	var audioBlob = new Blob([dataview], { type: 'audio/wav' });
 	
@@ -125,7 +127,6 @@ function salvarAudio() {
         cache: false,
         data: formData
 	});
-		
 }
 
 function generateUUID() {

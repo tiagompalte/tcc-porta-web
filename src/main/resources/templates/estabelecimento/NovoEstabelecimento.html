@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	xmlns:th="http://www.thymeleaf.org"
-	layout:decorate="~{layout/LayoutPadrao}"
+	layout:decorate="~{layout/LayoutSimples2}"
 	xmlns:brewer="http://brewer.algaworks.com"
 	xmlns:data="http://www.thymeleaf.org/extras/data">
 
 <head>
-	<title>Cadastro de estabelecimento</title>	
+	<title>Novo estabelecimento</title>	
 </head>
 
 <section layout:fragment="conteudo">
@@ -15,36 +15,23 @@
 	<div class="page-header">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-xs-10">
-					<h1 th:if="${estabelecimento.novo}">Cadastro de estabelecimento</h1>
-					<h1 th:unless="${estabelecimento.novo}">Edição do estabelecimento: [[${estabelecimento.nome}]]</h1>
-				</div>
-				
-				<div class="col-xs-2">
-					<div class="aw-page-header-controls">
-						<a class="btn  btn-default" th:href="@{/estabelecimentos}">
-							<i class="glyphicon glyphicon-search"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
-						</a>
-					</div>
-				</div>
+				<div class="col-xs-12">
+					<h1>Novo estabelecimento</h1>
+				</div>				
 			</div>
 		</div>
 	</div>
 	
 	<div class="container-fluid">
-		<form method="POST" th:object="${estabelecimento}" 
-				th:action="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_PROPRIO_ESTABELECIMENTO')} ? @{/estabelecimentoCadastro/{codigo}(codigo=${estabelecimento.codigo})} : (${estabelecimento.novo} ? @{/estabelecimentos/novo} : @{/estabelecimentos/{codigo}(codigo=${estabelecimento.codigo})})">
+		<form method="POST" th:object="${estabelecimento}" th:action="@{/novoEstabelecimento}">
 			
 			<brewer:message/>
 			
 			<input type="hidden" th:field="*{codigo}"/>
 			<input type="hidden" th:field="*{endereco.codigo}"/>
-			<input type="hidden" th:field="*{ativo}"/>
 			<input type="hidden" th:field="*{responsavel.codigo}" id="codigoPessoa"/>
-			<input type="hidden" th:field="*{responsavel.pessoa.codigo}"/>
-			<input type="hidden" th:field="*{responsavel.ativo}"/>
-			<input type="hidden" th:field="*{responsavel.senhaTeclado}"/>
-			<input type="hidden" th:field="*{responsavel.confirmacaoSenhaTeclado}"/>
+			<input type="hidden" th:field="*{responsavel.senhaTeclado}" th:value="${senhaTeclado}"/>
+			<input type="hidden" th:field="*{responsavel.confirmacaoSenhaTeclado}" th:value="${senhaTeclado}"/>
 			
 			<div class="panel panel-primary">
 				<div class="panel-heading">
@@ -97,7 +84,7 @@
 						<div class="form-group  col-sm-2 bw-required" brewer:classforerror="endereco.estado">
 							<label for="estado" class="control-label">Estado</label>
 							<input type="text" class="form-control" id="estado" th:field="*{endereco.estado}"/>
-						</div>
+						</div>					
 					</div>
 			  	</div>
 			</div>
@@ -125,8 +112,7 @@
 						
 						<div class="form-group  col-sm-8  bw-required" brewer:classforerror="responsavel.pessoa.cpfOuCnpj">
 							<label for="cpfOuCnpj" class="control-label">CPF/CNPJ</label>
-							<input type="text" class="form-control" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
-									data:url="@{/pessoas}" th:field="*{responsavel.pessoa.cpfOuCnpj}" disabled/>
+							<input type="text" class="form-control" id="cpfOuCnpj" th:field="*{responsavel.pessoa.cpfOuCnpj}" disabled/>
 						</div>
 					</div>
 				
@@ -136,7 +122,8 @@
 							<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{responsavel.pessoa.nome}"/>
 						</div>
 					</div>
-										
+					
+					
 					<div class="row">								
 						<div class="form-group  col-sm-4" brewer:classforerror="responsavel.pessoa.telefone">
 							<label for="telefone" class="control-label">Telefone</label>
@@ -145,7 +132,7 @@
 						
 						<div class="form-group  col-sm-4" brewer:classforerror="responsavel.pessoa.dataNascimento">
 							<label for="dataNascimento" class="control-label">Data de nascimento/fundação</label>
-							<input type="text" class="form-control  js-date" id="dataNascimento" th:field="*{responsavel.pessoa.dataNascimento}" autocomplete="off"/>
+							<input type="text" class="form-control js-date" id="dataNascimento" th:field="*{responsavel.pessoa.dataNascimento}" autocomplete="off"/>
 						</div>
 							
 						<div class="form-group col-sm-4" brewer:classforerror="responsavel.pessoa.genero" id="divGenero">
@@ -186,9 +173,8 @@
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/pessoa.mascara-cpf-cnpj.js}"></script>
 	<script th:src="@{/javascripts/servico-busca-cep.js}"></script>
-	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
 	<script>
 		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
-	</script>
+	</script>	
 </th:block>
 </html>

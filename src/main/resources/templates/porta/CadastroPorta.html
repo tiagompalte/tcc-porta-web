@@ -37,14 +37,14 @@
 			
 			<brewer:message/>
 			
-			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}" 
+			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}" 
 					type="hidden" th:field="*{estabelecimento.codigo}" th:value="${#authentication.principal.usuario.estabelecimento.codigo}"/>
 						
 			<div class="row">
 				<div class="form-group  col-sm-2" brewer:classforerror="codigo">
 					<label for="codigo" class="control-label">Código</label>
 					<input type="text" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}" 
-							th:disabled="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}"/>
+							th:disabled="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}"/>
 				</div>
 				
 				<div class="form-group  col-sm-7  bw-required" brewer:classforerror="descricao">
@@ -54,11 +54,11 @@
 				
 				<div class="form-group  col-sm-3  bw-required" brewer:classforerror="senha">
 					<label for="senha" class="control-label">Senha</label>
-					<input type="text" class="form-control" id="descricao" th:field="*{senha}"/>
+					<input type="text" class="form-control" id="senha" th:field="*{senha}"/>
 				</div>								
 			</div>
 			
-			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
 				<div class="form-group  col-sm-9 bw-required" brewer:classforerror="estabelecimento.codigo">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
 					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">

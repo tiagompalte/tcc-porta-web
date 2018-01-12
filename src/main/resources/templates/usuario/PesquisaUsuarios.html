@@ -20,7 +20,7 @@
 					<h1>Pesquisa de usuários</h1>
 				</div>
 				
-				<div class="col-xs-2" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_USUARIO')}">
+				<div class="col-xs-2" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}">
 					<div class="aw-page-header-controls">
 						<a class="btn  btn-default" th:href="@{/usuarios/novo}">
 							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Novo usuário</span>
@@ -32,18 +32,7 @@
 	</div>
 	
 	<div class="container-fluid">
-		<form method="GET" th:object="${usuarioFiltro}" th:action="@{/usuarios}">
-		
-			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ESTABELECIMENTO')}">
-				<div class="form-group  col-sm-6">
-					<label for="estabelecimento" class="control-label">Estabelecimento</label>
-					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
-						<option value="">Selecione o estabelecimento</option>
-						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
-					</select>
-				</div>	
-			</div>
-		
+		<form method="GET" th:object="${usuarioFiltro}" th:action="@{/usuarios}">				
 			<div class="row">
 				<div class="form-group  col-sm-6">
 					<label class="control-label" for="nome">Nome</label>
@@ -83,15 +72,20 @@
 							</th:block>
 						</td>
 	                 	<td class="text-center">
+	                 		<a class="btn  btn-link  btn-xs  js-tooltip" title="Autorizar" 
+								th:href="@{/autorizacoes/novo/usuario/{codigo}(codigo=${usuario.codigo})}"
+								th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_AUTORIZACAO')}"> 
+								<i class="fa fa-key"></i>
+							</a>
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
 								th:href="@{/usuarios/{codigo}(codigo=${usuario.codigo})}"
-								th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_USUARIO')}"> 
+								th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}"> 
 								<i class="glyphicon glyphicon-pencil"></i>
 							</a>
 							<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" title="Excluir" href="#"
 								data:url="@{/usuarios/{codigo}(codigo=${usuario.codigo})}"
 								data:objeto="${usuario.pessoa.nome}"
-								th:if="${#authentication.principal.usuario.codigo != usuario.codigo and #authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_USUARIO')}">
+								th:if="${#authentication.principal.usuario.codigo != usuario.codigo and #authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}">
 								<i class="glyphicon glyphicon-remove"></i>
 							</a>
 						</td>
