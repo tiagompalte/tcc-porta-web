@@ -112,9 +112,7 @@ public class PrincipalControle {
 			List<Grupo> lista_grupo = new ArrayList<>();
 			lista_grupo.add(grupo_usuario);			
 			usuario.setGrupos(lista_grupo);
-			
-			//usuario.setAtivo(false);
-						
+									
 			usuarioServico.salvar(usuario);
 									
 		} catch (EmailUsuarioJaCadastradoExcecao e) {

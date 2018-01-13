@@ -37,7 +37,10 @@ public class UsuarioSistema extends User {
 	}
 	
 	public static String getCodigoEstabelecimento() {		
-		return ((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario().getEstabelecimento().getCodigo().toString();
+		if(((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario().getEstabelecimento() != null) {			
+			return ((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario().getEstabelecimento().getCodigo().toString();
+		}
+		return "";
 	}
 	
 	public static String getCodigoUsuario() {		
