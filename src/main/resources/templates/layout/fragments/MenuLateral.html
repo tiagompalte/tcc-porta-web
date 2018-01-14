@@ -59,7 +59,7 @@
           			</ul>
           			
           			<ul class="aw-menu__list  aw-menu__list--sublist" 
-          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_PROPRIO_ESTABELECIMENTO')}">
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_PROPRIO_ESTABELECIMENTO')} and ${!#authentication.principal.codigoEstabelecimento.isEmpty()}">
 			            <li class="aw-menu__item  aw-menu__item--link" 
 			            	brewer:menu="@{/estabelecimentoCadastro/{codigo}(codigo=${#authentication.principal.codigoEstabelecimento})}">
 			            	<a th:href="@{/estabelecimentoCadastro/{codigo}(codigo=${#authentication.principal.codigoEstabelecimento})}">
