@@ -52,6 +52,14 @@
           			</ul>
           			
           			<ul class="aw-menu__list  aw-menu__list--sublist" 
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_VISUALIZAR_AUTORIZACAO')}">
+			            <li class="aw-menu__item  aw-menu__item--link" 
+			            	brewer:menu="@{/autorizacoesUsuario/{codigo}(codigo=${#authentication.principal.codigoUsuario})}">
+			            	<a th:href="@{/autorizacoesUsuario/{codigo}(codigo=${#authentication.principal.codigoUsuario})}">Autorizações</a>
+			            </li>
+          			</ul>
+          			
+          			<ul class="aw-menu__list  aw-menu__list--sublist" 
           				th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
 			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/estabelecimentos.*}">
 			            	<a th:href="@{/estabelecimentos}">Estabelecimentos</a>
