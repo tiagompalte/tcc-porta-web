@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import br.com.utfpr.porta.modelo.Autorizacao;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
 import br.com.utfpr.porta.modelo.Grupo;
 import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.modelo.Usuario;
+import br.com.utfpr.porta.repositorio.Autorizacoes;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.Grupos;
 import br.com.utfpr.porta.repositorio.Parametros;
@@ -56,6 +58,9 @@ public class PrincipalControle {
 	
 	@Autowired
 	private Parametros parametroRepositorio;
+	
+	@Autowired
+	private Autorizacoes autorizacoesRepositorio;
 		
 	@GetMapping("/login")
 	public String login(@AuthenticationPrincipal User user) {
@@ -311,5 +316,20 @@ public class PrincipalControle {
 		attributes.addFlashAttribute("mensagem", "Estabelecimento salvo com sucesso");
 		return new ModelAndView("redirect:/estabelecimentoCadastro/".concat(estabelecimento.getCodigo().toString()));		
 	}
+	
+	@GetMapping("/autorizacoesUsuario/{codigo}")
+	public ModelAndView visualizarAutorizacoes(@PathVariable Long codigo) {
+		
+		if(UsuarioSistema.getUsuarioLogado().getCodigo().compareTo(codigo) != 0) {
+			return new ModelAndView("redirect:/403");
+		}
+		
+		List<Autorizacao> listaAutorizacoes = autorizacoesRepositorio.findByCodigoUsuario(codigo);
+		ModelAndView mv = new ModelAndView("autorizacao/UsuarioAutorizacoes");
+		mv.addObject("lista", listaAutorizacoes);
+		
+		return mv;
+	}
+	
 		
 }
