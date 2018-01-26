@@ -77,7 +77,8 @@
           			          			
         		</li>
         		
-        		<li class="aw-menu__item" brewer:menu="@{/logs.*}">
+        		<li class="aw-menu__item" brewer:menu="@{/logs.*}"
+        			th:if="${#authentication.principal.isPossuiPermissao('ROLE_VISUALIZAR_LOG')}">
           			<a th:href="@{/logs}"><i class="fa  fa-fw  fa-history"></i><span>Logs</span></a>
         		</li>
         		
