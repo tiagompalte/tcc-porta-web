@@ -45,7 +45,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 			.authorizeRequests()
 				.antMatchers("/portas").hasRole("CADASTRAR_PORTA")
-				.antMatchers("/autorizacoes").hasRole("CADASTRAR_AUTORIZACAO")	
+				.antMatchers("/autorizacoes").hasRole("CADASTRAR_AUTORIZACAO")
+				.antMatchers("/autorizacoesUsuario").hasRole("VISUALIZAR_AUTORIZACAO")
 				.antMatchers("/usuarios").hasRole("VISUALIZAR_USUARIO")
 				.antMatchers("/usuarios/**").hasRole("EDITAR_TODOS_USUARIOS")
 				.antMatchers("/usuarioCadastro").hasRole("EDITAR_PROPRIO_USUARIO")
@@ -53,6 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/estabelecimentos/**").hasRole("EDITAR_TODOS_ESTABELECIMENTOS")
 				.antMatchers("/estabelecimentoCadastro").hasRole("EDITAR_PROPRIO_ESTABELECIMENTO")
 				.antMatchers("/parametros").hasRole("CADASTRAR_PARAMETRO")
+				.antMatchers("/logs").hasRole("VISUALIZAR_LOG")
 				.anyRequest().authenticated()
 				.and()
 			.formLogin()

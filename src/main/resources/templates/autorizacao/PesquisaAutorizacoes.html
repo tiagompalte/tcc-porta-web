@@ -20,7 +20,7 @@
 					<h1>Pesquisa de autorizações</h1>
 				</div>
 				
-				<div class="col-xs-2" th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_AUTORIZACAO')}">
+				<div class="col-xs-2">
 					<div class="aw-page-header-controls">
 						<a class="btn  btn-default" th:href="@{/autorizacoes/novo}">
 							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Nova autorização</span>

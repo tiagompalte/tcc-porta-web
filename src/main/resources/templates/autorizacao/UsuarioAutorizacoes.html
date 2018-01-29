@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+	
+<head>
+	<title>Pesquisa de autorizações</title>
+</head>
+
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1>Pesquisa de autorizações</h1>
+				</div>								
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		
+		<div class="table-responsive  bw-tabela-simples">
+        	<table class="table  table-hover">
+	            <thead>
+	            	<tr>	            		
+	            		<th>Estabelecimento</th>
+	                	<th>Porta</th>
+	                	<th>Tipo de Autorização</th>
+	                	<th>Horário</th>
+					</tr>
+				</thead>
+			
+	            <tbody>
+					<tr th:each="autorizacao : ${lista}">
+						<td th:text="${autorizacao.id.estabelecimento.codigoNome}"></td>
+						<td th:text="${autorizacao.id.porta.codigoDescricao}"></td>
+						<td th:text="${autorizacao.tipoAutorizacao.descricao}"></td>
+	                 	<td th:text="${autorizacao.detalhes}"></td>
+	                </tr>
+	                
+	                <tr th:if="${lista.isEmpty()}">
+	                	<td colspan="6">Nenhuma autorização encontrada</td>
+	                </tr>
+	             </tbody>
+         	</table>
+    	 </div>
+    	     	 
+	</div>
+</section>
+<th:block layout:fragment="javascript-extra">
+</th:block>
+</body>
+</html>

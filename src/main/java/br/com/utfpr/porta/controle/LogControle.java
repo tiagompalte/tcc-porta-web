@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
+import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Log;
 import br.com.utfpr.porta.repositorio.Logs;
 import br.com.utfpr.porta.repositorio.filtro.LogFiltro;
+import br.com.utfpr.porta.seguranca.UsuarioSistema;
 
 @Controller
 @RequestMapping("/logs")
@@ -53,9 +55,16 @@ public class LogControle {
 			}
 		}
 		
+		Estabelecimento estabelecimento = null;
+		if(UsuarioSistema.getUsuarioLogado().getEstabelecimento() != null) {
+			estabelecimento = UsuarioSistema.getUsuarioLogado().getEstabelecimento();			
+		}
+		else if(logFiltro != null && logFiltro.getEstabelecimento() != null){
+			estabelecimento = logFiltro.getEstabelecimento();
+		}
+		
 		PageWrapper<Log> paginaWrapper = new PageWrapper<>(logsRepositorio.filtrar(
-				logFiltro.getEstabelecimento(), dataHoraInicio, dataHoraFinal, pageable), 
-				httpServletRequest);
+				estabelecimento, dataHoraInicio, dataHoraFinal, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		
 		return mv;
