@@ -13,7 +13,10 @@ function fail(error) {
 	this.divGroupAudio.style.display = 'none';
 }
 
-navigator.getUserMedia({audio : true}, succes, fail);
+navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia ||
+						navigator.mozGetUserMedia || navigator.msGetUserMedia);
+
+navigator.getMedia({audio : true}, succes, fail);
 
 function timer() {
     if (count <= 0) {
