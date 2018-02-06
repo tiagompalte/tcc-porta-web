@@ -1,12 +1,12 @@
 package br.com.utfpr.porta.config;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -37,20 +37,32 @@ public class JPAConfig {
 		dataSourceLookup.setResourceRef(true);
 		return dataSourceLookup.getDataSource("jdbc/portaDB");
 	}
-	
+		
 	@Profile("prod")
 	@Bean
-	public DataSource dataSourceProd() throws URISyntaxException {
+	public DataSource dataSourceProd() throws Exception {
 		
-		URI jdbUri = new URI(System.getenv("JAWSDB_URL"));
-
-	    String username = jdbUri.getUserInfo().split(":")[0];
-	    String password = jdbUri.getUserInfo().split(":")[1];
-	    String port = String.valueOf(jdbUri.getPort());
-	    String jdbUrl = "jdbc:mysql://" + jdbUri.getHost() + ":" + port + jdbUri.getPath();
-	    
+		String ambiente = System.getenv("AMBIENTE_PROD");		
+		String username, password, jdbcUrl;
+		
+		if(Strings.isEmpty(ambiente) && "AMAZON".equalsIgnoreCase(ambiente)) {			
+			String dbName = System.getProperty("RDS_DB_NAME");
+			username = System.getProperty("RDS_USERNAME");
+			password = System.getProperty("RDS_PASSWORD");
+			String hostname = System.getProperty("RDS_HOSTNAME");
+			String port = System.getProperty("RDS_PORT");
+			jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + username + "&password=" + password;			
+		}
+		else {
+			URI jdbUri = new URI(System.getenv("JAWSDB_URL"));
+		    username = jdbUri.getUserInfo().split(":")[0];
+		    password = jdbUri.getUserInfo().split(":")[1];
+		    String port = String.valueOf(jdbUri.getPort());
+		    jdbcUrl = "jdbc:mysql://" + jdbUri.getHost() + ":" + port + jdbUri.getPath();
+		}
+		
 	    BasicDataSource dataSource = new BasicDataSource();
-	    dataSource.setUrl(jdbUrl);
+	    dataSource.setUrl(jdbcUrl);
 	    dataSource.setUsername(username);
 	    dataSource.setPassword(password);
 	    dataSource.setInitialSize(5);
