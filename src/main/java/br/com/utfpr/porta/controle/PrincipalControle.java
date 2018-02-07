@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -95,6 +96,15 @@ public class PrincipalControle {
 		mv.addObject("csrfTokenFake", UUID.randomUUID());
 		mv.addObject("csrfHeaderNameFake", UUID.randomUUID());
 		mv.addObject("generos", Genero.values());
+		
+		Parametro parUrlAudio = parametroRepositorio.findOne("URL_AUDIO");
+		if(parUrlAudio != null && !Strings.isEmpty(parUrlAudio.getValor())) {
+			mv.addObject("url_audio", parUrlAudio.getValor());
+		}
+		else {
+			mv = new ModelAndView("redirect:/500");
+		}
+		
 		return mv;
 	}
 	

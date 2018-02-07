@@ -3,6 +3,7 @@ package br.com.utfpr.porta.controle;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,9 +23,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Genero;
+import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.modelo.Usuario;
 import br.com.utfpr.porta.repositorio.Grupos;
+import br.com.utfpr.porta.repositorio.Parametros;
 import br.com.utfpr.porta.repositorio.Usuarios;
 import br.com.utfpr.porta.repositorio.filtro.UsuarioFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
@@ -51,12 +54,24 @@ public class UsuarioControle {
 	@Autowired
 	private AudioStorage audioStorage;
 	
+	@Autowired
+	private Parametros parametroRepositorio;
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Usuario usuario) {	
 		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
 		mv.addObject("tiposPessoa", TipoPessoa.values());
 		mv.addObject("generos", Genero.values());
-		mv.addObject("grupos", gruposRepositorio.findAll());		
+		mv.addObject("grupos", gruposRepositorio.findAll());
+		
+		Parametro parUrlAudio = parametroRepositorio.findOne("URL_AUDIO");
+		if(parUrlAudio != null && !Strings.isEmpty(parUrlAudio.getValor())) {
+			mv.addObject("url_audio", parUrlAudio.getValor());
+		}
+		else {
+			mv = new ModelAndView("redirect:/500");
+		}
+		
 		return mv;
 	}
 	
