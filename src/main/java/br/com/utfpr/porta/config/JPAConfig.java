@@ -37,7 +37,7 @@ public class JPAConfig {
 		dataSourceLookup.setResourceRef(true);
 		return dataSourceLookup.getDataSource("jdbc/portaDB");
 	}
-	
+		
 	@Profile("prod")
 	@Bean
 	public DataSource dataSourceProd() throws URISyntaxException {

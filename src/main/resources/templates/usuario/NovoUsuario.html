@@ -105,7 +105,7 @@
 				</div>	
 				
 				<div class="form-group  col-sm-6  js-container-audio  bw-required" 
-					th:attr="data-url-audios=@{/audios}" id="divGroupAudio" brewer:classforerror="nomeAudio">
+					th:attr="data-url-audios=${url_audio} + '/audios'" id="divGroupAudio" brewer:classforerror="nomeAudio">
 					
 					<label for="divAudio" class="control-label">Senha falada</label>
 					<div class="well well-sm" id="divAudio">
