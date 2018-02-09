@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/stylesheets/**")			
 			.antMatchers("/novoUsuario")
 			.antMatchers("/novoEstabelecimento")
-			.antMatchers("/audios")
+			.antMatchers("/500")
 			.antMatchers("/");
 	}
 	
