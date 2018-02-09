@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -40,6 +41,7 @@ import nz.net.ultraq.thymeleaf.LayoutDialect;
 @ComponentScan(basePackageClasses = { Controle.class })
 @EnableWebMvc
 @EnableSpringDataWebSupport
+@EnableScheduling
 public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
 	
 	private ApplicationContext applicationContext;
@@ -109,10 +111,9 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		return cacheManager;
 	}
 	
-	//@Scheduled(cron="0 0 0 * * SUN-SAT") //segundo, minuto, hora, dia, mês, dia da semana 
-	//public void limpezaBaseDadosAutorizacoesTemporarias() {
-		//thread para limpeza da base de dados de autorizações temporárias já realizadas
-    
-	//}
+	@Bean
+	public ScheduledTasks scheduledTask() {
+		return new ScheduledTasks();
+	}
 
 }

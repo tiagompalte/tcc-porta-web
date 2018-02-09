@@ -38,7 +38,6 @@ import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
 import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.EnderecoJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
-import br.com.utfpr.porta.util.EnvioRequisicao;
 
 @Controller
 public class PrincipalControle {
@@ -80,9 +79,7 @@ public class PrincipalControle {
 	}
 	
 	@GetMapping("/dashboard")
-	public ModelAndView dashboard(HttpServletRequest httpServletRequest) {		
-		Thread thread = new Thread(new EnvioRequisicao());
-		thread.start();		
+	public ModelAndView dashboard(HttpServletRequest httpServletRequest) {
 		ModelAndView mv = new ModelAndView("Dashboard");
 		mv.addObject("welcome", "Seja bem vindo, ");
 		return mv;
@@ -90,15 +87,11 @@ public class PrincipalControle {
 	
 	@GetMapping("/")
 	public String home() {
-		Thread thread = new Thread(new EnvioRequisicao());
-		thread.start();		
 		return "index";
 	}
 	
 	@GetMapping("/novoUsuario")
-	public ModelAndView novoUsuario(Usuario usuario) {			
-		Thread thread = new Thread(new EnvioRequisicao());
-		thread.start();		
+	public ModelAndView novoUsuario(Usuario usuario) {
 		ModelAndView mv = new ModelAndView("usuario/NovoUsuario");
 		mv.addObject("csrfTokenFake", UUID.randomUUID());
 		mv.addObject("csrfHeaderNameFake", UUID.randomUUID());
