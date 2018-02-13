@@ -164,7 +164,16 @@ public class PrincipalControle {
 	private ModelAndView carregarLayoutEdicaoUsuario(Usuario usuario) {
 		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
 		mv.addObject("generos", Genero.values());
-		mv.addObject(usuario);		
+		mv.addObject(usuario);	
+		
+		Parametro parUrlAudio = parametroRepositorio.findOne("URL_AUDIO");
+		if(parUrlAudio != null && !Strings.isEmpty(parUrlAudio.getValor())) {
+			mv.addObject("url_audio", parUrlAudio.getValor());
+		}
+		else {
+			mv = new ModelAndView("redirect:/500");
+		}
+		
 		return mv;
 	}
 	
