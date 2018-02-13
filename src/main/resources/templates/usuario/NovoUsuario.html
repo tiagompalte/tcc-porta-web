@@ -127,12 +127,14 @@
 	          	</div>
 			</div>
 							
-			<button type="submit" class="btn  btn-primary" onclick="salvarAudio()">Salvar</button>
+			<button type="submit" class="btn  btn-primary" id="submitSalvar" onclick="salvarAudio()">Salvar</button>
 		</form>
 	</div>
+		
 </section>
 
 <th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/vendors/bootstrap-waitingfor.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>
@@ -144,6 +146,14 @@
 		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
 		$('#senhaTeclado').tooltip({'trigger':'focus', 'title': 'Digite 4 números'});
 		$('#rfid').tooltip({'trigger':'focus', 'title': 'Código do cartão de entrada'});
+		
+		$('#submitSalvar').click(function() {
+			waitingDialog.show('Salvando novo usuário');
+			setTimeout(function () {
+				waitingDialog.hide();
+			}, 5000);
+		});
+		
 	</script>
 </th:block>
 </html>
