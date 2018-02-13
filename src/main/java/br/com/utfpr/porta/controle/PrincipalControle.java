@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -41,6 +43,8 @@ import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
 
 @Controller
 public class PrincipalControle {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(PrincipalControle.class);
 	
 	@Autowired
 	private UsuarioServico usuarioServico;
@@ -145,6 +149,15 @@ public class PrincipalControle {
 		}
 		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
+		
+		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
+		try {			
+			Thread.sleep(3000); // 3 segundos
+		}
+		catch(Exception e) {
+			LOGGER.error("Erro ao iniciar thread de sleep");
+		}
+		
 		return new ModelAndView("redirect:/login");
 	}
 	
