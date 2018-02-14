@@ -195,19 +195,19 @@
 			var tipo = select.options[select.selectedIndex].value;
 			
 			switch(tipo) {
-				case "PROGRAMADO":
-					document.getElementById("programado").setAttribute("class", "row");
+				case "TEMPORARIO":
+					document.getElementById("temporario").setAttribute("class", "row");
 					document.getElementById("semanal").setAttribute("class", "hidden");
 					document.getElementById("mensal").setAttribute("class", "hidden");
 					break;
 				case "MENSAL":
 					document.getElementById("mensal").setAttribute("class", "row");
 					document.getElementById("semanal").setAttribute("class", "hidden");
-					document.getElementById("programado").setAttribute("class", "hidden");
+					document.getElementById("temporario").setAttribute("class", "hidden");
 					break;
 				case "SEMANAL":
 					document.getElementById("semanal").setAttribute("class", "row");
-					document.getElementById("programado").setAttribute("class", "hidden");
+					document.getElementById("temporario").setAttribute("class", "hidden");
 					document.getElementById("mensal").setAttribute("class", "hidden");
 					break;
 				default:
