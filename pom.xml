@@ -43,7 +43,7 @@
 		<guava.version>19.0</guava.version>
 		
 		<!-- Porta Serviço -->
-		<portaservico.version>1.0.6</portaservico.version>
+		<portaservico.version>1.0.7</portaservico.version>
 		
 		<!-- Apache Commons DBCP -->
 		<commons-dbcp2.version>2.1.1</commons-dbcp2.version>
