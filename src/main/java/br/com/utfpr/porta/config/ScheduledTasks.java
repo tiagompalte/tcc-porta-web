@@ -64,7 +64,7 @@ public class ScheduledTasks {
      * Tarefa que realiza a limpeza da base de dados de autorizações temporárias vencidas
      */
 	//@Scheduled(cron="0 0 0 * * SUN-SAT") //segundo, minuto, hora, dia, mês, dia da semana
-    @Scheduled(initialDelay = 0)
+    @Scheduled(initialDelay = 0, fixedDelay = 3600000) // 1 hora
 	public void limpezaBaseDadosAutorizacoesTemporarias() {		
     	autorizacaoRepositorio.apagarAutorizacoesTemporariasVencidas(new Date());
     }
