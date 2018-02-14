@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,9 +26,11 @@ import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
 import br.com.utfpr.porta.modelo.Grupo;
+import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.Grupos;
+import br.com.utfpr.porta.repositorio.Parametros;
 import br.com.utfpr.porta.repositorio.filtro.EstabelecimentoFiltro;
 import br.com.utfpr.porta.servico.EstabelecimentoServico;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
@@ -44,6 +47,9 @@ public class EstabelecimentoControle {
 	
 	@Autowired
 	private Grupos gruposRepositorio;
+	
+	@Autowired
+	private Parametros parametroRepositorio;
 		
 	@RequestMapping("/novo")
 	public ModelAndView novo(Estabelecimento estabelecimento) {
@@ -62,7 +68,13 @@ public class EstabelecimentoControle {
 		
 		try {
 			
-			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(Long.parseLong("2"));
+			Parametro par_grp_anfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			
+			if(par_grp_anfitriao == null || Strings.isEmpty(par_grp_anfitriao.getValor())) {
+				throw new NullPointerException("Parâmetro do grupo de anfitrião não cadastrado");
+			}
+			
+			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(par_grp_anfitriao.getValorLong());
 			List<Grupo> lista_grupo = new ArrayList<>();
 			lista_grupo.add(grupo_anfitriao);			
 			estabelecimento.getResponsavel().setGrupos(lista_grupo);
@@ -91,7 +103,7 @@ public class EstabelecimentoControle {
 	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		Estabelecimento estabelecimento = estabelecimentosRepositorio.findByCodigo(codigo);
+		Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(codigo);
 		ModelAndView mv = novo(estabelecimento);
 		mv.addObject(estabelecimento);		
 		return mv;

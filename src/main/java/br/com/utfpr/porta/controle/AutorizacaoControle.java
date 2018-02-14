@@ -268,7 +268,7 @@ public class AutorizacaoControle {
 		mv.addObject("tipos", TipoAutorizacao.values());
 		mv.addObject("dias", DiaSemana.values());
 		
-		Estabelecimento estabelecimento = estabelecimentosRepositorio.findByCodigo(codigoEstabelecimento);
+		Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(codigoEstabelecimento);
 		
 		List<Estabelecimento> listaEstabelecimentos = estabelecimentosRepositorio.findAll();
 		mv.addObject("estabelecimentos", listaEstabelecimentos);

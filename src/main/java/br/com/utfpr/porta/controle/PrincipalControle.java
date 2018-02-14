@@ -288,7 +288,7 @@ public class PrincipalControle {
 			return new ModelAndView("redirect:/403");
 		}
 		
-		Estabelecimento estabelecimento = estabelecimentosRepositorio.findByCodigo(codigo);
+		Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(codigo);
 		ModelAndView mv = carregarLayoutEdicaoEstabelecimento(estabelecimento);	
 		return mv;
 	}
