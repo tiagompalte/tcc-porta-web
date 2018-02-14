@@ -42,6 +42,7 @@ import br.com.utfpr.porta.servico.AutorizacaoServico;
 import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
 import br.com.utfpr.porta.servico.excecao.HoraInicialPosteriorHoraFinalExcecao;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
+import br.com.utfpr.porta.servico.excecao.InformacaoInvalidaException;
 import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
 
 @Controller
@@ -135,6 +136,10 @@ public class AutorizacaoControle {
 		}
 		catch(ValidacaoBancoDadosExcecao e) {
 			result.reject(e.getMessage(), e.getMessage());
+			return novo(autorizacao);
+		}
+		catch(InformacaoInvalidaException e) {
+			result.reject(e.getCampo(), e.getMessage());
 			return novo(autorizacao);
 		}
 		catch(Exception e) {
