@@ -26,37 +26,39 @@
 	<div class="container-fluid">
 		<form method="GET" th:object="${logFiltro}" th:action="@{/logs}">
 		
-			<div class="row">			
-				<div class="form-group  col-sm-3" brewer:classforerror="dataInicio">
-					<label for="dataInicio" class="control-label">Data de início</label>
-					<input type="text" class="form-control  js-date" id="dataInicio" th:field="*{dataInicio}" autocomplete="off"/>
-				</div>
-				
-				<div class="form-group  col-sm-2" brewer:classforerror="horaInicio">
-					<label for="horaInicio" class="control-label">Hora de início</label>
-					<div class="input-group clockpicker">
-					    <input type="text" class="form-control js-hora" id="horaInicio" th:field="*{horaInicio}">
-					    <span class="input-group-addon">
-					        <span class="glyphicon glyphicon-time"></span>
-					    </span>
-					</div>
-				</div>
-				
-				<div class="form-group  col-sm-3" brewer:classforerror="dataFinal">
-					<label for="dataFinal" class="control-label">Data final</label>
-					<input type="text" class="form-control  js-date" id="dataFinal" th:field="*{dataFinal}" autocomplete="off"/>
-				</div>
-				
-				<div class="form-group  col-sm-2" brewer:classforerror="horaFinal">
-					<label for="horaFinal" class="control-label">Hora final</label>
-					<div class="input-group clockpicker">
-					    <input type="text" class="form-control js-hora" id="horaFinal" th:field="*{horaFinal}">
-					    <span class="input-group-addon">
-					        <span class="glyphicon glyphicon-time"></span>
-					    </span>
-					</div>
-				</div>
-				
+			<brewer:message/>
+		
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
+				<div class="form-group  col-sm-6">
+					<label for="estabelecimento" class="control-label">Estabelecimento</label>
+					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
+						<option value="">Selecione o estabelecimento</option>
+						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
+					</select>
+				</div>	
+			</div>
+			
+			<div class="row">
+				<div class='form-group  col-sm-6  bw-required' brewer:classforerror="dataHoraInicio">
+		        	<label for="dataHoraInicio" class="control-label">Data hora inicial</label>
+		        	<div class="input-group date">
+			            <input type='text' class="form-control js-datahora" id="dataHoraInicio" th:field="*{dataHoraInicio}" />
+			            <span class="input-group-addon">
+		                    <span class="glyphicon glyphicon-calendar"></span>
+		                </span>
+	                </div>
+		        </div>
+		        
+		        <div class='form-group  col-sm-6  bw-required' brewer:classforerror="dataHoraFim">
+		        	<label for="dataHoraFim" class="control-label">Data hora final</label>
+		        	<div class="input-group date">
+			            <input type='text' class="form-control js-datahora" id="dataHoraFim" th:field="*{dataHoraFim}" />
+			            <span class="input-group-addon">
+		                    <span class="glyphicon glyphicon-calendar"></span>
+		                </span>
+	                </div>
+		        </div>	
+			
 				<div class="form-group  col-sm-2" style="padding-top:23px;">
 					<button type="submit" class="btn  btn-primary">Pesquisar</button>
 				</div>				
@@ -91,11 +93,26 @@
 </section>
 <th:block layout:fragment="javascript-extra">
 	<script>
-		$('.clockpicker').clockpicker({
-			donetext: 'Done',
-		    default: 'now',
-		    autoclose: true		    
-		});
+		$(function () {
+	        $('#dataHoraInicio').datetimepicker({
+	        	maxDate: 'now',
+	        	locale: 'pt-br',
+	        	sideBySide: true
+	        });
+	        $('#dataHoraFim').datetimepicker({
+	        	maxDate: 'now',
+	        	defaultDate: 'now',
+	        	locale: 'pt-br',
+	        	sideBySide: true,
+	            useCurrent: false //Important! See issue #1075
+	        });
+	        $("#dataHoraInicio").on("dp.change", function (e) {
+	            $('#dataHoraFim').data("DateTimePicker").minDate(e.date);
+	        });
+	        $("#dataHoraFim").on("dp.change", function (e) {
+	            $('#dataHoraInicio').data("DateTimePicker").maxDate(e.date);
+	        });
+	    });	
 	</script>
 </th:block>
 </body>
