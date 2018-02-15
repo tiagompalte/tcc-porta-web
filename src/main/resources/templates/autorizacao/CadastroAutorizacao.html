@@ -99,15 +99,23 @@
 		        </div>		        
 		    </div>						
 			
-			<div class="hidden" id="programado">				
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="diaSemana">
-					<label for="diaSemana" class="control-label">Dia da semana</label>
-					<select id="diaSemana" class="form-control" th:field="*{diaSemana}">
-						<option value="">Selecione um dia da semana</option>
-						<option th:each="dia : ${dias}" th:value="${dia}" th:text="${dia.descricao}"></option>
-					</select>
+			<div class="hidden" id="semanal_mensal">	
+				<div class="hidden" id="semanal">				
+					<div class="form-group  col-sm-4  bw-required" brewer:classforerror="diaSemana">
+						<label for="diaSemana" class="control-label">Dia da semana</label>
+						<select id="diaSemana" class="form-control" th:field="*{diaSemana}">
+							<option value="">Selecione um dia da semana</option>
+							<option th:each="dia : ${dias}" th:value="${dia}" th:text="${dia.descricao}"></option>
+						</select>
+					</div>
 				</div>
-				
+				<div class="hidden" id="mensal">				
+					<div class="form-group  col-sm-4  bw-required" brewer:classforerror="diaMes">
+						<label for="diaMes" class="control-label">Dia do mês</label>
+						<input type="number" id="diaMes" class="form-control" th:field="*{diaMes}" min="1" max="31">					
+					</div>
+				</div>
+								
 				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaInicio">
 					<label for="horaInicio" class="control-label">Hora de início</label>
 					<div class="input-group clockpicker">
@@ -128,7 +136,7 @@
 					</div>
 				</div>				
 			</div>
-			
+						
 			<input type="hidden" th:field="*{id.usuario.codigo}"/>
 			<input type="hidden" th:field="*{id.porta.codigo}"/>
 						
@@ -168,16 +176,28 @@
 			var tipo = select.options[select.selectedIndex].value;
 			
 			switch(tipo) {
-				case "PROGRAMADO":
-					document.getElementById("programado").setAttribute("class", "row");
+				case "TEMPORARIO":
+					document.getElementById("temporario").setAttribute("class", "row");
+					document.getElementById("semanal_mensal").setAttribute("class", "hidden");
+					document.getElementById("semanal").setAttribute("class", "hidden");
+					document.getElementById("mensal").setAttribute("class", "hidden");
+					break;
+				case "MENSAL":
+					document.getElementById("mensal").setAttribute("class", "inline");
+					document.getElementById("semanal_mensal").setAttribute("class", "row");
+					document.getElementById("semanal").setAttribute("class", "hidden");
 					document.getElementById("temporario").setAttribute("class", "hidden");
 					break;
-				case "TEMPORARIO":
-					document.getElementById("programado").setAttribute("class", "hidden");
-					document.getElementById("temporario").setAttribute("class", "row");
+				case "SEMANAL":
+					document.getElementById("semanal").setAttribute("class", "inline");
+					document.getElementById("semanal_mensal").setAttribute("class", "row");
+					document.getElementById("temporario").setAttribute("class", "hidden");
+					document.getElementById("mensal").setAttribute("class", "hidden");
 					break;
 				default:
-					document.getElementById("programado").setAttribute("class", "hidden");
+					document.getElementById("semanal_mensal").setAttribute("class", "hidden");
+					document.getElementById("mensal").setAttribute("class", "hidden");				
+					document.getElementById("semanal").setAttribute("class", "hidden");
 					document.getElementById("temporario").setAttribute("class", "hidden");
 			}
 		}

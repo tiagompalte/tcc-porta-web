@@ -1,7 +1,6 @@
 package br.com.utfpr.porta.controle;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Log;
+import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.Logs;
 import br.com.utfpr.porta.repositorio.filtro.LogFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
@@ -26,45 +26,41 @@ public class LogControle {
 	
 	@Autowired
 	private Logs logsRepositorio;
+	
+	@Autowired
+	private Estabelecimentos estabelecimentoRepositorio;
 
 	@GetMapping
-	public ModelAndView pesquisar(LogFiltro logFiltro, @PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest) {
+	public ModelAndView pesquisar(LogFiltro logFiltro, @PageableDefault(size = 5) Pageable pageable, 
+			HttpServletRequest httpServletRequest) {
 		
 		ModelAndView mv = new ModelAndView("/log/PesquisaLogs");
 		
-		LocalDateTime dataHoraInicio = null;
-		LocalDateTime dataHoraFinal = null;
-		
+		List<Estabelecimento> estabelecimentos = null;
+		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+			estabelecimentos = estabelecimentoRepositorio.findAll();
+			mv.addObject("estabelecimentos", estabelecimentos);
+		}
+				
+		Estabelecimento estabelecimento = null;
 		if(logFiltro != null) {
-			if(logFiltro.getDataInicio() != null) {
-				if(logFiltro.getHoraInicio() != null) {
-					dataHoraInicio = LocalDateTime.of(logFiltro.getDataInicio(), logFiltro.getHoraInicio());
-				}
-				else {
-					dataHoraInicio = LocalDateTime.of(logFiltro.getDataInicio(), LocalTime.MIN);
-				}				
+			if(logFiltro.getDataHoraInicio() != null && logFiltro.getDataHoraFim() != null
+					&& logFiltro.getDataHoraInicio().isAfter(logFiltro.getDataHoraFim())) {
+				logFiltro.setDataHoraInicio(null);
+				logFiltro.setDataHoraFim(null);
 			}
 			
-			if(logFiltro.getDataFinal() != null) {
-				if(logFiltro.getHoraFinal() != null) {
-					dataHoraFinal = LocalDateTime.of(logFiltro.getDataFinal(), logFiltro.getHoraFinal());
-				}
-				else {
-					dataHoraFinal = LocalDateTime.of(logFiltro.getDataFinal(), LocalTime.MAX);
-				}
+			if(logFiltro.getEstabelecimento() != null && estabelecimentos != null) {
+				estabelecimento = logFiltro.getEstabelecimento();
 			}
 		}
 		
-		Estabelecimento estabelecimento = null;
-		if(UsuarioSistema.getUsuarioLogado().getEstabelecimento() != null) {
+		else if(UsuarioSistema.getUsuarioLogado().getEstabelecimento() != null && estabelecimento == null) {
 			estabelecimento = UsuarioSistema.getUsuarioLogado().getEstabelecimento();			
-		}
-		else if(logFiltro != null && logFiltro.getEstabelecimento() != null){
-			estabelecimento = logFiltro.getEstabelecimento();
 		}
 		
 		PageWrapper<Log> paginaWrapper = new PageWrapper<>(logsRepositorio.filtrar(
-				estabelecimento, dataHoraInicio, dataHoraFinal, pageable), httpServletRequest);
+				estabelecimento, logFiltro.getDataHoraInicio(), logFiltro.getDataHoraFim(), pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		
 		return mv;

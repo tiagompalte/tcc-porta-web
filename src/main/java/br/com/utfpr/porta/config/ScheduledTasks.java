@@ -2,6 +2,7 @@ package br.com.utfpr.porta.config;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import br.com.utfpr.porta.modelo.Parametro;
+import br.com.utfpr.porta.repositorio.Autorizacoes;
 import br.com.utfpr.porta.repositorio.Parametros;
 
 @Component
@@ -21,6 +23,12 @@ public class ScheduledTasks {
 	@Autowired
 	private Parametros parametroRepositorio;
 	
+	@Autowired
+	private Autorizacoes autorizacaoRepositorio;
+	
+	/**
+	 * Tarefa que executa a cada 25 minutos para verificar a estabilidade do micro serviço de áudio
+	 */
     @Scheduled(initialDelay = 0, fixedDelay = 1500000) //25 minutos
     public void pingServicoAudio() {
 		
@@ -52,10 +60,13 @@ public class ScheduledTasks {
 		}
     }
     
-	//@Scheduled(cron="0 0 0 * * SUN-SAT") //segundo, minuto, hora, dia, mês, dia da semana 
-	//public void limpezaBaseDadosAutorizacoesTemporarias() {
-		//thread para limpeza da base de dados de autorizações temporárias já realizadas
-    
-	//}
+    /**
+     * Tarefa que realiza a limpeza da base de dados de autorizações temporárias vencidas
+     */
+	//@Scheduled(cron="0 0 0 * * SUN-SAT") //segundo, minuto, hora, dia, mês, dia da semana
+    @Scheduled(initialDelay = 0, fixedDelay = 3600000) // 1 hora
+	public void limpezaBaseDadosAutorizacoesTemporarias() {		
+    	autorizacaoRepositorio.apagarAutorizacoesTemporariasVencidas(new Date());
+    }
 
 }
