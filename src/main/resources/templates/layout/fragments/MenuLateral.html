@@ -82,6 +82,13 @@
 			            	<a th:href="@{/parametros}">Parâmetros</a>
 			            </li>
           			</ul>
+          			
+          			<ul class="aw-menu__list  aw-menu__list--sublist" 
+          				th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ANUNCIO')}">
+			            <li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/anuncios.*}">
+			            	<a th:href="@{/anuncios}">Anúncio</a>
+			            </li>
+          			</ul>
           			          			
         		</li>
         		
@@ -90,6 +97,11 @@
           			<a th:href="@{/logs}"><i class="fa  fa-fw  fa-history"></i><span>Logs</span></a>
         		</li>
         		
+        		<li class="aw-menu__item" brewer:menu="@{/anunciosUsuario.*}"
+        			th:if="${#authentication.principal.isPossuiPermissao('ROLE_VISUALIZAR_ANUNCIO')}">
+          			<a th:href="@{/anunciosUsuario}"><i class="fa  fa-fw  fa-newspaper"></i><span>Anúncios</span></a>
+        		</li>
+        		        		
       		</ul>
     	</nav>
 	</div>
