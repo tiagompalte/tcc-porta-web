@@ -55,7 +55,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/estabelecimentoCadastro").hasRole("EDITAR_PROPRIO_ESTABELECIMENTO")
 				.antMatchers("/parametros").hasRole("CADASTRAR_PARAMETRO")
 				.antMatchers("/logs").hasRole("VISUALIZAR_LOG")
-				.antMatchers("/anuncios").hasAnyRole("VISUALIZAR_ANUNCIO", "CADASTRAR_ANUNCIO")
 				.antMatchers("/anuncios/**").hasRole("CADASTRAR_ANUNCIO")
 				.antMatchers("/anunciosUsuario/**").hasRole("VISUALIZAR_ANUNCIO")
 				.anyRequest().authenticated()
