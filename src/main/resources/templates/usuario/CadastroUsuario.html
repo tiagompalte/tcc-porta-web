@@ -48,12 +48,12 @@
 			<input type="hidden" th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}" th:field="*{ativo}">
 										
 			<div class="row">
-				<div class="form-group  col-sm-8  bw-required" brewer:classforerror="pessoa.nome">
+				<div class="form-group  col-sm-8" th:classappend="${usuario.novo} ? bw-required" brewer:classforerror="pessoa.nome">
 					<label for="nomePessoa" class="control-label">Nome</label>
 					<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{pessoa.nome}"/>
 				</div>
 				
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
+				<div class="form-group  col-sm-4" th:classappend="${usuario.novo} ? bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
 					<label for="cpfOuCnpj" class="control-label">CPF</label>
 					<input type="text" class="form-control js-cpf" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
 							data:url="@{/pessoas}" th:field="*{pessoa.cpfOuCnpj}" />
@@ -81,14 +81,14 @@
 			</div>
 			
 			<div class="row">			
-				<div class="form-group  col-sm-12  bw-required" brewer:classforerror="email">
+				<div class="form-group  col-sm-12" th:classappend="${usuario.novo} ? bw-required" brewer:classforerror="email">
 					<label for="email" class="control-label">E-mail</label>
 					<input type="text" class="form-control" id="email" th:field="*{email}"/>
 				</div>	
 			</div>
 			
 			<div class="row">
-				<div class="form-group  col-sm-3" brewer:classforerror="senhaSite" th:classappend="${usuario.novo} ? bw-required">
+				<div class="form-group  col-sm-3" th:classappend="${usuario.novo} ? bw-required" brewer:classforerror="senhaSite">
 					<label for="senhaSite" class="control-label">Senha do site</label> 
 					<input type="password" class="form-control  js-senha" id="senhaSite" th:field="*{senhaSite}"/>
 				</div>
@@ -98,7 +98,7 @@
 					<input type="password" class="form-control  js-senha" id="confirmacaoSenhaSite" th:field="*{confirmacaoSenhaSite}"/>
 				</div>
 				
-				<div class="form-group  col-sm-3" brewer:classforerror="senhaTeclado" th:classappend="bw-required">
+				<div class="form-group  col-sm-3" th:classappend="${usuario.novo} ? bw-required" brewer:classforerror="senhaTeclado">
 					<label for="senhaTeclado" class="control-label">Senha da porta</label> 
 					<input type="password" class="form-control  js-senha-teclado" id="senhaTeclado" th:field="*{senhaTeclado}"/>					
 				</div>
@@ -110,12 +110,12 @@
 			</div>
 						
 			<div class="row">	
-				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
+				<div class="form-group  col-sm-6" th:classappend="${usuario.novo} ? bw-required" brewer:classforerror="rfid">
 					<label for="rfid" class="control-label">RFID</label>
 					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
 				</div>	
 				
-				<div class="form-group  col-sm-6  js-container-audio  bw-required" 
+				<div class="form-group  col-sm-6  js-container-audio" th:classappend="${usuario.novo} ? bw-required" 
 					th:attr="data-url-audios=${url_audio} + '/audios'" id="divGroupAudio" brewer:classforerror="nomeAudio">
 					
 					<label for="divAudio" class="control-label">Senha falada</label>
