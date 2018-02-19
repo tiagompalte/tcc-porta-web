@@ -1,5 +1,6 @@
 package br.com.utfpr.porta.config;
 
+import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.format.number.NumberStyleFormatter;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -91,7 +93,11 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 	@Bean
 	public FormattingConversionService mvcConversionService() {		
 		DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
-		conversionService.addConverter(new GrupoConversor());		
+		conversionService.addConverter(new GrupoConversor());	
+		
+		NumberStyleFormatter bigDecimalFormatter = new NumberStyleFormatter("#,##0.00");
+		conversionService.addFormatterForFieldType(BigDecimal.class, bigDecimalFormatter);
+		
 		return conversionService;
 	}
 		

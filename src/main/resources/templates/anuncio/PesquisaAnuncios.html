@@ -98,7 +98,7 @@
 	            <tbody>
 					<tr th:each="anuncio : ${pagina.conteudo}">
 						<td th:text="${anuncio.descricaoResumida}"></td>
-						<td th:text="${anuncio.dataPublicacao}"></td>
+						<td th:text="${anuncio.dataPublicacaoString}"></td>
 						<td th:text="${anuncio.qtdeInteressados}"></td>
 						<td th:text="${anuncio.expiradoDescricao}"></td>
 	                 	<td class="text-center">
@@ -111,7 +111,7 @@
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Suspender"
 								th:href="@{/anuncios/expirar/{codigoAnuncio}(codigoAnuncio=${anuncio.codigo})}"
 								th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ANUNCIO') and !anuncio.expirado}"> 
-								<i class="fas fa-ban"></i>
+								<i class="fa fa-ban"></i>
 							</a>
 							
 							<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" title="Excluir" href="#"
@@ -119,6 +119,12 @@
 								data:objeto="${anuncio.descricaoResumida}"
 								th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ANUNCIO')}">							
 								<i class="glyphicon glyphicon-remove"></i>
+							</a>
+							
+							<a class="btn  btn-link  btn-xs  js-tooltip" title="Interesse"
+								th:href="@{/anuncio/usuario/{codigoAnuncio}(codigoAnuncio=${anuncio.codigo})}"
+								th:if="${#authentication.principal.isPossuiPermissao('ROLE_VISUALIZAR_ANUNCIO')}"> 
+								<i class="glyphicon glyphicon-heart"></i>
 							</a>
 						</td>
 	                </tr>

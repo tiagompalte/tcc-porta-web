@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Anuncio;
+import br.com.utfpr.porta.repositorio.AnuncioUsuario;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.filtro.AnuncioFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
@@ -44,9 +45,17 @@ public class AnuncioControle {
 	@Autowired
 	private Estabelecimentos estabelecimentoRepositorio;
 	
+	@Autowired
+	private AnuncioUsuario anuncioUsuarioRepositorio;
+	
 	@RequestMapping("/anuncios/novo")
 	public ModelAndView novo(Anuncio anuncio) {	
 		ModelAndView mv = new ModelAndView("anuncio/CadastroAnuncio");
+		
+		if(anuncio.isNovo() == false) {
+			mv.addObject("usuarios", anuncioUsuarioRepositorio.obterListaUsuariosPorAnuncio(anuncio.getCodigo()));
+		}
+		
 		return mv;
 	}
 	
@@ -57,28 +66,22 @@ public class AnuncioControle {
 			return novo(anuncio);
 		}
 		
-		if(anuncio.isNovo()) {
-			if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {				
-				anuncio.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-			}
-			if(anuncio.isNovo()) {			
-				LocalDate dataUsr = LocalDate.now(Calendar.getInstance(request.getLocale()).getTimeZone().toZoneId());	
-				anuncio.setDataPublicacao(dataUsr);
-			}
+		anuncio.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		
+		if(anuncio.isNovo() && anuncio.getDataPublicacao() == null) {			
+			LocalDate dataUsr = LocalDate.now(Calendar.getInstance(request.getLocale()).getTimeZone().toZoneId());	
+			anuncio.setDataPublicacao(dataUsr);
 		}	
 		
-		try {			
+		try {
 			anuncioServico.salvar(anuncio);
-		}
-		catch (CampoNaoInformadoExcecao e) {
+		} catch (CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return novo(anuncio);
-		}
-		catch (InformacaoInvalidaException e) {
+		} catch (InformacaoInvalidaException e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return novo(anuncio);
-		}
-		catch (NullPointerException e) {
+		} catch (NullPointerException e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(anuncio);
 		} catch (Exception e) {
@@ -90,7 +93,7 @@ public class AnuncioControle {
 		return new ModelAndView("redirect:/anuncios/novo");
 	}
 	
-	@GetMapping("/anuncios")
+	@GetMapping(path = {"/anuncios", "/anunciosUsuario"})
 	public ModelAndView pesquisar(AnuncioFiltro filtro, @PageableDefault(size = 5) Pageable pageable, 
 			HttpServletRequest httpServletRequest) {
 		
@@ -130,7 +133,7 @@ public class AnuncioControle {
 	}
 	
 	@GetMapping("/anuncios/expirar/{codigo}")
-	public ModelAndView expirar(@PathVariable Long codigo) {
+	public ModelAndView expirar(@PathVariable Long codigo, HttpServletRequest request) {
 		
 		if(codigo == null) {
 			return new ModelAndView("redirect:/500");
@@ -138,14 +141,31 @@ public class AnuncioControle {
 		
 		Anuncio anuncio = anuncioRepositorio.findByCodigoAndEstabelecimento(
 				codigo, UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-		
-		if(anuncio == null) {
+				
+		try {
+			anuncioServico.expirarAnuncio(anuncio, LocalDate.now(Calendar.getInstance(request.getLocale()).getTimeZone().toZoneId()));
+		} catch(Exception e) {
 			return new ModelAndView("redirect:/404");
 		}
-			
-		ModelAndView mv = novo(anuncio);
-		mv.addObject(anuncio);
-		return mv;
+				
+		return new ModelAndView("redirect:/anuncios");
+	}
+	
+	@GetMapping("/anuncio/usuario/{codigoAnuncio}")
+	public ModelAndView marcarInteresseUsuario(@PathVariable Long codigoAnuncio) {
+		
+		if(codigoAnuncio == null) {
+			return new ModelAndView("redirect:/500");
+		}
+		
+		try {			
+			anuncioServico.adicionarUsuarioInteressado(codigoAnuncio, UsuarioSistema.getUsuarioLogado().getCodigo());
+		}
+		catch(Exception e) {
+			return new ModelAndView("redirect:/500");
+		}
+		
+		return new ModelAndView("redirect:/anunciosUsuario");
 	}
 	
 	@DeleteMapping("/anuncios/{codigo}")
