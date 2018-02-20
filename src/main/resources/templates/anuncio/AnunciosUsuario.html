@@ -8,7 +8,7 @@
 	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 	
 <head>
-	<title>Pesquisa de autorizações</title>	
+	<title>Pesquisa de anúncios</title>	
 </head>
 
 <body>
@@ -66,7 +66,7 @@
 	            	<tr>	            		
 	            		<th>Descrição</th>
 	                	<th>Data de Publicação</th>
-	                	<th>Expiração</th>
+	                	<th>Expira em</th>
 	                	<th>Preço</th>
 	                 	<th class="table-col-acoes"></th>
 					</tr>
@@ -79,10 +79,17 @@
 						<td th:text="${anuncio.tempoExpiracao}"></td>
 						<td th:text="${anuncio.precoString}"></td>
 	                 	<td class="text-center">							
-							<a class="btn  btn-link  btn-xs  js-tooltip" title="Interesse"
-								th:href="@{/anuncio/usuario/{codigoAnuncio}(codigoAnuncio=${anuncio.codigo})}"
-								th:if="${#authentication.principal.isPossuiPermissao('ROLE_VISUALIZAR_ANUNCIO')}"> 
-								<i class="glyphicon glyphicon-heart"></i>
+							<a class="btn  btn-link  btn-xs  js-tooltip  js-marcar-btn" title="Marcar interesse" href="#"
+								data:url="@{/anunciosUsuario}"
+								data:objeto="${anuncio.codigo}"
+								th:unless="${anuncio.usuarioJaInteressado}"> 
+								<i class="glyphicon glyphicon-star"></i>
+							</a>
+							
+							<a class="btn  btn-link  btn-xs  js-tooltip  js-desmarcar-btn" title="Desmarcar interesse" href="#"
+								data:url="@{/anunciosUsuario/{codigoAnuncio}(codigoAnuncio=${anuncio.codigo})}"
+								th:if="${anuncio.usuarioJaInteressado}"> 
+								<i class="glyphicon glyphicon-star-empty"></i>
 							</a>
 						</td>
 	                </tr>
@@ -131,6 +138,37 @@
 			}
 			$('#cidade').append('<option value="">Todas as cidades</option>');
 		}
+		
+		$('.js-marcar-btn').click(function() {			
+			
+			var json = { codigoAnuncio: $('.js-marcar-btn').data('objeto') };
+						
+			$.ajax({
+				url: $('.js-marcar-btn').data('url'),
+				method: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify(json),
+				success: function() {
+					window.location.reload();
+				},
+				error: function(e) {
+					console.log(e.responseText);
+				}
+			});
+		});
+		
+		$('.js-desmarcar-btn').click(function() {
+			$.ajax({
+				url: $('.js-desmarcar-btn').data('url'),
+				method: 'DELETE',
+				success: function(){
+					window.location.reload();
+				},
+				error: function(e) {
+					alert(e.responseText);
+				}
+			});
+		});
 		
 	</script>
 </th:block>

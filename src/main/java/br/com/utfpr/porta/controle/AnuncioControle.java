@@ -2,12 +2,10 @@ package br.com.utfpr.porta.controle;
 
 import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -27,10 +25,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Anuncio;
 import br.com.utfpr.porta.repositorio.AnuncioUsuario;
-import br.com.utfpr.porta.repositorio.Enderecos;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.filtro.AnuncioFiltro;
-import br.com.utfpr.porta.repositorio.filtro.AnuncioUsuarioFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.AnuncioServico;
 import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
@@ -38,6 +34,7 @@ import br.com.utfpr.porta.servico.excecao.InformacaoInvalidaException;
 import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
 
 @Controller
+@RequestMapping("/anuncios")
 public class AnuncioControle {
 	
 	@Autowired
@@ -52,10 +49,7 @@ public class AnuncioControle {
 	@Autowired
 	private AnuncioUsuario anuncioUsuarioRepositorio;
 	
-	@Autowired
-	private Enderecos enderecoRepositorio;
-	
-	@RequestMapping("/anuncios/novo")
+	@RequestMapping("/novo")
 	public ModelAndView novo(Anuncio anuncio) {	
 		ModelAndView mv = new ModelAndView("anuncio/CadastroAnuncio");
 		
@@ -66,7 +60,7 @@ public class AnuncioControle {
 		return mv;
 	}
 	
-	@PostMapping({ "/anuncios/novo", "{\\+d}" })
+	@PostMapping({ "/novo", "{\\+d}" })
 	public ModelAndView salvar(@Valid Anuncio anuncio, BindingResult result, 
 			RedirectAttributes attributes, HttpServletRequest request) {
 		
@@ -101,7 +95,7 @@ public class AnuncioControle {
 		return new ModelAndView("redirect:/anuncios/novo");
 	}
 	
-	@GetMapping("/anuncios")
+	@GetMapping
 	public ModelAndView pesquisar(AnuncioFiltro filtro, @PageableDefault(size = 5) Pageable pageable, 
 			HttpServletRequest httpServletRequest) {
 		
@@ -120,47 +114,22 @@ public class AnuncioControle {
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
 	}
-	
-	@GetMapping("/anunciosUsuario")
-	public ModelAndView pesquisarAnuncioParaUsuario(AnuncioUsuarioFiltro filtro, @PageableDefault(size = 5) Pageable pageable, 
-			HttpServletRequest httpServletRequest) {
 		
-		ModelAndView mv = new ModelAndView("/anuncio/AnunciosUsuario");
-		
-		mv.addObject("estados", enderecoRepositorio.obterEstados());
-		
-		if(Strings.isNotEmpty(filtro.getEstado())) {
-			mv.addObject("cidades", enderecoRepositorio.obterCidadesPorEstado(filtro.getEstado()));
-		}
-						
-		PageWrapper<Anuncio> paginaWrapper = new PageWrapper<>(
-				anuncioUsuarioRepositorio.filtrar(filtro, pageable), httpServletRequest);
-		mv.addObject("pagina", paginaWrapper);
-		
-		return mv;
-	}
-	
-	@GetMapping("/anunciosUsuario/estado/{estado}")
-	public @ResponseBody ResponseEntity<?> obterListaCidadePorEstado(@PathVariable String estado) {
-		
-		if(Strings.isEmpty(estado)) {
-			return null;
-		}
-		
-		List<String> listaCidades = enderecoRepositorio.obterCidadesPorEstado(estado);
-		
-		return ResponseEntity.ok().body(listaCidades);
-	}
-	
-	@GetMapping("/anuncios/{codigo}")
+	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
 		
 		if(codigo == null) {
 			return new ModelAndView("redirect:/500");
 		}
 		
-		Anuncio anuncio = anuncioRepositorio.findByCodigoAndEstabelecimento(
-				codigo, UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		Anuncio anuncio = null;
+		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+			anuncio = anuncioRepositorio.findOne(codigo);
+		}
+		else {			
+			anuncio = anuncioRepositorio.findByCodigoAndEstabelecimento(
+					codigo, UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		}
 		
 		if(anuncio == null) {
 			return new ModelAndView("redirect:/403");
@@ -171,7 +140,7 @@ public class AnuncioControle {
 		return mv;
 	}
 	
-	@GetMapping("/anuncios/expirar/{codigo}")
+	@GetMapping("/expirar/{codigo}")
 	public ModelAndView expirar(@PathVariable Long codigo, HttpServletRequest request) {
 		
 		if(codigo == null) {
@@ -190,25 +159,8 @@ public class AnuncioControle {
 		return new ModelAndView("redirect:/anuncios");
 	}
 	
-	@GetMapping("/anuncio/usuario/{codigoAnuncio}")
-	public ModelAndView marcarInteresseUsuario(@PathVariable Long codigoAnuncio) {
-		
-		if(codigoAnuncio == null) {
-			return new ModelAndView("redirect:/500");
-		}
-		
-		try {			
-			anuncioServico.adicionarUsuarioInteressado(codigoAnuncio, UsuarioSistema.getUsuarioLogado().getCodigo());
-		}
-		catch(Exception e) {
-			return new ModelAndView("redirect:/500");
-		}
-		
-		return new ModelAndView("redirect:/anunciosUsuario");
-	}
-	
-	@DeleteMapping("/anuncios/{codigo}")
-	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
 		
 		try {
 			
