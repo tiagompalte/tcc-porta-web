@@ -45,28 +45,24 @@
 					</select>
 				</div>	
 			</div>
+					
 				
-			<div class="row">
-				<div class='form-group  col-sm-4  bw-required' brewer:classforerror="dataInicio">
-		        		<label for="dataInicio" class="control-label">Data de publicação inicial</label>
-		        		<div class="input-group date">
-			            <input type='text' class="form-control js-data" id="dataInicio" th:field="*{dataInicio}" />
-			            <span class="input-group-addon">
+			<div class="row">			
+				<div class="form-group  col-sm-8">
+					<label for="dataPublicacao">Data de Publicação</label>					
+					<div class="input-group date">
+					    <input type="text" class="form-control js-data" id="dataInicio" th:field="*{dataInicio}">
+					    <span class="input-group-addon">
 		                    <span class="glyphicon glyphicon-calendar"></span>
 		                </span>
-	                </div>
-		        </div>
-		        
-		        <div class='form-group  col-sm-4  bw-required' brewer:classforerror="dataFinal">
-		        		<label for="dataFinal" class="control-label">Data de publicação final</label>
-		        		<div class="input-group date">
-			            <input type='text' class="form-control js-data" id="dataFinal" th:field="*{dataFinal}" />
-			            <span class="input-group-addon">
+					    <div class="input-group-addon">  até  </div>
+					    <input type="text" class="form-control js-data" id="dataFinal" th:field="*{dataFinal}">
+					    <span class="input-group-addon">
 		                    <span class="glyphicon glyphicon-calendar"></span>
 		                </span>
-	                </div>
-		        </div>	
-			
+					</div>
+				</div>
+							
 				<div class="form-group  col-sm-2">
 					<label class="control-label">Trazer expirados?</label>
 					<div>
@@ -78,6 +74,9 @@
 				<div class="form-group  col-sm-2" style="padding-top:23px;">
 					<button type="submit" class="btn  btn-primary">Pesquisar</button>
 				</div>
+				
+				<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}" 
+					type="hidden" th:field="*{estabelecimento.codigo}" th:value="${#authentication.principal.usuario.estabelecimento.codigo}"/>
 								
 			</div>	
 			
@@ -88,7 +87,7 @@
 	            <thead>
 	            	<tr>	            		
 	            		<th>Descrição</th>
-	                	<th>Data Publicação</th>
+	                	<th>Data de Publicação</th>
 	                	<th>Qtde. Interessados</th>
 	                	<th>Expirado</th>
 	                 	<th class="table-col-acoes"></th>

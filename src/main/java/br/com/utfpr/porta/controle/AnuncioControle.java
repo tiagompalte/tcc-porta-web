@@ -2,10 +2,12 @@ package br.com.utfpr.porta.controle;
 
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -65,7 +67,8 @@ public class AnuncioControle {
 	}
 	
 	@PostMapping({ "/anuncios/novo", "{\\+d}" })
-	public ModelAndView salvar(@Valid Anuncio anuncio, BindingResult result, RedirectAttributes attributes, HttpServletRequest request) {
+	public ModelAndView salvar(@Valid Anuncio anuncio, BindingResult result, 
+			RedirectAttributes attributes, HttpServletRequest request) {
 		
 		if (result.hasErrors()) {
 			return novo(anuncio);
@@ -104,7 +107,7 @@ public class AnuncioControle {
 		
 		ModelAndView mv = new ModelAndView("/anuncio/PesquisaAnuncios");
 		
-		if(filtro.getEstabelecimento() == null) {
+		if(filtro.getEstabelecimento() == null || UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS") == false) {
 			filtro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		
@@ -131,6 +134,16 @@ public class AnuncioControle {
 		mv.addObject("pagina", paginaWrapper);
 		
 		return mv;
+	}
+	
+	@GetMapping("/anunciosUsuario/estado/{estado}")
+	public List<String> obterListaCidadePorEstado(@PathVariable String estado) {
+		
+		if(Strings.isEmpty(estado)) {
+			return null;
+		}
+		
+		return enderecoRepositorio.obterCidadesPorEstado(estado);		
 	}
 	
 	@GetMapping("/anuncios/{codigo}")
