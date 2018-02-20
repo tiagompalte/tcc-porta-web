@@ -125,9 +125,13 @@ public class AnuncioControle {
 	public ModelAndView pesquisarAnuncioParaUsuario(AnuncioUsuarioFiltro filtro, @PageableDefault(size = 5) Pageable pageable, 
 			HttpServletRequest httpServletRequest) {
 		
-		ModelAndView mv = new ModelAndView("/anuncio/PesquisaAnunciosUsuario");
+		ModelAndView mv = new ModelAndView("/anuncio/AnunciosUsuario");
 		
 		mv.addObject("estados", enderecoRepositorio.obterEstados());
+		
+		if(Strings.isNotEmpty(filtro.getEstado())) {
+			mv.addObject("cidades", enderecoRepositorio.obterCidadesPorEstado(filtro.getEstado()));
+		}
 						
 		PageWrapper<Anuncio> paginaWrapper = new PageWrapper<>(
 				anuncioUsuarioRepositorio.filtrar(filtro, pageable), httpServletRequest);
@@ -137,13 +141,15 @@ public class AnuncioControle {
 	}
 	
 	@GetMapping("/anunciosUsuario/estado/{estado}")
-	public List<String> obterListaCidadePorEstado(@PathVariable String estado) {
+	public @ResponseBody ResponseEntity<?> obterListaCidadePorEstado(@PathVariable String estado) {
 		
 		if(Strings.isEmpty(estado)) {
 			return null;
 		}
 		
-		return enderecoRepositorio.obterCidadesPorEstado(estado);		
+		List<String> listaCidades = enderecoRepositorio.obterCidadesPorEstado(estado);
+		
+		return ResponseEntity.ok().body(listaCidades);
 	}
 	
 	@GetMapping("/anuncios/{codigo}")
