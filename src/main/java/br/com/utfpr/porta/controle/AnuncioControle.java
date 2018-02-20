@@ -25,8 +25,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Anuncio;
 import br.com.utfpr.porta.repositorio.AnuncioUsuario;
+import br.com.utfpr.porta.repositorio.Enderecos;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.filtro.AnuncioFiltro;
+import br.com.utfpr.porta.repositorio.filtro.AnuncioUsuarioFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.AnuncioServico;
 import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
@@ -48,6 +50,9 @@ public class AnuncioControle {
 	@Autowired
 	private AnuncioUsuario anuncioUsuarioRepositorio;
 	
+	@Autowired
+	private Enderecos enderecoRepositorio;
+	
 	@RequestMapping("/anuncios/novo")
 	public ModelAndView novo(Anuncio anuncio) {	
 		ModelAndView mv = new ModelAndView("anuncio/CadastroAnuncio");
@@ -67,7 +72,7 @@ public class AnuncioControle {
 		}
 		
 		anuncio.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
-		
+				
 		if(anuncio.isNovo() && anuncio.getDataPublicacao() == null) {			
 			LocalDate dataUsr = LocalDate.now(Calendar.getInstance(request.getLocale()).getTimeZone().toZoneId());	
 			anuncio.setDataPublicacao(dataUsr);
@@ -93,7 +98,7 @@ public class AnuncioControle {
 		return new ModelAndView("redirect:/anuncios/novo");
 	}
 	
-	@GetMapping(path = {"/anuncios", "/anunciosUsuario"})
+	@GetMapping("/anuncios")
 	public ModelAndView pesquisar(AnuncioFiltro filtro, @PageableDefault(size = 5) Pageable pageable, 
 			HttpServletRequest httpServletRequest) {
 		
@@ -110,6 +115,21 @@ public class AnuncioControle {
 		PageWrapper<Anuncio> paginaWrapper = new PageWrapper<>(
 				anuncioRepositorio.filtrar(filtro, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
+		return mv;
+	}
+	
+	@GetMapping("/anunciosUsuario")
+	public ModelAndView pesquisarAnuncioParaUsuario(AnuncioUsuarioFiltro filtro, @PageableDefault(size = 5) Pageable pageable, 
+			HttpServletRequest httpServletRequest) {
+		
+		ModelAndView mv = new ModelAndView("/anuncio/PesquisaAnunciosUsuario");
+		
+		mv.addObject("estados", enderecoRepositorio.obterEstados());
+						
+		PageWrapper<Anuncio> paginaWrapper = new PageWrapper<>(
+				anuncioUsuarioRepositorio.filtrar(filtro, pageable), httpServletRequest);
+		mv.addObject("pagina", paginaWrapper);
+		
 		return mv;
 	}
 	
