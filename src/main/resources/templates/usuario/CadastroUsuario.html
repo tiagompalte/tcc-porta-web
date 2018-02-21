@@ -42,8 +42,6 @@
 			<input type="hidden" th:field="*{codigo}"/>
 			<input type="hidden" th:field="*{estabelecimento.codigo}"/>
 			<input type="hidden" th:field="*{pessoa.codigo}" id="codigoPessoa"/>
-			<input type="hidden" th:field="*{nrTentativaAcessoPorta}"/>
-			<input type="hidden" th:field="*{nrTentativaAcessoSite}"/>
 			
 			<input type="hidden" th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}" th:field="*{ativo}">
 										
