@@ -8,6 +8,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,10 +21,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
+import br.com.utfpr.porta.dto.AnuncioDto;
 import br.com.utfpr.porta.dto.AnuncioUsuarioDto;
 import br.com.utfpr.porta.modelo.Anuncio;
+import br.com.utfpr.porta.modelo.AnuncioUsuarioId;
+import br.com.utfpr.porta.modelo.Estabelecimento;
+import br.com.utfpr.porta.modelo.Usuario;
 import br.com.utfpr.porta.repositorio.AnuncioUsuario;
 import br.com.utfpr.porta.repositorio.Enderecos;
+import br.com.utfpr.porta.repositorio.Estabelecimentos;
+import br.com.utfpr.porta.repositorio.Usuarios;
 import br.com.utfpr.porta.repositorio.filtro.AnuncioUsuarioFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.AnuncioUsuarioServico;
@@ -41,6 +48,15 @@ public class AnuncioUsuarioControle {
 	
 	@Autowired
 	private AnuncioUsuarioServico anuncioUsuarioServico;
+	
+	@Autowired
+	private br.com.utfpr.porta.repositorio.Anuncio anuncioRepositorio;
+	
+	@Autowired
+	private Estabelecimentos estabelecimentoRepositorio;
+	
+	@Autowired
+	private Usuarios usuarioRepositorio;
 	
 	@GetMapping
 	public ModelAndView pesquisarAnuncioParaUsuario(AnuncioUsuarioFiltro filtro, @PageableDefault(size = 5) Pageable pageable, 
@@ -73,6 +89,40 @@ public class AnuncioUsuarioControle {
 		List<String> listaCidades = enderecoRepositorio.obterCidadesPorEstado(sigla);
 		
 		return ResponseEntity.ok().body(listaCidades);
+	}
+	
+	@GetMapping("/{codigo_anuncio}")
+	public @ResponseBody ResponseEntity<?> obterAnuncioPorCodigo(@PathVariable Long codigo_anuncio) {
+		
+		if(codigo_anuncio == null) {
+			return ResponseEntity.badRequest().body("Código não informado");
+		}
+		
+		br.com.utfpr.porta.modelo.Anuncio anuncio = anuncioRepositorio.findOne(codigo_anuncio);
+		
+		if(anuncio == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Anúncio não encontrado");
+		}
+		
+		if(anuncio.getEstabelecimento() == null || anuncio.getEstabelecimento().getCodigo() == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Estabelecimento do anúncio não encontrado");
+		}
+		
+		//VERIFICA SE O USUÁRIO JÁ POSSUI INTERESSE
+		br.com.utfpr.porta.modelo.AnuncioUsuarioId id = new AnuncioUsuarioId(UsuarioSistema.getUsuarioLogado(), anuncio);		
+		br.com.utfpr.porta.modelo.AnuncioUsuario anuncioUsuario = anuncioUsuarioRepositorio.findOne(id);		
+		anuncio.setUsuarioJaInteressado(anuncioUsuario != null);
+		
+		if(anuncio.getEstabelecimento().getResponsavel() == null || anuncio.getEstabelecimento().getEndereco() == null) {
+			Estabelecimento estabelecimento = estabelecimentoRepositorio.findOne(anuncio.getEstabelecimento().getCodigo());
+			Usuario responsavel = usuarioRepositorio.findOne(estabelecimento.getResponsavel().getCodigo());
+			estabelecimento.setResponsavel(responsavel);
+			anuncio.setEstabelecimento(estabelecimento);
+		}
+		
+		AnuncioDto anuncioDto = new AnuncioDto(anuncio);
+		
+		return ResponseEntity.ok().body(anuncioDto);
 	}
 	
 	@PostMapping
