@@ -260,48 +260,4 @@ public class AutorizacaoControle {
 		return ResponseEntity.ok().build();
 	}
 	
-	@GetMapping("/estabelecimento/{codigoEstabelecimento}")
-	public ModelAndView modificarListaUsuariosPortasPorEstabelecimento(@PathVariable Long codigoEstabelecimento) {
-		
-		Autorizacao autorizacao = new Autorizacao();
-		if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
-			return novo(autorizacao);
-		}
-		
-		ModelAndView mv = new ModelAndView("autorizacao/CadastroAutorizacao");	
-		
-		mv.addObject("tipos", TipoAutorizacao.values());
-		mv.addObject("dias", DiaSemana.values());
-		
-		Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(codigoEstabelecimento);
-		
-		List<Estabelecimento> listaEstabelecimentos = estabelecimentosRepositorio.findAll();
-		mv.addObject("estabelecimentos", listaEstabelecimentos);
-		
-		if(estabelecimento == null) {
-			mv.addObject("autorizacao", autorizacao);
-			return mv;
-		}
-		
-		AutorizacaoId id = new AutorizacaoId();
-		id.setEstabelecimento(estabelecimento);
-		autorizacao.setId(id);
-		mv.addObject("autorizacao", autorizacao);
-		
-		List<Porta> listaPortas = portasRepositorio.findByEstabelecimento(estabelecimento);
-		if(listaPortas != null) {			
-			mv.addObject("portas", listaPortas);
-		}
-		
-		Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");		
-		if(par_cod_grp_usuario == null || StringUtils.isEmpty(par_cod_grp_usuario.getValor())) {
-			throw new NullPointerException("COD_GRP_USUARIO não foi parametrizado");
-		}
-		
-		List<Usuario> listaUsuarios = usuariosRepositorio.buscarPorGrupoCodigoAndAtivo(par_cod_grp_usuario.getValorLong());		
-		mv.addObject("usuarios", listaUsuarios);
-		
-		return mv;
-	}
-	
 }
