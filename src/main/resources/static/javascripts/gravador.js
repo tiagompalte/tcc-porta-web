@@ -9,8 +9,7 @@ function succes(stream) {}
 
 function fail(error) {	
 	alert("Não foi encontrado nenhum microfone disponível");
-	this.divGroupAudio = document.getElementById('divGroupAudio');
-	this.divGroupAudio.style.display = 'none';
+	document.getElementById('record').setAttribute("disabled","disabled");
 }
 
 navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia ||
