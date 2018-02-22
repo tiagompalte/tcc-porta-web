@@ -176,12 +176,15 @@ public class AutorizacaoControle {
 		List<Usuario> listaUsuarios = null;
 		List<Porta> listaPortas = null;
 		
-		if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
-			autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());			
-			listaPortas = portasRepositorio.findByEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+			mv.addObject("estabelecimentos", estabelecimentosRepositorio.findAll());
 		}
 		else {
-			listaPortas = portasRepositorio.findAll();
+			autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());		
+		}
+		
+		if(autorizacaoFiltro.getEstabelecimento() != null) {
+			listaPortas = portasRepositorio.findByEstabelecimento(autorizacaoFiltro.getEstabelecimento());			
 		}
 		
 		Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");		
