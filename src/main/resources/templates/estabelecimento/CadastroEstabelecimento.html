@@ -54,7 +54,7 @@
 				<div class="panel-body">
 			    	
 			    	<div class="row">
-						<div class="form-group  col-sm-12  bw-required" brewer:classforerror="nome">
+						<div class="form-group  col-sm-12" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="nome">
 							<label for="nome" class="control-label">Nome</label>
 							<input type="text" class="form-control" id="nome" placeholder="Casa do João" 
 							 autofocus="autofocus" th:field="*{nome}"/>
@@ -62,13 +62,13 @@
 					</div>
 					
 					<div class="row">					
-						<div class="form-group  col-sm-2  bw-required" brewer:classforerror="endereco.cep">
+						<div class="form-group  col-sm-2" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="endereco.cep">
 							<label for="cep" class="control-label">CEP</label>
 							<input type="text" class="form-control js-cep" id="cep"
 									onblur="pesquisacep(this.value);" th:field="*{endereco.cep}"/>
 						</div>
 						
-						<div class="form-group  col-sm-8  bw-required" brewer:classforerror="endereco.logradouro">
+						<div class="form-group  col-sm-8" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="endereco.logradouro">
 							<label for="logradouro" class="control-label">Logradouro</label>
 							<input type="text" class="form-control" id="logradouro" th:field="*{endereco.logradouro}"/>
 						</div>	
@@ -90,12 +90,12 @@
 							<input type="text" class="form-control" id="bairro" th:field="*{endereco.bairro}"/>
 						</div>
 						
-						<div class="form-group  col-sm-4 bw-required" brewer:classforerror="endereco.cidade">
+						<div class="form-group  col-sm-4" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="endereco.cidade">
 							<label for="cidade" class="control-label">Cidade</label>
 							<input type="text" class="form-control" id="cidade" th:field="*{endereco.cidade}"/>
 						</div>
 						
-						<div class="form-group  col-sm-2 bw-required" brewer:classforerror="endereco.estado">
+						<div class="form-group  col-sm-2" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="endereco.estado">
 							<label for="estado" class="control-label">Estado</label>
 							<input type="text" class="form-control" id="estado" th:field="*{endereco.estado}"/>
 						</div>
@@ -110,7 +110,7 @@
 				<div class="panel-body">
 				
 					<div class="row">
-						<div class="form-group  col-sm-4  bw-required" brewer:classforerror="responsavel.pessoa.tipoPessoa">
+						<div class="form-group  col-sm-4" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="responsavel.pessoa.tipoPessoa">
 							<label class="control-label">Tipo pessoa</label> 
 							<div>
 								<th:block th:each="tipoPessoa : ${tiposPessoa}">
@@ -124,7 +124,7 @@
 							</div>
 						</div>
 						
-						<div class="form-group  col-sm-8  bw-required" brewer:classforerror="responsavel.pessoa.cpfOuCnpj">
+						<div class="form-group  col-sm-8" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="responsavel.pessoa.cpfOuCnpj">
 							<label for="cpfOuCnpj" class="control-label">CPF/CNPJ</label>
 							<input type="text" class="form-control" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
 									data:url="@{/pessoas}" th:field="*{responsavel.pessoa.cpfOuCnpj}" disabled/>
@@ -132,7 +132,7 @@
 					</div>
 				
 					<div class="row">
-						<div class="form-group  col-sm-12  bw-required" brewer:classforerror="responsavel.pessoa.nome">
+						<div class="form-group  col-sm-12" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="responsavel.pessoa.nome">
 							<label for="nomePessoa" class="control-label">Nome</label>
 							<input type="text" class="form-control" id="nomePessoa" autofocus="autofocus" th:field="*{responsavel.pessoa.nome}"/>
 						</div>
@@ -159,14 +159,14 @@
 					</div>
 					
 					<div class="row">			
-						<div class="form-group  col-sm-12  bw-required" brewer:classforerror="responsavel.email">
+						<div class="form-group  col-sm-12" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="responsavel.email">
 							<label for="email" class="control-label">E-mail</label>
 							<input type="text" class="form-control" id="email" th:field="*{responsavel.email}"/>
 						</div>	
 					</div>
 					
 					<div class="row">
-						<div class="form-group  col-sm-6" brewer:classforerror="responsavel.senhaSite" th:classappend="bw-required">
+						<div class="form-group  col-sm-6" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="responsavel.senhaSite">
 							<label for="senhaSite" class="control-label">Senha do site</label> 
 							<input type="password" class="form-control" id="senhaSite" th:field="*{responsavel.senhaSite}" th:maxlength="12"/>
 						</div>
