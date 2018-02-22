@@ -57,9 +57,9 @@
 	            <thead>
 	            	<tr>	            		
 	            		<th>Nome</th>
-	                	<th>Responsável</th>
-	                	<!--  th>Qtd. usuários</th-->
+	                	<th>Responsável</th>	                	
 	                	<th>Qtd. portas</th>
+	                	<th>Qtd. anúncios</th>
 	                 	<th class="table-col-acoes"></th>
 					</tr>
 				</thead>
@@ -67,9 +67,9 @@
 	            <tbody>
 					<tr th:each="estabelecimento : ${pagina.conteudo}">
 						<td th:text="${estabelecimento.nome}"></td>
-						<td th:text="${estabelecimento.responsavel.pessoa.nome}"></td>
-						<!--  td th:text="${estabelecimento.quantidadeUsuarios}"></td-->
+						<td th:text="${estabelecimento.responsavel.pessoa.nome}"></td>						
 						<td th:text="${estabelecimento.quantidadePortas}"></td>
+						<td th:text="${estabelecimento.quantidadeAnuncios}"></td>
 	                 	<td class="text-center">
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
 							th:href="@{/estabelecimentos/{codigo}(codigo=${estabelecimento.codigo})}"> 
