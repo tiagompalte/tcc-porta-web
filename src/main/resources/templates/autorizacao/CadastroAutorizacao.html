@@ -44,7 +44,8 @@
 				<div class="form-group  col-sm-4 bw-required" brewer:classforerror="id.estabelecimento.codigo">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
 					<select id="estabelecimento" class="form-control  js-container-estabelecimento" 
-							th:field="*{id.estabelecimento.codigo}" th:attr="data-url-audios=@{/autorizacoes/estabelecimento/}"
+							th:field="*{id.estabelecimento.codigo}"
+							th:attr="data-url-portas=@{/portas/estabelecimento/}"
 							th:disabled="${!autorizacao.novo}">
 						<option value="">Selecione um estabelecimento</option>						
 						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
@@ -53,7 +54,7 @@
 			</div>
 			
 			<div class="row">
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="id.usuario">
+				<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="id.usuario">
 					<label for="usuario" class="control-label">Usuário</label>					
 					<select id="usuario" class="form-control" th:field="*{id.usuario.codigo}" th:disabled="${!autorizacao.novo}">
 						<option value="">Selecione um usuário</option>
@@ -61,7 +62,7 @@
 					</select>
 				</div>
 					
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="id.porta">
+				<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="id.porta">
 					<label for="porta" class="control-label">Porta</label>
 					<select id="porta" class="form-control" th:field="*{id.porta.codigo}" th:disabled="${!autorizacao.novo}">
 						<option value="">Selecione uma porta</option>
@@ -69,7 +70,7 @@
 					</select>
 				</div>
 					
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="tipoAutorizacao">
+				<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="tipoAutorizacao">
 					<label for="tipo" class="control-label">Tipo de autorização</label>
 					<select id="tipo" class="form-control  js-container-tipo" th:field="*{tipoAutorizacao}" onchange="carregarTipos()">
 						<option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="${tipo.descricao}"></option>
@@ -78,7 +79,7 @@
 			</div>	
 			
 			<div class="hidden" id="temporario">
-		        <div class='form-group  col-sm-6  bw-required' brewer:classforerror="dataHoraInicio">
+		        <div class="form-group  col-sm-6" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="dataHoraInicio">
 		        	<label for="dataHoraInicio" class="control-label">Data hora inicial</label>
 		        	<div class="input-group date">
 			            <input type='text' class="form-control js-datahora" id="dataHoraInicio" th:field="*{dataHoraInicio}" />
@@ -88,7 +89,7 @@
 	                </div>
 		        </div>
 		        
-		        <div class='form-group  col-sm-6  bw-required' brewer:classforerror="dataHoraFim">
+		        <div class="form-group  col-sm-6" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="dataHoraFim">
 		        	<label for="dataHoraFim" class="control-label">Data hora final</label>
 		        	<div class="input-group date">
 			            <input type='text' class="form-control js-datahora" id="dataHoraFim" th:field="*{dataHoraFim}" />
@@ -101,7 +102,7 @@
 			
 			<div class="hidden" id="semanal_mensal">	
 				<div class="hidden" id="semanal">				
-					<div class="form-group  col-sm-4  bw-required" brewer:classforerror="diaSemana">
+					<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="diaSemana">
 						<label for="diaSemana" class="control-label">Dia da semana</label>
 						<select id="diaSemana" class="form-control" th:field="*{diaSemana}">
 							<option value="">Selecione um dia da semana</option>
@@ -110,13 +111,13 @@
 					</div>
 				</div>
 				<div class="hidden" id="mensal">				
-					<div class="form-group  col-sm-4  bw-required" brewer:classforerror="diaMes">
+					<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="diaMes">
 						<label for="diaMes" class="control-label">Dia do mês</label>
 						<input type="number" id="diaMes" class="form-control" th:field="*{diaMes}" min="1" max="31">					
 					</div>
 				</div>
 								
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaInicio">
+				<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="horaInicio">
 					<label for="horaInicio" class="control-label">Hora de início</label>
 					<div class="input-group clockpicker">
 					    <input type="text" class="form-control js-hora" id="horaInicio" th:field="*{horaInicio}">
@@ -126,7 +127,7 @@
 					</div>
 				</div>
 				
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="horaFim">
+				<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="horaFim">
 					<label for="horaFim" class="control-label">Hora final</label>
 					<div class="input-group clockpicker">
 					    <input type="text" class="form-control js-hora" id="horaFim" th:field="*{horaFim}">
@@ -150,15 +151,15 @@
 	
 		$(function () {
 	        $('#dataHoraInicio').datetimepicker({
-	        	minDate: 'now',
-	        	defaultDate: 'now',
-	        	locale: 'pt-br',
-	        	sideBySide: true
+		        	minDate: 'now',
+		        	defaultDate: 'now',
+		        	locale: 'pt-br',
+		        	sideBySide: true
 	        });
 	        $('#dataHoraFim').datetimepicker({
-	        	minDate: 'now',
-	        	locale: 'pt-br',
-	        	sideBySide: true,
+		        	minDate: 'now',
+		        	locale: 'pt-br',
+		        	sideBySide: true,
 	            useCurrent: false //Important! See issue #1075
 	        });
 	        $("#dataHoraInicio").on("dp.change", function (e) {
@@ -204,14 +205,37 @@
 		
 		$('.js-container-estabelecimento').change(function() {
 			
-			if(document.getElementById("estabelecimento").selectedOptions[0].value == null 
-					|| document.getElementById("estabelecimento").selectedOptions[0].value == '') {
+			if($("#estabelecimento option:selected")["0"].value == null || $("#estabelecimento option:selected")["0"].value == "") {
+				limparSelectPorta();
 				return;
 			}
 			
-			window.location.href = $('.js-container-estabelecimento').data('url-audios') + document.getElementById("estabelecimento").selectedOptions[0].value;
+			$.ajax({
+				type: "GET",
+				url: $('#estabelecimento').data('url-portas') + $("#estabelecimento option:selected")["0"].value,
+				beforeSend: function() {
+					limparSelectPorta();
+				},
+				success: function(data) {					
+					if(data != null && data.length > 0) {
+						data.forEach(function(item){
+						    $('#porta').append('<option value='+item.codigo+'>' + item.codigo + " - " + item.descricao + '</option>');
+						});
+					}
+				}
+			});
+			
 			
 		});
+		
+		function limparSelectPorta() {
+			var select = document.getElementById("porta");
+			var length = $('#porta')["0"].length - 1;
+			for (i = length; i >= 0; i--) {
+				select.options[i] = null;
+			}
+			$('#porta').append('<option value="">Selecione uma porta</option>');
+		}
 				
 		$('.js-date').datepicker({
 			orientation: 'bottom',

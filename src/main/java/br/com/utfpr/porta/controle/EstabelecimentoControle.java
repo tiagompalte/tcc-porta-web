@@ -28,6 +28,7 @@ import br.com.utfpr.porta.modelo.Genero;
 import br.com.utfpr.porta.modelo.Grupo;
 import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.TipoPessoa;
+import br.com.utfpr.porta.repositorio.Enderecos;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
 import br.com.utfpr.porta.repositorio.Grupos;
 import br.com.utfpr.porta.repositorio.Parametros;
@@ -50,6 +51,9 @@ public class EstabelecimentoControle {
 	
 	@Autowired
 	private Parametros parametroRepositorio;
+	
+	@Autowired
+	private Enderecos enderecoRepositorio;
 		
 	@RequestMapping("/novo")
 	public ModelAndView novo(Estabelecimento estabelecimento) {
@@ -91,13 +95,20 @@ public class EstabelecimentoControle {
 	}
 	
 	@GetMapping
-	public ModelAndView pesquisar(EstabelecimentoFiltro estabelecimentoFiltro,
+	public ModelAndView pesquisar(EstabelecimentoFiltro filtro,
 			@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest) {
 		
 		ModelAndView mv = new ModelAndView("/estabelecimento/PesquisaEstabelecimentos");		
 		PageWrapper<Estabelecimento> paginaWrapper = new PageWrapper<>(
-				estabelecimentosRepositorio.filtrar(estabelecimentoFiltro, pageable), httpServletRequest);
+				estabelecimentosRepositorio.filtrar(filtro, pageable), httpServletRequest);
+		
+		mv.addObject("estados", enderecoRepositorio.obterEstados());
 		mv.addObject("pagina", paginaWrapper);
+		
+		if(Strings.isNotEmpty(filtro.getEstado())) {
+			mv.addObject("cidades", enderecoRepositorio.obterCidadesPorEstado(filtro.getEstado()));
+		}
+		
 		return mv;
 	}
 	
@@ -108,7 +119,20 @@ public class EstabelecimentoControle {
 		mv.addObject(estabelecimento);		
 		return mv;
 	}
+	
+	@GetMapping("/estado/{sigla}")
+	public @ResponseBody ResponseEntity<?> obterListaCidadesPorEstado(@PathVariable String sigla) {
 		
+		if(Strings.isEmpty(sigla)) {
+			return null;
+		}
+		
+		List<String> listaCidades = enderecoRepositorio.obterCidadesPorEstado(sigla);
+		
+		return ResponseEntity.ok().body(listaCidades);		
+	}
+	
+	
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
 		try {

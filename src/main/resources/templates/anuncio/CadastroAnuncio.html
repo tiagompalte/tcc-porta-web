@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data">
+
+<head>
+	<title>Cadastro de anúncio</title>
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1 th:if="${anuncio.novo}"> Cadastro de anúncio</h1>
+					<h1 th:unless="${anuncio.novo}">Edição da anúncio</h1>
+				</div>
+				
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn  btn-default" th:href="@{/anuncios}">
+							<i class="glyphicon glyphicon-search"></i> <span class="hidden-xs  hidden-sm">Pesquisa</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="POST" th:object="${anuncio}" 
+				th:action="${anuncio.novo} ? @{/anuncios/novo} : @{/anuncios/{codigo}(codigo=${anuncio.codigo})}">
+			
+			<brewer:message/>
+			
+			<input type="hidden" th:field="*{codigo}"/>
+			<input type="hidden" th:field="*{estabelecimento.codigo}" th:value="${#authentication.principal.usuario.estabelecimento.codigo}"/>
+						
+			<div class="row">				
+				<div class="form-group  col-sm-12" th:classappend="${anuncio.novo} ? bw-required" brewer:classforerror="descricaoResumida">
+					<label for="descricaoResumida" class="control-label">Descrição resumida</label>
+					<input type="text" class="form-control" autofocus="autofocus" id="descricaoResumida" 
+							th:field="*{descricaoResumida}" th:maxlength="50"/>
+				</div>
+			</div>
+			
+			<div class="row">	
+				<div class="form-group  col-sm-12" th:classappend="${anuncio.novo} ? bw-required" brewer:classforerror="descricao">
+					<label for="descricao" class="control-label">Descrição</label>
+					<textarea rows="4" cols="50" class="form-control" id="descricao" 
+								th:field="*{descricao}" th:maxlength="200"></textarea>
+				</div>
+			</div>
+			
+			<div class="row">	
+				<div class="form-group  col-sm-4" th:classappend="${anuncio.novo} ? bw-required" brewer:classforerror="preco">
+ 					<label for="preco" class="control-label">Preço</label>
+ 					<div class="input-group">
+						<div class="input-group-addon">R$</div>
+						<input id="preco" type="text" class="form-control  js-decimal" th:field="*{preco}"/>
+					</div>
+ 				</div>
+				
+				<div class="form-group  col-sm-4" th:classappend="${anuncio.novo} ? bw-required" brewer:classforerror="dataExpiracao">
+					<label for="dataExpiracao" class="control-label">Data de expiração</label>
+					<input type="text" class="form-control js-date" id="dataExpiracao" th:field="*{dataExpiracao}"/>
+				</div>								
+								
+				<div class="form-group  col-sm-4" th:classappend="${anuncio.novo} ? bw-required" brewer:classforerror="dataPublicacao">
+					<label for="dataPublicacao" class="control-label">Data de publicação</label>
+					<input type="text" class="form-control js-date" id="dataPublicacao" th:field="*{dataPublicacao}" th:disabled="true"/>
+				</div>	
+			</div>
+									
+			<button type="submit" class="btn  btn-primary">Salvar</button>
+		</form>
+	</div>
+	
+	<div class="table-responsive  bw-tabela-simples" th:if="${not anuncio.novo}">
+       		<table class="table  table-hover">
+	            <thead>
+		            	<tr>
+		            		<th>Pessoas Interessadas</th>
+		                	<th>E-mail</th>
+		                 <th class="table-col-acoes"></th>
+					</tr>
+				</thead>
+		
+            <tbody>
+				<tr th:each="usuario : ${usuarios}">
+					<td th:text="${usuario.pessoa.nome}"></td>
+					<td th:text="${usuario.email}"></td>
+                 	<td class="text-center">
+                 		<a class="btn  btn-link  btn-xs  js-tooltip" title="Autorizar" 
+							th:href="@{/autorizacoes/novo/usuario/{codigo}(codigo=${usuario.codigo})}"
+							th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_AUTORIZACAO')}"> 
+							<i class="fa fa-key"></i>
+						</a>
+					</td>
+                </tr>	                
+             </tbody>
+        	</table>
+	</div>
+	
+</section>
+
+<th:block layout:fragment="javascript-extra">
+	<script>	
+		$('#dataExpiracao').datepicker({
+			format: "dd/mm/yyyy",
+			startDate: "today",
+			orientation: "top auto",
+			language: "pt-BR"
+		});
+	</script>
+</th:block>
+</html>

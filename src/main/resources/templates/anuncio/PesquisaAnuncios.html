@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+	
+<head>
+	<title>Pesquisa de anúncios</title>
+	
+	<link rel="stylesheet" type="text/css" th:href="@{/stylesheets/vendors/bootstrap-switch.min.css}"/>
+</head>
+
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10">
+					<h1>Pesquisa de anúncios</h1>
+				</div>
+				
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn  btn-default" th:href="@{/anuncios/novo}">
+							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Novo anúncio</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="GET" th:object="${anuncioFiltro}" th:action="@{/anuncios}">
+		
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
+				<div class="form-group  col-sm-8">
+					<label for="estabelecimento" class="control-label">Estabelecimento</label>
+					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}">
+						<option value="">Selecione o estabelecimento</option>
+						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
+					</select>
+				</div>	
+			</div>
+					
+				
+			<div class="row">			
+				<div class="form-group  col-sm-8">
+					<label for="dataPublicacao">Data de Publicação</label>					
+					<div class="input-group date">
+					    <input type="text" class="form-control js-data" id="dataInicio" th:field="*{dataInicio}">
+					    <span class="input-group-addon">
+		                    <span class="glyphicon glyphicon-calendar"></span>
+		                </span>
+					    <div class="input-group-addon">  até  </div>
+					    <input type="text" class="form-control js-data" id="dataFinal" th:field="*{dataFinal}">
+					    <span class="input-group-addon">
+		                    <span class="glyphicon glyphicon-calendar"></span>
+		                </span>
+					</div>
+				</div>
+							
+				<div class="form-group  col-sm-2">
+					<label class="control-label">Trazer expirados?</label>
+					<div>
+						<input type="checkbox" class="js-status" data-size="small" data-off-color="danger" 
+							data-on-text="Sim" data-off-text="Não" th:field="*{expirado}"/>
+					</div>
+				</div>
+				
+				<div class="form-group  col-sm-2" style="padding-top:23px;">
+					<button type="submit" class="btn  btn-primary">Pesquisar</button>
+				</div>
+				
+				<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}" 
+					type="hidden" th:field="*{estabelecimento.codigo}" th:value="${#authentication.principal.usuario.estabelecimento.codigo}"/>
+								
+			</div>	
+			
+		</form>
+		
+		<div class="table-responsive  bw-tabela-simples">
+        		<table class="table  table-hover">
+	            <thead>
+	            	<tr>	            		
+	            		<th>Descrição</th>
+	                	<th>Data de Publicação</th>
+	                	<th>Qtde. Interessados</th>
+	                	<th>Expirado</th>
+	                 	<th class="table-col-acoes"></th>
+					</tr>
+				</thead>
+			
+	            <tbody>
+					<tr th:each="anuncio : ${pagina.conteudo}">
+						<td th:text="${anuncio.descricaoResumida}"></td>
+						<td th:text="${anuncio.dataPublicacaoString}"></td>
+						<td th:text="${anuncio.qtdeInteressados}"></td>
+						<td th:text="${anuncio.expiradoDescricao}"></td>
+	                 	<td class="text-center">
+							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
+								th:href="@{/anuncios/{codigoAnuncio}(codigoAnuncio=${anuncio.codigo})}"
+								th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ANUNCIO')}"> 
+								<i class="glyphicon glyphicon-pencil"></i>
+							</a>
+							
+							<a class="btn  btn-link  btn-xs  js-tooltip" title="Suspender"
+								th:href="@{/anuncios/expirar/{codigoAnuncio}(codigoAnuncio=${anuncio.codigo})}"
+								th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ANUNCIO') and !anuncio.expirado}"> 
+								<i class="fa fa-ban"></i>
+							</a>
+							
+							<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" title="Excluir" href="#"
+								data:url="@{/anuncios/{codigoAnuncio}(codigoAnuncio=${anuncio.codigo})}"
+								data:objeto="${anuncio.descricaoResumida}"
+								th:if="${#authentication.principal.isPossuiPermissao('ROLE_CADASTRAR_ANUNCIO')}">							
+								<i class="glyphicon glyphicon-remove"></i>
+							</a>
+						</td>
+	                </tr>
+	                
+	                <tr th:if="${pagina.vazia}">
+	                	<td colspan="6">Nenhum anúncio encontrado</td>
+	                </tr>
+	             </tbody>
+         	</table>
+    	 	</div>
+    	 
+    	 	<brewer:pagination page="${pagina}"/>
+	</div>
+</section>
+<th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/vendors/bootstrap-switch.min.js}"></script>
+	<script>
+		$(function () {
+	        $('#dataInicio').datetimepicker({
+		        	maxDate: 'now',
+		        	locale: 'pt-br',
+		        	format: 'DD/MM/YYYY',
+		        	
+		    });
+	        $('#dataFinal').datetimepicker({
+		        	maxDate: 'now',
+		        	defaultDate: 'now',
+		        	locale: 'pt-br',
+		        	format: 'DD/MM/YYYY',
+		        useCurrent: false //Important! See issue #1075
+		    });
+	        $("#dataInicio").on("dp.change", function (e) {
+	            $('#dataFinal').data("DateTimePicker").minDate(e.date);
+	        });
+	        $("#dataFinal").on("dp.change", function (e) {
+	            $('#dataInicio').data("DateTimePicker").maxDate(e.date);
+	        });
+	    });	
+		
+		$('.js-status').bootstrapSwitch();
+	</script>
+</th:block>
+</body>
+</html>

@@ -40,8 +40,8 @@
 			
 			<div class="row">
 				<div class='form-group  col-sm-6  bw-required' brewer:classforerror="dataHoraInicio">
-		        	<label for="dataHoraInicio" class="control-label">Data hora inicial</label>
-		        	<div class="input-group date">
+		        		<label for="dataHoraInicio" class="control-label">Data hora inicial</label>
+		        		<div class="input-group date">
 			            <input type='text' class="form-control js-datahora" id="dataHoraInicio" th:field="*{dataHoraInicio}" />
 			            <span class="input-group-addon">
 		                    <span class="glyphicon glyphicon-calendar"></span>
@@ -50,8 +50,8 @@
 		        </div>
 		        
 		        <div class='form-group  col-sm-6  bw-required' brewer:classforerror="dataHoraFim">
-		        	<label for="dataHoraFim" class="control-label">Data hora final</label>
-		        	<div class="input-group date">
+		        		<label for="dataHoraFim" class="control-label">Data hora final</label>
+		        		<div class="input-group date">
 			            <input type='text' class="form-control js-datahora" id="dataHoraFim" th:field="*{dataHoraFim}" />
 			            <span class="input-group-addon">
 		                    <span class="glyphicon glyphicon-calendar"></span>
@@ -95,15 +95,15 @@
 	<script>
 		$(function () {
 	        $('#dataHoraInicio').datetimepicker({
-	        	maxDate: 'now',
-	        	locale: 'pt-br',
-	        	sideBySide: true
+		        	maxDate: 'now',
+		        	locale: 'pt-br',
+		        	sideBySide: true
 	        });
 	        $('#dataHoraFim').datetimepicker({
-	        	maxDate: 'now',
-	        	defaultDate: 'now',
-	        	locale: 'pt-br',
-	        	sideBySide: true,
+		        	maxDate: 'now',
+		        	defaultDate: 'now',
+		        	locale: 'pt-br',
+		        	sideBySide: true,
 	            useCurrent: false //Important! See issue #1075
 	        });
 	        $("#dataHoraInicio").on("dp.change", function (e) {

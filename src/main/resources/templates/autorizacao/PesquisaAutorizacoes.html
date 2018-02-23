@@ -33,6 +33,17 @@
 	
 	<div class="container-fluid">
 		<form method="GET" th:object="${autorizacaoFiltro}" th:action="@{/autorizacoes}">
+		
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
+				<div class="form-group  col-sm-8">
+					<label for="estabelecimento" class="control-label">Estabelecimento</label>
+					<select id="estabelecimento" class="form-control" th:field="*{estabelecimento.codigo}"
+							th:attr="data-url-portas=@{/portas/estabelecimento/}">
+						<option value="">Selecione o estabelecimento</option>
+						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
+					</select>
+				</div>	
+			</div>
 				
 			<div class="row">
 				<div class="form-group  col-sm-4">
@@ -106,6 +117,38 @@
 	</div>
 </section>
 <th:block layout:fragment="javascript-extra">
+	<script>
+		$('#estabelecimento').change(function() {			
+			if($("#estabelecimento option:selected")["0"].value == null || $("#estabelecimento option:selected")["0"].value == "") {
+				limparSelectPorta();
+				return;
+			}
+			
+			$.ajax({
+				type: "GET",
+				url: $('#estabelecimento').data('url-portas') + $("#estabelecimento option:selected")["0"].value,
+				beforeSend: function() {
+					limparSelectPorta();
+				},
+				success: function(data) {					
+					if(data != null && data.length > 0) {
+						data.forEach(function(item){
+						    $('#porta').append('<option value='+item.codigo+'>' + item.codigo + " - " + item.descricao + '</option>');
+						});
+					}
+				}
+			});
+		});
+		
+		function limparSelectPorta() {
+			var select = document.getElementById("porta");
+			var length = $('#porta')["0"].length - 1;
+			for (i = length; i >= 0; i--) {
+				select.options[i] = null;
+			}
+			$('#porta').append('<option value="">Selecione uma porta</option>');
+		}
+	</script>
 </th:block>
 </body>
 </html>

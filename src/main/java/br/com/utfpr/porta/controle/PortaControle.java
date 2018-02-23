@@ -1,5 +1,6 @@
 package br.com.utfpr.porta.controle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -22,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
+import br.com.utfpr.porta.dto.PortaDto;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.Porta;
@@ -154,6 +157,30 @@ public class PortaControle {
 	@GetMapping("/cadastramento/{codigo}")
 	public Porta cadastramentoUsuario(@PathVariable Long codigo) {		
 		return portaRepositorio.findOne(codigo);		
+	}
+	
+	@GetMapping("/estabelecimento/{codigo_estabelecimento}")
+	public @ResponseBody ResponseEntity<?> obterListaPortasPorEstabelecimento(@PathVariable Long codigo_estabelecimento) {
+		
+		if(codigo_estabelecimento == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Código do estabelecimento não informado");
+		}
+		
+		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS") == false &&
+				Long.valueOf(UsuarioSistema.getCodigoEstabelecimento()).compareTo(codigo_estabelecimento) != 0) {
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Usuário sem permissão");
+		}
+				
+		List<Porta> listaPortas = portaRepositorio.findByEstabelecimento(new Estabelecimento(codigo_estabelecimento));
+		
+		List<PortaDto> listaPortaDto = new ArrayList<>();
+		if(listaPortas != null && listaPortas.isEmpty() == false) {
+			for(Porta porta : listaPortas) {
+				listaPortaDto.add(new PortaDto(porta));
+			}
+		}
+		
+		return ResponseEntity.ok().body(listaPortaDto);
 	}
 	
 	@DeleteMapping("/{codigo}")

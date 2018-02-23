@@ -35,14 +35,21 @@
 		<form method="GET" th:object="${estabelecimentoFiltro}" th:action="@{/estabelecimentos}">
 		
 			<div class="row">
-				<div class="form-group  col-sm-8">
-					<label for="cidade" class="control-label">Cidade</label>
-					<input type="text" class="form-control" id="cidade" th:field="*{cidade}"/>
-				</div>
-					
-				<div class="form-group  col-sm-2">
+				<div class="form-group  col-sm-4">
 					<label for="estado" class="control-label">Estado</label>
-					<input type="text" class="form-control" id="estado" th:field="*{estado}"/>
+					<select id="estado" class="form-control" th:field="*{estado}">
+	                    <option value="">Todos os estados</option>
+	                    <option th:each="estado : ${estados}" th:value="${estado}" th:text="${estado}"></option>
+	                </select>
+				</div>
+				
+				<div class="form-group  col-sm-6">
+					<label for="cidade" class="control-label">Cidade</label>
+					<select id="cidade" class="form-control" th:field="*{cidade}" th:disabled="${cidades == null}" 
+							th:attr="data-url-cidades=@{/estabelecimentos/estado/}">
+	                    <option value="">Todas as cidades</option>
+	                    <option th:each="cid : ${cidades}" th:value="${cid}" th:text="${cid}"></option>
+	                </select>
 				</div>
 					
 				<div class="form-group  col-sm-2" style="padding-top:23px;">
@@ -57,9 +64,9 @@
 	            <thead>
 	            	<tr>	            		
 	            		<th>Nome</th>
-	                	<th>Responsável</th>
-	                	<!--  th>Qtd. usuários</th-->
+	                	<th>Responsável</th>	                	
 	                	<th>Qtd. portas</th>
+	                	<th>Qtd. anúncios</th>
 	                 	<th class="table-col-acoes"></th>
 					</tr>
 				</thead>
@@ -67,9 +74,9 @@
 	            <tbody>
 					<tr th:each="estabelecimento : ${pagina.conteudo}">
 						<td th:text="${estabelecimento.nome}"></td>
-						<td th:text="${estabelecimento.responsavel.pessoa.nome}"></td>
-						<!--  td th:text="${estabelecimento.quantidadeUsuarios}"></td-->
+						<td th:text="${estabelecimento.responsavel.pessoa.nome}"></td>						
 						<td th:text="${estabelecimento.quantidadePortas}"></td>
+						<td th:text="${estabelecimento.quantidadeAnuncios}"></td>
 	                 	<td class="text-center">
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
 							th:href="@{/estabelecimentos/{codigo}(codigo=${estabelecimento.codigo})}"> 
@@ -95,6 +102,41 @@
 	</div>
 </section>
 <th:block layout:fragment="javascript-extra">
+	<script>
+		$('#estado').change(function() {
+			if($("#estado option:selected")["0"].value == null || $("#estado option:selected")["0"].value == "") {
+				limparSelectCidade();
+				return;
+			}
+			
+			$.ajax({
+				type: "GET",
+				url: $('#cidade').data('url-cidades') + $("#estado option:selected")["0"].value,
+				beforeSend: function() {
+					limparSelectCidade();
+				},
+				success: function(data) {					
+					if(data != null && data.length > 0) {
+						$('#cidade').prop('disabled', false);
+						data.forEach(function(item){
+						    $('#cidade').append('<option value='+item+'>' + item + '</option>');
+						});
+					}
+				}
+			});
+		});	
+		
+		function limparSelectCidade() {
+			$('#cidade').prop('disabled', true);
+			var select = document.getElementById("cidade");
+			var length = $('#cidade')["0"].length - 1;
+			for (i = length; i >= 0; i--) {
+				select.options[i] = null;
+			}
+			$('#cidade').append('<option value="">Todas as cidades</option>');
+		}
+	
+	</script>
 </th:block>
 </body>
 </html>
