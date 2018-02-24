@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -57,6 +59,8 @@ public class UsuarioControle {
 	@Autowired
 	private Parametros parametroRepositorio;
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UsuarioControle.class);
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Usuario usuario) {	
 		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
@@ -101,6 +105,14 @@ public class UsuarioControle {
 		} catch (Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(usuario);
+		}
+		
+		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
+		try {			
+			Thread.sleep(5000); // 5 segundos
+		}
+		catch(Exception e) {
+			LOGGER.error("Erro ao iniciar thread de sleep");
 		}
 		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");

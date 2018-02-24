@@ -160,7 +160,7 @@
 				</div>								
 			</div>
 									
-			<button type="submit" class="btn  btn-primary" onclick="salvarAudio()">Salvar</button>
+			<button type="submit" class="btn  btn-primary" id="submitSalvar" onclick="salvarAudio()">Salvar</button>
 		</form>
 	</div>
 </section>
@@ -181,6 +181,10 @@
 		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
 		$('#senhaTeclado').tooltip({'trigger':'focus', 'title': 'Digite 4 números'});
 		$('#rfid').tooltip({'trigger':'focus', 'title': 'Código do cartão de entrada'});
+		
+		$('#submitSalvar').click(function() {
+			waitingDialog.show('Salvando usuário');
+		});
 	</script>
 </th:block>
 </html>

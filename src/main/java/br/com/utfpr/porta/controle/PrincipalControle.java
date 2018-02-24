@@ -225,6 +225,14 @@ public class PrincipalControle {
 			return carregarLayoutEdicaoUsuario(usuario);
 		}
 		
+		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
+		try {			
+			Thread.sleep(5000); // 5 segundos
+		}
+		catch(Exception e) {
+			LOGGER.error("Erro ao iniciar thread de sleep");
+		}
+		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
 		return new ModelAndView("redirect:/usuarioCadastro/".concat(usuario.getCodigo().toString()));
 	}
