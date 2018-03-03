@@ -7,6 +7,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +41,7 @@ public class AudioControle {
 	private Usuarios usuarioRepositorio;	
 			
 	@PostMapping
+	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	public void upload(@RequestParam String name, @RequestParam MultipartFile file) {	
 		
 		AccessControlList acl = new AccessControlList();
