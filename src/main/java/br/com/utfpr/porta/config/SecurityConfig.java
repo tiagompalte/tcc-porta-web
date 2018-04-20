@@ -37,6 +37,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/novoUsuario")
 			.antMatchers("/novoEstabelecimento")
 			.antMatchers("/audios")
+			.antMatchers("/informarEmail")
+			.antMatchers("/resetarSenha")
+			.antMatchers("/403")
+			.antMatchers("/404")
 			.antMatchers("/500")
 			.antMatchers("/");
 	}
