@@ -1,7 +1,8 @@
 package br.com.utfpr.porta.dto;
 
-import org.apache.logging.log4j.util.Strings;
+import br.com.utfpr.porta.validacao.AtributoConfirmacao;
 
+@AtributoConfirmacao(atributo="senha", atributoConfirmacao="confirmacaoSenha", message="Confirmação da senha não confere")
 public class AlterarSenhaDto {
 	
 	private String token;
@@ -25,14 +26,5 @@ public class AlterarSenhaDto {
 	}
 	public void setConfirmacaoSenha(String confirmacaoSenha) {
 		this.confirmacaoSenha = confirmacaoSenha;
-	}
-	
-	public boolean validarSenhas() {
-		
-		if(Strings.isEmpty(senha) || Strings.isEmpty(confirmacaoSenha)) {
-			return false;
-		}
-		
-		return senha.equals(confirmacaoSenha);
-	}
+	}	
 }

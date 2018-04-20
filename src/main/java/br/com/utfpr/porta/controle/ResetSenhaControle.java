@@ -8,10 +8,9 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -60,7 +59,7 @@ public class ResetSenhaControle {
 	}
 	
 	@RequestMapping("/resetarSenha/{token}")
-	public ModelAndView resetarSenha(@RequestParam String token) {
+	public ModelAndView resetarSenha(@PathVariable String token) {
 		
 		if(Strings.isEmpty(token)) {
 			return new ModelAndView("redirect:/403");
@@ -72,26 +71,29 @@ public class ResetSenhaControle {
 			return new ModelAndView("redirect:/403");
 		}
 		
+		AlterarSenhaDto alterarSenhaDto = new AlterarSenhaDto();
+		alterarSenhaDto.setToken(tokenResetSenha.get().getToken());
+		
 		ModelAndView mv = new ModelAndView("/resetSenha/ResetarSenha");
-		mv.addObject("token", token);		
+		mv.addObject(alterarSenhaDto);		
 		return mv;
 	}
 	
-	@PostMapping("/resetarSenha")
-	public ModelAndView alterarSenha(@RequestBody AlterarSenhaDto alterarSenhaDto) {
+	@PostMapping({"/resetarSenha", "{\\+w}"})
+	public ModelAndView alterarSenha(@Valid AlterarSenhaDto alterarSenhaDto, BindingResult result, RedirectAttributes attributes) {
 		
 		if(Strings.isEmpty(alterarSenhaDto.getToken())) {
-			
+			return new ModelAndView("redirect:/403");
 		}
 		
-		if(!alterarSenhaDto.validarSenhas()) {
-			
-		}
+		if(result.hasErrors()) {
+			return new ModelAndView("/resetSenha/ResetarSenha");
+		}	
 		
 		Optional<TokenResetSenha> tokenResetSenha = tokenResetSenhaRepositorio.findByToken(alterarSenhaDto.getToken());
 		
 		if(!tokenResetSenha.isPresent() || tokenResetSenha.get().getUsuario() == null) {
-			
+			return new ModelAndView("redirect:/500");
 		}
 		
 		try {			
@@ -99,11 +101,10 @@ public class ResetSenhaControle {
 			tokenResetSenhaRepositorio.delete(tokenResetSenha.get());
 		}
 		catch(ValidacaoBancoDadosExcecao | NullPointerException e) {
-			
+			return new ModelAndView("redirect:/500");
 		}
 		
-		return new ModelAndView("redirect:/login");
-		
+		return new ModelAndView("redirect:/login");		
 	}
 
 }
