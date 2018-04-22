@@ -2,12 +2,12 @@ package br.com.utfpr.porta.dto;
 
 import br.com.utfpr.porta.validacao.AtributoConfirmacao;
 
-@AtributoConfirmacao(atributo="senha", atributoConfirmacao="confirmacaoSenha", message="Confirmação da senha não confere")
+@AtributoConfirmacao(atributo="senhaSite", atributoConfirmacao="confirmacaoSenhaSite", message="Confirmação da senha não confere")
 public class AlterarSenhaDto {
 	
 	private String token;
-	private String senha;
-	private String confirmacaoSenha;
+	private String senhaSite;
+	private String confirmacaoSenhaSite;
 		
 	public String getToken() {
 		return token;
@@ -15,16 +15,16 @@ public class AlterarSenhaDto {
 	public void setToken(String token) {
 		this.token = token;
 	}
-	public String getSenha() {
-		return senha;
+	public String getSenhaSite() {
+		return senhaSite;
 	}
-	public void setSenha(String senha) {
-		this.senha = senha;
+	public void setSenhaSite(String senhaSite) {
+		this.senhaSite = senhaSite;
 	}
-	public String getConfirmacaoSenha() {
-		return confirmacaoSenha;
+	public String getConfirmacaoSenhaSite() {
+		return confirmacaoSenhaSite;
 	}
-	public void setConfirmacaoSenha(String confirmacaoSenha) {
-		this.confirmacaoSenha = confirmacaoSenha;
+	public void setConfirmacaoSenhaSite(String confirmacaoSenhaSite) {
+		this.confirmacaoSenhaSite = confirmacaoSenhaSite;
 	}	
 }
