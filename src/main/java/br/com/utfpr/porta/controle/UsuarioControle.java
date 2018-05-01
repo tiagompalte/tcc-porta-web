@@ -109,7 +109,7 @@ public class UsuarioControle {
 		
 		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
 		try {			
-			Thread.sleep(5000); // 5 segundos
+			Thread.sleep(10000); // 10 segundos
 		}
 		catch(Exception e) {
 			LOGGER.error("Erro ao iniciar thread de sleep");
