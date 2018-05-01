@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.repositorio.Autorizacoes;
 import br.com.utfpr.porta.repositorio.Parametros;
+import br.com.utfpr.porta.repositorio.TokenResetSenhas;
 
 @Component
 public class ScheduledTasks {
@@ -25,6 +26,9 @@ public class ScheduledTasks {
 	
 	@Autowired
 	private Autorizacoes autorizacaoRepositorio;
+	
+	@Autowired
+	private TokenResetSenhas tokenResetSenhasRepositorio;
 	
 	/**
 	 * Tarefa que executa a cada 25 minutos para verificar a estabilidade do micro serviço de áudio
@@ -66,7 +70,12 @@ public class ScheduledTasks {
 	//@Scheduled(cron="0 0 0 * * SUN-SAT") //segundo, minuto, hora, dia, mês, dia da semana
     @Scheduled(initialDelay = 0, fixedDelay = 3600000) // 1 hora
 	public void limpezaBaseDadosAutorizacoesTemporarias() {		
-    	autorizacaoRepositorio.apagarAutorizacoesTemporariasVencidas(new Date());
+    		autorizacaoRepositorio.apagarAutorizacoesTemporariasVencidas(new Date());
+    }
+    
+    @Scheduled(initialDelay = 0, fixedDelay = 3600000) // 1 hora
+	public void limpezaTokensResetSenhas() {		
+    		tokenResetSenhasRepositorio.apagarTokensVencidos(new Date());
     }
 
 }
