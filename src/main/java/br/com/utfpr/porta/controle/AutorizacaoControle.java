@@ -183,16 +183,16 @@ public class AutorizacaoControle {
 			autorizacaoFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());		
 		}
 		
-		if(autorizacaoFiltro.getEstabelecimento() != null) {
+		if(autorizacaoFiltro.getEstabelecimento() != null && autorizacaoFiltro.getEstabelecimento().getCodigo() != null) {
 			listaPortas = portasRepositorio.findByEstabelecimento(autorizacaoFiltro.getEstabelecimento());			
 		}
 		
-		Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");		
-		if(par_cod_grp_usuario == null || StringUtils.isEmpty(par_cod_grp_usuario.getValor())) {
+		Parametro parCodGrpUsuario = parametroRepositorio.findOne("COD_GRP_USUARIO");		
+		if(parCodGrpUsuario == null || StringUtils.isEmpty(parCodGrpUsuario.getValor())) {
 			throw new NullPointerException("COD_GRP_USUARIO não foi parametrizado");
 		}
 		
-		listaUsuarios = usuariosRepositorio.buscarPorGrupoCodigoAndAtivo(par_cod_grp_usuario.getValorLong());
+		listaUsuarios = usuariosRepositorio.buscarPorGrupoCodigoAndAtivo(parCodGrpUsuario.getValorLong());
 		
 		mv.addObject("usuarios", listaUsuarios);
 		mv.addObject("portas", listaPortas);
