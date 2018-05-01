@@ -3,9 +3,7 @@ package br.com.utfpr.porta.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
-import org.thymeleaf.TemplateEngine;
 
 import br.com.utfpr.porta.email.EmailServico;
 import br.com.utfpr.porta.email.EmailServicoImpl;
@@ -16,7 +14,6 @@ import br.com.utfpr.porta.storage.s3.AudioStorageS3;
 
 @Configuration
 @ComponentScan(basePackageClasses = Servico.class)
-@Import({WebConfig.class})
 public class ServiceConfig {
 	
 	@Profile("local")
@@ -32,8 +29,8 @@ public class ServiceConfig {
 	}
 	
 	@Bean
-	public EmailServico emailServico(TemplateEngine templateEngine) {
-		return new EmailServicoImpl(templateEngine);
+	public EmailServico emailServico() {
+		return new EmailServicoImpl();
 	}
 		
 }

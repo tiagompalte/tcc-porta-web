@@ -16,12 +16,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import br.com.utfpr.porta.dto.AlterarSenhaDto;
 import br.com.utfpr.porta.dto.EmailDto;
 import br.com.utfpr.porta.email.EmailServico;
 import br.com.utfpr.porta.email.EnvioEmailRunnable;
+import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.TokenResetSenha;
+import br.com.utfpr.porta.repositorio.Parametros;
 import br.com.utfpr.porta.repositorio.TokenResetSenhas;
 import br.com.utfpr.porta.servico.TokenResetSenhaServico;
 import br.com.utfpr.porta.servico.UsuarioServico;
@@ -49,6 +53,12 @@ public class ResetSenhaControle {
 	@Autowired
 	private EmailServico emailServico;
 	
+	@Autowired
+	private Parametros parametroRepositorio;
+	
+	@Autowired
+	private TemplateEngine templateEngine;
+	
 	@RequestMapping("/informarEmail")
 	public ModelAndView informarEmail(EmailDto emailDto) {
 		ModelAndView mv = new ModelAndView("/resetSenha/InformeEmail");
@@ -63,8 +73,7 @@ public class ResetSenhaControle {
 			return informarEmail(emailDto);
 		}
 		
-		EnvioEmailRunnable envioEmail = new EnvioEmailRunnable(emailDto.getEmail(), emailServico);
-		envioEmail.run();
+		enviarEmailResetSenha(emailDto.getEmail());
 						
 		return new ModelAndView("/resetSenha/EmailEnviado");		
 	}
@@ -121,6 +130,34 @@ public class ResetSenhaControle {
 		}
 		
 		return new ModelAndView("redirect:/login");		
+	}
+	
+	private void enviarEmailResetSenha(String email) {
+		
+		try {			
+			TokenResetSenha token = tokenResetSenhaServico.gravarToken(email);
+						
+			if(token != null && token.getUsuario() != null && Strings.isNotEmpty(token.getToken())) {
+				
+				Parametro parUrl = parametroRepositorio.findOne("URL_RESET_SENHA");
+				if(parUrl == null || Strings.isEmpty(parUrl.getValor())) {
+					throw new NullPointerException("Parâmetro URL_RESET_SENHA não cadastrado");
+				}
+				
+				String url = parUrl.getValor().endsWith("/") ? parUrl.getValor() : parUrl.getValor().concat("/");
+				
+				Context context = new Context();
+				context.setVariable("url", url.concat(token.getToken()));
+				context.setVariable("usuario", token.getUsuario());
+				String mensagem = templateEngine.process("email/mensagemResetSenha", context);
+				
+				EnvioEmailRunnable thread = new EnvioEmailRunnable(token.getUsuario().getEmail(), "Alterar Senha", mensagem, emailServico);
+				thread.run();
+			}
+			
+		} catch(Exception e) {
+			LOG.error("Erro ao enviar email para resetar senha", e);
+		}		
 	}
 
 }
