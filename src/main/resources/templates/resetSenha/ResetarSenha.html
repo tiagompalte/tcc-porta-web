@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-  <title>Porta Eletrônica</title>
+  <title>Alterar senha</title>
 
   	<link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/vendors.min.css}"/>
 	<link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/algaworks.min.css}"/>
@@ -24,42 +24,38 @@
 <body class="aw-layout-simple-page">
   <div class="aw-layout-simple-page__container">
 
-	<form th:action="@{/login}" method="POST">
-		
-		<div class="alert  alert-success  alert-dismissible" role="alert" th:if="${not #strings.isEmpty(mensagem)}" th:fragment="alert">
-			<button type="button" class="close" data-dismiss="alert" ><span aria-hidden="true">&times;</span></button>
-			<span th:text="${mensagem}"></span>
-		</div>
+	<form th:action="@{/resetarSenha}" method="POST" th:object="${alterarSenhaDto}">
 	
+		<input type="hidden" th:field="*{token}"/>
+			
 		<div class="aw-simple-panel">
 			<img alt="Porta" th:src="@{/images/logo-gray.png}"/>
 			
 			<div class="aw-simple-panel__message">
-				Por favor, faça o login.
+				Por favor, digite uma nova senha e confirme-a.
 			</div>
 			
-			<div th:if="${#bools.isTrue(param.error)}">
+			<div th:if="${#fields.hasAnyErrors()}">
 				<div class="aw-simple-panel__message  is-error">
-					O e-mail e/ou senha não conferem
+					<th:block th:each="detailedError : ${#fields.detailedErrors()}">
+						[[${detailedError.message}]]
+					</th:block>
 				</div>
-				<div class="aw-simple-panel__message">
-					Você esqueceu a sua senha? <br>
-					Nós podemos te ajudar. <a th:href="@{/informarEmail}">Clique aqui</a>
-				</div>				
 			</div>
 			
-			<div class="aw-simple-panel__box">
+			<div class="aw-simple-panel__box">				
 				<div class="form-group  has-feedback">
-					<input type="text" class="form-control  input-lg" placeholder="Seu e-mail" autofocus="autofocus" name="username"/>
-					<span class="glyphicon  glyphicon-envelope  form-control-feedback"></span>
+					<input type="password" class="form-control  input-lg" placeholder="Nova senha" th:field="*{senhaSite}"/>
+					<span class="glyphicon  glyphicon-lock  form-control-feedback" ></span>
 				</div>
 				
 				<div class="form-group  has-feedback">
-					<input type="password" class="form-control  input-lg" placeholder="Sua senha" name="password"/>
+					<input type="password" class="form-control  input-lg" placeholder="Confirme a nova senha" th:field="*{confirmacaoSenhaSite}"/>
 					<span class="glyphicon  glyphicon-lock  form-control-feedback" ></span>
 				</div>
+				
 				<div class="form-group">
-					<button type="submit" class="btn  btn-primary  btn-lg  aw-btn-full-width">Entrar</button>
+					<button type="submit" class="btn  btn-primary  btn-lg  aw-btn-full-width">Alterar Senha</button>
 				</div>
 				
 			</div>

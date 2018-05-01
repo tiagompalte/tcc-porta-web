@@ -5,6 +5,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import br.com.utfpr.porta.email.EmailServico;
+import br.com.utfpr.porta.email.EmailServicoImpl;
 import br.com.utfpr.porta.servico.Servico;
 import br.com.utfpr.porta.storage.AudioStorage;
 import br.com.utfpr.porta.storage.local.AudioStorageLocal;
@@ -26,4 +28,9 @@ public class ServiceConfig {
 		return new AudioStorageS3();
 	}
 	
+	@Bean
+	public EmailServico emailServico() {
+		return new EmailServicoImpl();
+	}
+		
 }
