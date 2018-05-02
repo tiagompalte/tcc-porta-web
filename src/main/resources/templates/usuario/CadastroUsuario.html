@@ -81,7 +81,8 @@
 			<div class="row">			
 				<div class="form-group  col-sm-12" th:classappend="${usuario.novo} ? bw-required" brewer:classforerror="email">
 					<label for="email" class="control-label">E-mail</label>
-					<input type="text" class="form-control" id="email" th:field="*{email}"/>
+					<input type="hidden" th:if="${!usuario.novo}" th:field="*{email}"/>
+					<input type="text" th:disabled="${!usuario.novo}" class="form-control" id="email" th:field="*{email}"/>
 				</div>	
 			</div>
 			
@@ -138,16 +139,12 @@
 			
 			<div class="row"
 				th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_USUARIOS')}">				
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="grupos">
-					<label class="control-label">Grupos</label> 
-					<div>
-						<th:block th:each="grupo : ${grupos}">
-	  						<div class="checkbox  checkbox-inline"> 
-		    					<input type="checkbox" th:value="${grupo.codigo}" th:field="*{grupos}"/>
-		    					<label th:for="${#ids.prev('grupos')}" th:text="${grupo.nome}"></label>
-	    					</div>
-	    				</th:block>
-					</div>
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="grupos">
+					<label class="control-label">Grupo</label> 
+					<select id="grupo" class="form-control" th:field="*{grupos}">
+						<option value="">Selecione o grupo</option>
+						<option th:each="grp : ${grupos}" th:value="${grp.codigo}" th:text="${grp.nome}"></option>					
+					</select>
 				</div>
 				
 				<div class="form-group  col-sm-4" 

@@ -159,9 +159,10 @@
 					</div>
 					
 					<div class="row">			
-						<div class="form-group  col-sm-12" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="responsavel.email">
+						<div class="form-group  col-sm-12" th:classappend="${estabelecimento.novo} ? bw-required" brewer:classforerror="responsavel.email">							
 							<label for="email" class="control-label">E-mail</label>
-							<input type="text" class="form-control" id="email" th:field="*{responsavel.email}"/>
+							<input type="hidden" th:if="${!estabelecimento.novo}" th:field="*{responsavel.email}"/>
+							<input type="text" th:disabled="${!estabelecimento.novo}" class="form-control" id="email" th:field="*{responsavel.email}"/>
 						</div>	
 					</div>
 					
