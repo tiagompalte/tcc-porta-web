@@ -49,12 +49,19 @@ public class AnuncioControle {
 	@Autowired
 	private AnuncioUsuario anuncioUsuarioRepositorio;
 	
+	@Autowired
+	private Estabelecimentos estabelecimentosRepositorio;
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Anuncio anuncio) {	
 		ModelAndView mv = new ModelAndView("anuncio/CadastroAnuncio");
 		
-		if(anuncio.isNovo() == false) {
+		if(!anuncio.isNovo()) {
 			mv.addObject("usuarios", anuncioUsuarioRepositorio.obterListaUsuariosPorAnuncio(anuncio.getCodigo()));
+		}
+		
+		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+			mv.addObject("estabelecimentos", estabelecimentosRepositorio.findAll());
 		}
 		
 		return mv;
@@ -68,7 +75,9 @@ public class AnuncioControle {
 			return novo(anuncio);
 		}
 		
-		anuncio.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		if(anuncio.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {	
+			anuncio.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+		}		
 				
 		if(anuncio.isNovo() && anuncio.getDataPublicacao() == null) {			
 			LocalDate dataUsr = LocalDate.now(Calendar.getInstance(request.getLocale()).getTimeZone().toZoneId());	
@@ -82,9 +91,6 @@ public class AnuncioControle {
 			return novo(anuncio);
 		} catch (InformacaoInvalidaException e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
-			return novo(anuncio);
-		} catch (NullPointerException e) {
-			result.reject(e.getMessage(), e.getMessage());
 			return novo(anuncio);
 		} catch (Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
@@ -101,7 +107,7 @@ public class AnuncioControle {
 		
 		ModelAndView mv = new ModelAndView("/anuncio/PesquisaAnuncios");
 		
-		if(filtro.getEstabelecimento() == null || UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS") == false) {
+		if(filtro.getEstabelecimento() == null || !UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
 			filtro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		
@@ -173,9 +179,7 @@ public class AnuncioControle {
 						
 			anuncioServico.excluir(anuncio);
 						
-		} catch (ValidacaoBancoDadosExcecao e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		} catch (NullPointerException e) {
+		} catch (ValidacaoBancoDadosExcecao | NullPointerException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} 
 		return ResponseEntity.ok().build();

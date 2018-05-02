@@ -38,7 +38,21 @@
 			<brewer:message/>
 			
 			<input type="hidden" th:field="*{codigo}"/>
-			<input type="hidden" th:field="*{estabelecimento.codigo}" th:value="${#authentication.principal.usuario.estabelecimento.codigo}"/>
+			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}" type="hidden" th:field="*{estabelecimento.codigo}"/>
+			
+			<input th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS') and !anuncio.novo}" type="hidden" th:field="*{estabelecimento.codigo}"/>									
+			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
+				<div class="form-group  col-sm-12 bw-required" brewer:classforerror="estabelecimento.codigo">
+					<label for="estabelecimento" class="control-label">Estabelecimento</label>
+					<select id="estabelecimento" class="form-control  js-container-estabelecimento" 
+							th:field="*{estabelecimento.codigo}"
+							th:attr="data-url-portas=@{/portas/estabelecimento/}"
+							th:disabled="${!anuncio.novo}">
+						<option value="">Selecione um estabelecimento</option>						
+						<option th:each="estab : ${estabelecimentos}" th:value="${estab.codigo}" th:text="${estab.codigoNome}"></option>
+					</select>
+				</div>	
+			</div>
 						
 			<div class="row">				
 				<div class="form-group  col-sm-12" th:classappend="${anuncio.novo} ? bw-required" brewer:classforerror="descricaoResumida">
