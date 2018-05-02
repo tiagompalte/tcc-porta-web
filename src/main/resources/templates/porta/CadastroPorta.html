@@ -42,6 +42,7 @@
 						
 			<div class="row">
 				<div class="form-group  col-sm-2" brewer:classforerror="codigo">
+					<input type="hidden" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}" th:field="*{codigo}"/>
 					<label for="codigo" class="control-label">Código</label>
 					<input type="text" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}" 
 							th:disabled="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}"/>

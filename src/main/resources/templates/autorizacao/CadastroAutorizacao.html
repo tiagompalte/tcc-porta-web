@@ -38,8 +38,9 @@
 			<brewer:message/>
 				
 			<input type="hidden" th:field="*{id.sequencia}"/>
-			<input th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}" type="hidden" th:field="*{id.estabelecimento.codigo}"/>
-						
+			<input type="hidden" th:unless="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}" th:field="*{id.estabelecimento.codigo}"/>
+			
+			<input type="hidden" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS') and !autorizacao.novo}" th:field="*{id.estabelecimento.codigo}"/>						
 			<div class="row" th:if="${#authentication.principal.isPossuiPermissao('ROLE_EDITAR_TODOS_ESTABELECIMENTOS')}">
 				<div class="form-group  col-sm-4 bw-required" brewer:classforerror="id.estabelecimento.codigo">
 					<label for="estabelecimento" class="control-label">Estabelecimento</label>
@@ -55,6 +56,7 @@
 			
 			<div class="row">
 				<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="id.usuario">
+					<input type="hidden" th:if="${!autorizacao.novo}" th:field="*{id.usuario.codigo}"/>
 					<label for="usuario" class="control-label">Usuário</label>					
 					<select id="usuario" class="form-control" th:field="*{id.usuario.codigo}" th:disabled="${!autorizacao.novo}">
 						<option value="">Selecione um usuário</option>
@@ -63,6 +65,7 @@
 				</div>
 					
 				<div class="form-group  col-sm-4" th:classappend="${autorizacao.novo} ? bw-required" brewer:classforerror="id.porta">
+					<input type="hidden" th:if="${!autorizacao.novo}" th:field="*{id.porta.codigo}"/>
 					<label for="porta" class="control-label">Porta</label>
 					<select id="porta" class="form-control" th:field="*{id.porta.codigo}" th:disabled="${!autorizacao.novo}">
 						<option value="">Selecione uma porta</option>

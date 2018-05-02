@@ -39,12 +39,13 @@ import br.com.utfpr.porta.servico.UsuarioServico;
 import br.com.utfpr.porta.servico.excecao.CampoNaoInformadoExcecao;
 import br.com.utfpr.porta.servico.excecao.EmailUsuarioJaCadastradoExcecao;
 import br.com.utfpr.porta.servico.excecao.EnderecoJaCadastradoExcecao;
-import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
 
 @Controller
 public class PrincipalControle {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(PrincipalControle.class);
+	
+	private static final String REDIRECT_FORBIDDEN = "redirect:/403";
 	
 	@Autowired
 	private UsuarioServico usuarioServico;
@@ -112,6 +113,16 @@ public class PrincipalControle {
 		return mv;
 	}
 	
+	private void segurarRedirectPaginaWeb() {
+		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
+		try {			
+			Thread.sleep(10000); // 10 segundos
+		}
+		catch(Exception e) {
+			LOGGER.error("Erro ao iniciar thread de sleep", e);
+		}
+	}
+	
 	@PostMapping("/novoUsuario")
 	public ModelAndView salvarNovoUsuario(@Valid Usuario usuario, BindingResult result, RedirectAttributes attributes) {
 		
@@ -121,16 +132,16 @@ public class PrincipalControle {
 		
 		try {	
 			
-			Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");
+			Parametro parCodGrpUsr = parametroRepositorio.findOne("COD_GRP_USUARIO");
 			
-			if(par_cod_grp_usuario == null) {
+			if(parCodGrpUsr == null) {
 				throw new NullPointerException("COD_GRP_USUARIO não parametrizado");
 			}
 			
-			Grupo grupo_usuario = gruposRepositorio.findByCodigo(par_cod_grp_usuario.getValorLong());
-			List<Grupo> lista_grupo = new ArrayList<>();
-			lista_grupo.add(grupo_usuario);			
-			usuario.setGrupos(lista_grupo);
+			Grupo grupoUsr = gruposRepositorio.findByCodigo(parCodGrpUsr.getValorLong());
+			List<Grupo> listaGrupo = new ArrayList<>();
+			listaGrupo.add(grupoUsr);			
+			usuario.setGrupos(listaGrupo);
 									
 			usuarioServico.salvar(usuario);
 									
@@ -140,23 +151,14 @@ public class PrincipalControle {
 		} catch (CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return novoUsuario(usuario);
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoUsuario(usuario);
-		} catch(Exception e) {
-			result.reject(e.getMessage(), e.getMessage());
-			return novoUsuario(usuario);
-		}
+		} 
 		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
 		
-		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
-		try {			
-			Thread.sleep(5000); // 5 segundos
-		}
-		catch(Exception e) {
-			LOGGER.error("Erro ao iniciar thread de sleep");
-		}
+		segurarRedirectPaginaWeb();
 		
 		return new ModelAndView("redirect:/login");
 	}
@@ -181,12 +183,11 @@ public class PrincipalControle {
 	public ModelAndView editarUsuario(@PathVariable Long codigo) {
 		
 		if(UsuarioSistema.getUsuarioLogado().getCodigo().compareTo(codigo) != 0) {
-			return new ModelAndView("redirect:/403");
+			return new ModelAndView(REDIRECT_FORBIDDEN);
 		}
 				
 		Usuario usuario = usuariosRepositorio.findOne(codigo);
-		ModelAndView mv = carregarLayoutEdicaoUsuario(usuario);		
-		return mv;
+		return carregarLayoutEdicaoUsuario(usuario);	
 	}
 	
 	@PostMapping("/usuarioCadastro/{codigo}")
@@ -198,16 +199,17 @@ public class PrincipalControle {
 		
 		try {	
 			
-			Parametro par_cod_grp_usuario = parametroRepositorio.findOne("COD_GRP_USUARIO");
+			Parametro parCodGrpUsr = parametroRepositorio.findOne("COD_GRP_USUARIO");
 			
-			if(par_cod_grp_usuario == null) {
+			if(parCodGrpUsr == null) {
 				throw new NullPointerException("COD_GRP_USUARIO não parametrizado");
 			}
 			
-			Grupo grupo_usuario = gruposRepositorio.findByCodigo(par_cod_grp_usuario.getValorLong());
-			List<Grupo> lista_grupo = new ArrayList<>();
-			lista_grupo.add(grupo_usuario);			
-			usuario.setGrupos(lista_grupo);
+			Grupo grupoUsuario = gruposRepositorio.findByCodigo(parCodGrpUsr.getValorLong());
+			List<Grupo> listaGrupo = new ArrayList<>();
+			listaGrupo.add(grupoUsuario);			
+			usuario.setGrupos(listaGrupo);
+			usuario.setEstabelecimento(null);
 						
 			usuarioServico.salvar(usuario);
 									
@@ -217,21 +219,12 @@ public class PrincipalControle {
 		} catch (CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return carregarLayoutEdicaoUsuario(usuario);
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return carregarLayoutEdicaoUsuario(usuario);
-		} catch(Exception e) {
-			result.reject(e.getMessage(), e.getMessage());
-			return carregarLayoutEdicaoUsuario(usuario);
-		}
+		} 
 		
-		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
-		try {			
-			Thread.sleep(5000); // 5 segundos
-		}
-		catch(Exception e) {
-			LOGGER.error("Erro ao iniciar thread de sleep");
-		}
+		segurarRedirectPaginaWeb();
 		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
 		return new ModelAndView("redirect:/usuarioCadastro/".concat(usuario.getCodigo().toString()));
@@ -254,27 +247,21 @@ public class PrincipalControle {
 		
 		try {
 			
-			Parametro par_cod_grp_anfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			Parametro parCodGrpAnfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
 			
-			if(par_cod_grp_anfitriao == null) {
+			if(parCodGrpAnfitriao == null) {
 				throw new NullPointerException("COD_GRP_ANFITRIAO não parametrizado");
 			}
 			
-			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(par_cod_grp_anfitriao.getValorLong());
-			List<Grupo> lista_grupo = new ArrayList<>();
-			lista_grupo.add(grupo_anfitriao);			
-			estabelecimento.getResponsavel().setGrupos(lista_grupo);
+			Grupo grupoAnfitriao = gruposRepositorio.findByCodigo(parCodGrpAnfitriao.getValorLong());
+			List<Grupo> listaGrupo = new ArrayList<>();
+			listaGrupo.add(grupoAnfitriao);			
+			estabelecimento.getResponsavel().setGrupos(listaGrupo);
 						
 			estabelecimentoServico.salvar(estabelecimento);
 			
-		} catch (NullPointerException e) {
-			result.reject(e.getMessage(), e.getMessage());
-			return novoEstabelecimento(estabelecimento);
 		} catch (EnderecoJaCadastradoExcecao e) {
 			result.rejectValue("endereco", e.getMessage(), e.getMessage());
-			return novoEstabelecimento(estabelecimento);
-		} catch (ValidacaoBancoDadosExcecao e) {
-			result.reject(e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
 		} catch (CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
@@ -293,12 +280,11 @@ public class PrincipalControle {
 		
 		if(UsuarioSistema.getUsuarioLogado().getEstabelecimento() != null
 				&& UsuarioSistema.getUsuarioLogado().getEstabelecimento().getCodigo().compareTo(codigo) != 0) {
-			return new ModelAndView("redirect:/403");
+			return new ModelAndView(REDIRECT_FORBIDDEN);
 		}
 		
 		Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(codigo);
-		ModelAndView mv = carregarLayoutEdicaoEstabelecimento(estabelecimento);	
-		return mv;
+		return carregarLayoutEdicaoEstabelecimento(estabelecimento);	
 	}
 	
 	private ModelAndView carregarLayoutEdicaoEstabelecimento(Estabelecimento estabelecimento) {
@@ -318,32 +304,26 @@ public class PrincipalControle {
 		
 		if(UsuarioSistema.getUsuarioLogado().getEstabelecimento() != null
 				&& UsuarioSistema.getUsuarioLogado().getEstabelecimento().getCodigo().compareTo(estabelecimento.getCodigo()) != 0) {
-			return new ModelAndView("redirect:/403");
+			return new ModelAndView(REDIRECT_FORBIDDEN);
 		}
 		
 		try {
 			
-			Parametro par_cod_grp_anfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			Parametro parCodGrpAnfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
 			
-			if(par_cod_grp_anfitriao == null) {
+			if(parCodGrpAnfitriao == null) {
 				throw new NullPointerException("COD_GRP_ANFITRIAO não parametrizado");
 			}
 			
-			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(par_cod_grp_anfitriao.getValorLong());
-			List<Grupo> lista_grupo = new ArrayList<>();
-			lista_grupo.add(grupo_anfitriao);			
-			estabelecimento.getResponsavel().setGrupos(lista_grupo);
+			Grupo grupoAnfitriao = gruposRepositorio.findByCodigo(parCodGrpAnfitriao.getValorLong());
+			List<Grupo> listaGrupo = new ArrayList<>();
+			listaGrupo.add(grupoAnfitriao);			
+			estabelecimento.getResponsavel().setGrupos(listaGrupo);
 			
 			estabelecimentoServico.salvar(estabelecimento);
 			
-		} catch (NullPointerException e) {
-			result.reject(e.getMessage(), e.getMessage());
-			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
 		} catch (EnderecoJaCadastradoExcecao e) {
 			result.rejectValue("endereco", e.getMessage(), e.getMessage());
-			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
-		} catch (ValidacaoBancoDadosExcecao e) {
-			result.reject(e.getMessage(), e.getMessage());
 			return carregarLayoutEdicaoEstabelecimento(estabelecimento);
 		} catch (CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
@@ -361,7 +341,7 @@ public class PrincipalControle {
 	public ModelAndView visualizarAutorizacoes(@PathVariable Long codigo) {
 		
 		if(UsuarioSistema.getUsuarioLogado().getCodigo().compareTo(codigo) != 0) {
-			return new ModelAndView("redirect:/403");
+			return new ModelAndView(REDIRECT_FORBIDDEN);
 		}
 		
 		List<Autorizacao> listaAutorizacoes = autorizacoesRepositorio.findByCodigoUsuario(codigo);

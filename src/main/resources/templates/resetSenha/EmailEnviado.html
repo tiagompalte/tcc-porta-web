@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>E-mail enviado</title>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/vendors/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/vendors/starter-template.css}"/>
+    
+    <link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/algaworks.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/vendors.min.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+	<nav class="navbar  navbar-fixed-top  navbar-default  js-sticky-reference" id="main-navbar" th:fragment="navbar">
+		<div class="container-fluid">
+	
+	    <div class="navbar-header">
+	     	<a class="navbar-brand  hidden-xs" th:href="@{/}">
+	        	<img alt="Porta" th:src="@{/images/logo.png}"/>
+	      	</a>
+	    </div>
+	
+	    <ul class="nav navbar-nav  navbar-right"> 
+	    	<li>
+	    		<a th:href="@{/novoUsuario}">Novo Usuário</a>
+	    	</li>
+	    	<li>
+	    		<a th:href="@{/novoEstabelecimento}">Novo Estabelecimento</a>
+	    	</li>
+	    	<li>
+	        	<a th:href="@{/login}">Login</a>
+	      	</li> 
+	    </ul>
+	
+	  </div>
+	</nav>
+	
+	<div class="container">
+	
+	   <div class="starter-template">	
+	   	<img class="fill" th:src="@{/images/send-email.png}"/>	
+    	   	<h1>E-mail enviado</h1>
+       	<p class="lead">Acabamos de lhe enviar um e-mail para que você possa alterar a sua antiga senha. <br>
+       					Se não estiver lá verifique na sua caixa de spam. Depois volte <a th:href="@{/login}">aqui</a> para acessar o sistema</p>
+      </div>
+      <footer>
+      	<div class="container-fluid">
+			<span class="aw-footer-disclaimer">2018 Porta Eletrônica</span>
+		</div>
+      </footer>
+    </div>
+
+    <!-- jQuery -->
+    <script th:src="@{/layout/vendors/jquery/jquery.js}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script th:src="@{/layout/vendors/bootstrap/bootstrap.min.js}"></script>
+
+</body>
+</html>

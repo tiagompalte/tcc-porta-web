@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title th:remove="all">Alterar Senha - Porta Eletrônica</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div>
+		<h1>
+			Olá, <span th:text="${usuario.pessoa.nome}"> </span>
+		</h1>
+		<p>
+			Você pediu a nossa ajuda para alterar a sua senha do site. <br>
+			Clique <a th:href="${url}">aqui</a> para você criar uma nova senha. 
+		</p>		
+	</div>
+</body>
+</html>
