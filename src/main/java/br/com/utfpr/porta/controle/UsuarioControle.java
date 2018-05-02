@@ -12,7 +12,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -87,6 +86,8 @@ public class UsuarioControle {
 		}
 		
 		try {
+			
+			usuario.setEstabelecimento(null);
 						
 			usuarioServico.salvar(usuario);
 									
@@ -99,9 +100,6 @@ public class UsuarioControle {
 		} catch (CampoNaoInformadoExcecao e) {
 			result.rejectValue(e.getCampo(), e.getMessage(), e.getMessage());
 			return novo(usuario);
-		}  catch (NullPointerException e) {
-			result.reject(e.getMessage(), e.getMessage());
-			return novo(usuario);
 		} catch (Exception e) {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(usuario);
@@ -112,7 +110,7 @@ public class UsuarioControle {
 			Thread.sleep(10000); // 10 segundos
 		}
 		catch(Exception e) {
-			LOGGER.error("Erro ao iniciar thread de sleep");
+			LOGGER.error("Erro ao iniciar thread de sleep", e);
 		}
 		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
@@ -144,7 +142,7 @@ public class UsuarioControle {
 	}
 	
 	@DeleteMapping("/{codigo}")
-	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
+	public @ResponseBody ResponseEntity excluir(@PathVariable("codigo") Long codigo) {
 		
 		try {
 			
@@ -160,13 +158,11 @@ public class UsuarioControle {
 			
 			usuarioServico.excluir(codigo);
 			
-			if(StringUtils.isEmpty(usuario.getNomeAudio()) == false) {
+			if(Strings.isNotEmpty(usuario.getNomeAudio())) {
 				audioStorage.excluir(usuario.getNomeAudio());
 			}			
 			
-		} catch (ImpossivelExcluirEntidadeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		} catch (NullPointerException e) {
+		} catch (ImpossivelExcluirEntidadeException | NullPointerException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} 
 		return ResponseEntity.ok().build();

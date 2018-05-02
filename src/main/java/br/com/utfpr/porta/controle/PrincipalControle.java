@@ -1,7 +1,10 @@
 package br.com.utfpr.porta.controle;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,8 +14,15 @@ import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,6 +56,7 @@ public class PrincipalControle {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PrincipalControle.class);
 	
 	private static final String REDIRECT_FORBIDDEN = "redirect:/403";
+	private static final String REDIRECT_DASHBOARD = "redirect:/dashboard";
 	
 	@Autowired
 	private UsuarioServico usuarioServico;
@@ -67,12 +78,12 @@ public class PrincipalControle {
 	
 	@Autowired
 	private Autorizacoes autorizacoesRepositorio;
-		
+				
 	@GetMapping("/login")
 	public String login(@AuthenticationPrincipal User user) {
 		
 		if(user != null) {
-			return "redirect:/dashboard";			
+			return REDIRECT_DASHBOARD;			
 		}
 		
 		return "Login";
@@ -124,7 +135,7 @@ public class PrincipalControle {
 	}
 	
 	@PostMapping("/novoUsuario")
-	public ModelAndView salvarNovoUsuario(@Valid Usuario usuario, BindingResult result, RedirectAttributes attributes) {
+	public ModelAndView salvarNovoUsuario(@Valid Usuario usuario, BindingResult result, RedirectAttributes attributes, HttpServletRequest request) {
 		
 		if (result.hasErrors()) {
 			return novoUsuario(usuario);
@@ -155,12 +166,34 @@ public class PrincipalControle {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoUsuario(usuario);
 		} 
-		
-		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
-		
+				
 		segurarRedirectPaginaWeb();
 		
-		return new ModelAndView("redirect:/login");
+		authenticateUserAndSetSession(usuario, request);
+		
+		return new ModelAndView(REDIRECT_DASHBOARD);
+	}
+	
+	private void authenticateUserAndSetSession(Usuario usuario, HttpServletRequest request) {
+		
+		UserDetails userDetails = new UsuarioSistema(usuario, getPermissoes(usuario));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+    }
+	
+	private Collection<? extends GrantedAuthority> getPermissoes(Usuario usuario) {		
+		
+		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+		
+		//Lista de permissões do usuário
+		List<String> permissoes = usuariosRepositorio.permissoes(usuario);
+		permissoes.forEach(p -> authorities.add(new SimpleGrantedAuthority(p.toUpperCase())));
+		
+		return authorities;		
 	}
 	
 	private ModelAndView carregarLayoutEdicaoUsuario(Usuario usuario) {
@@ -239,7 +272,7 @@ public class PrincipalControle {
 	}
 	
 	@PostMapping("/novoEstabelecimento")
-	public ModelAndView salvarNovoEstabelecimento(@Valid Estabelecimento estabelecimento, BindingResult result, RedirectAttributes attributes) {
+	public ModelAndView salvarNovoEstabelecimento(@Valid Estabelecimento estabelecimento, BindingResult result, RedirectAttributes attributes, HttpServletRequest request) {
 		
 		if (result.hasErrors()) {
 			return novoEstabelecimento(estabelecimento);
@@ -271,8 +304,9 @@ public class PrincipalControle {
 			return novoEstabelecimento(estabelecimento);
 		}
 		
-		attributes.addFlashAttribute("mensagem", "Estabelecimento salvo com sucesso");
-		return new ModelAndView("redirect:/login");
+		authenticateUserAndSetSession(estabelecimento.getResponsavel(), request);
+		
+		return new ModelAndView(REDIRECT_DASHBOARD);
 	}
 	
 	@GetMapping("/estabelecimentoCadastro/{codigo}")
