@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title th:remove="all">Boas vindas - Porta Eletrônica</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div>
+		<h1>
+			Olá, <span th:text="${nome}"> </span>
+		</h1>
+		<p>
+			Com o cadastro concluído, a partir de agora você poderá desfrutar de todos os recursos oferecidos pelo <a th:href="${url}">Porta Eletrônica</a> 
+		</p>		
+	</div>
+</body>
+</html>

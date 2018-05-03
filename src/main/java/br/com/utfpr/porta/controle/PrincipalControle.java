@@ -30,7 +30,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import br.com.utfpr.porta.email.EmailServico;
+import br.com.utfpr.porta.email.EnvioEmailRunnable;
 import br.com.utfpr.porta.modelo.Autorizacao;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
@@ -53,7 +57,7 @@ import br.com.utfpr.porta.servico.excecao.EnderecoJaCadastradoExcecao;
 @Controller
 public class PrincipalControle {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(PrincipalControle.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PrincipalControle.class);
 	
 	private static final String REDIRECT_FORBIDDEN = "redirect:/403";
 	private static final String REDIRECT_DASHBOARD = "redirect:/dashboard";
@@ -77,7 +81,13 @@ public class PrincipalControle {
 	private Parametros parametroRepositorio;
 	
 	@Autowired
-	private Autorizacoes autorizacoesRepositorio;
+	private Autorizacoes autorizacoesRepositorio;	
+
+	@Autowired
+	private TemplateEngine templateEngine;
+	
+	@Autowired
+	private EmailServico emailServico;
 				
 	@GetMapping("/login")
 	public String login(@AuthenticationPrincipal User user) {
@@ -87,11 +97,6 @@ public class PrincipalControle {
 		}
 		
 		return "Login";
-	}
-	
-	@GetMapping("/403")
-	public String acessoNegado() {
-		return "403";
 	}
 	
 	@GetMapping("/dashboard")
@@ -130,8 +135,52 @@ public class PrincipalControle {
 			Thread.sleep(10000); // 10 segundos
 		}
 		catch(Exception e) {
-			LOGGER.error("Erro ao iniciar thread de sleep", e);
+			LOG.error("Erro ao iniciar thread de sleep", e);
 		}
+	}
+	
+	private void enviarEmailBoasVindas(Usuario usuario) {
+		
+		try {
+			
+			if(usuario == null || usuario.getPessoa() == null || Strings.isEmpty(usuario.getPessoa().getNome())
+					|| Strings.isEmpty(usuario.getEmail())) {
+				throw new NullPointerException("Informações faltantes");
+			}
+			
+			Parametro parUrl = parametroRepositorio.findOne("URL_SITE");
+			if(parUrl == null || Strings.isEmpty(parUrl.getValor())) {
+				throw new NullPointerException("Parâmetro URL_SITE não cadastrado");
+			}
+			
+			Genero genero = usuario.getPessoa().getGenero();
+			StringBuilder fraseBoasVindas = new StringBuilder("Seja bem vind");
+			if(genero != null) {
+				if(genero.compareTo(Genero.MASCULINO) == 0) {
+					fraseBoasVindas.append("o");
+				}
+				else if (genero.compareTo(Genero.FEMININO) == 0){
+					fraseBoasVindas.append("a");
+				}
+				else {
+					fraseBoasVindas.append("o(a)");
+				}
+			}
+			else {
+				fraseBoasVindas.append("o(a)");
+			}
+			
+			Context context = new Context();						
+			context.setVariable("nome", usuario.getPessoa().getNome());
+			context.setVariable("url", parUrl.getValor());
+			String mensagem = templateEngine.process("email/mensagemBoasVindas", context);
+			
+			EnvioEmailRunnable thread = new EnvioEmailRunnable(usuario.getEmail(), fraseBoasVindas.toString(), mensagem, emailServico);
+			thread.run();
+			
+		} catch(Exception e) {
+			LOG.error("Erro ao enviar email de boas vindas. ", e);
+		}		
 	}
 	
 	@PostMapping("/novoUsuario")
@@ -166,6 +215,8 @@ public class PrincipalControle {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoUsuario(usuario);
 		} 
+		
+		enviarEmailBoasVindas(usuario);
 				
 		segurarRedirectPaginaWeb();
 		
@@ -240,7 +291,7 @@ public class PrincipalControle {
 			
 			Grupo grupoUsuario = gruposRepositorio.findByCodigo(parCodGrpUsr.getValorLong());
 			List<Grupo> listaGrupo = new ArrayList<>();
-			listaGrupo.add(grupoUsuario);			
+			listaGrupo.add(grupoUsuario);
 			usuario.setGrupos(listaGrupo);
 			usuario.setEstabelecimento(null);
 						
@@ -303,6 +354,8 @@ public class PrincipalControle {
 			result.reject(e.getMessage(), e.getMessage());
 			return novoEstabelecimento(estabelecimento);
 		}
+		
+		enviarEmailBoasVindas(estabelecimento.getResponsavel());
 		
 		authenticateUserAndSetSession(estabelecimento.getResponsavel(), request);
 		
