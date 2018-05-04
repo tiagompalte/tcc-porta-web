@@ -11,7 +11,27 @@
 	content: "*";
 }
 
+.center_div{
+    margin: 0 auto;
+    width:80%
+}
 
+.btn-circle.btn-lg {
+  width: 50px;
+  height: 50px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33;
+  border-radius: 25px;
+}
+.btn-circle.btn-xl {
+  width: 70px;
+  height: 70px;
+  padding: 10px 16px;
+  font-size: 24px;
+  line-height: 1.33;
+  border-radius: 35px;
+}
 
 /*
 ######################
@@ -132,23 +152,6 @@
 	text-align: center;
 }
 
-/* Tabela Cervejas pÃ¡gina de Venda */
-.bw-tabela-cervejas {
-	margin-bottom: 15px;
-}
-
-.bw-tabela-cervejas__vazio {
-	padding: 15px 15px;
-	
-	border: 1px dashed #ddd;
-	
-	text-align: center;
-	font-size: 1.2em;
-	font-weight: 300;
-	color: #555;
-}
-
-
 /*
 ######################################
 # CUSTOMIZAÃ‡ÃƒO DE COMPONENTES
@@ -214,38 +217,6 @@
 
 .bw-tabela-item__coluna--detalhes, .bw-tabela-item__coluna--valores {
 	margin-left: 60px;
-}
-
-.bw-tabela-cerveja-nome {
-	font-weight: 500;
-	font-size: 1.1em;
-	display: block;
-}
-
-.bw-tabela-cerveja-origem {
-	color: #aaa;
-	display: block;
-	font-weight: 200;
-}
-
-.bw-tabela-cerveja-campo-quantidade {
-	width: 30px;
-	text-align: right;
-}
-
-.bw-tabela-cerveja-valor-pequeno {
-	font-weight: 300;
-	font-size: 1em;
-}
-
-.bw-tabela-cerveja-valor-medio {
-	font-weight: 300;
-	font-size: 1.3em;
-}
-
-.bw-tabela-cerveja-valor-grande {
-	font-weight: 300;
-	font-size: 1.6em;
 }
 
 .bw-tabela-item__painel-exclusao {

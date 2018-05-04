@@ -7,6 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class ErroControle {
 	
+	@GetMapping("/403")
+	public String acessoNegado() {
+		return "403";
+	}
+	
 	@GetMapping("/404")
 	public String paginaNaoEncontrada() {
 		return "404";

@@ -27,7 +27,7 @@
 	<input type="hidden" name="_csrf" th:value="${csrfTokenFake}"/>
 	<input type="hidden" name="_csrf_header" th:value="${csrfHeaderNameFake}"/>
 	
-	<div class="container-fluid">
+	<div class="container center_div">
 		<form method="POST" th:object="${usuario}" th:action="@{/novoUsuario}">
 			
 			<brewer:message/>
@@ -36,47 +36,33 @@
 			<input type="hidden" th:field="*{pessoa.codigo}" id="codigoPessoa"/>
 			<input type="hidden" th:field="*{pessoa.tipoPessoa}" th:value="${tipoPessoa}"/>
 										
-			<div class="row">
-				<div class="form-group  col-sm-4  bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
-					<label for="cpfOuCnpj" class="control-label">CPF</label>
-					<input type="text" class="form-control js-cpf" id="cpfOuCnpj"
-							th:field="*{pessoa.cpfOuCnpj}" autofocus="autofocus" />
-				</div>
-				
-				<div class="form-group  col-sm-8  bw-required" brewer:classforerror="pessoa.nome">
+			<div class="row">				
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="pessoa.nome">
 					<label for="nomePessoa" class="control-label">Nome</label>
 					<input type="text" class="form-control" id="nomePessoa" th:field="*{pessoa.nome}"/>
-				</div>				
-			</div>
-								
-			<div class="row">
-				<div class="form-group  col-sm-4" brewer:classforerror="pessoa.telefone">
-					<label for="telefone" class="control-label">Telefone</label>
-					<input type="text" class="form-control js-phone-number" id="telefone" th:field="*{pessoa.telefone}"/>
 				</div>	
 				
-				<div class="form-group  col-sm-4" brewer:classforerror="pessoa.dataNascimento">
-					<label for="dataNascimento" class="control-label">Data de nascimento</label>
-					<input type="text" class="form-control js-date" id="dataNascimento" th:field="*{pessoa.dataNascimento}" autocomplete="off"/>
-				</div>	
-								
-				<div class="form-group col-sm-4" brewer:classforerror="pessoa.genero">
+				<div class="form-group  col-sm-3" th:classappend="${usuario.novo} ? bw-required" brewer:classforerror="pessoa.cpfOuCnpj">
+					<label for="cpfOuCnpj" class="control-label">CPF</label>
+					<input type="text" class="form-control js-cpf" id="cpfOuCnpj" onblur="pesquisapessoa(this.value);" 
+							data:url="@{/pessoas}" th:field="*{pessoa.cpfOuCnpj}" />
+				</div>
+				
+				<div class="form-group col-sm-3" brewer:classforerror="pessoa.genero">
 					<label for="genero" class="control-label">Gênero</label>
 					<select id="genero" class="form-control" th:field="*{pessoa.genero}">
-						<option value="">Selecione o gênero</option>
+						<option value="">Selecione um gênero</option>
 						<option th:each="genero : ${generos}" th:value="${genero}" th:text="${genero.descricao}"></option>
 					</select>
-				</div>			
+				</div>				
 			</div>
-			
-			<div class="row">			
-				<div class="form-group  col-sm-12  bw-required" brewer:classforerror="email">
+											
+			<div class="row">	
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="email">
 					<label for="email" class="control-label">E-mail</label>
 					<input type="text" class="form-control" id="email" th:field="*{email}"/>
-				</div>	
-			</div>
-			
-			<div class="row">
+				</div>		
+				
 				<div class="form-group  col-sm-3" brewer:classforerror="senhaSite" th:classappend="bw-required">
 					<label for="senhaSite" class="control-label">Senha do site</label> 
 					<input type="password" class="form-control" id="senhaSite" th:field="*{senhaSite}" th:maxlength="12"/>
@@ -85,7 +71,14 @@
 				<div class="form-group  col-sm-3" brewer:classforerror="confirmacaoSenhaSite">
 					<label for="confirmacaoSenhaSite" class="control-label">Confirmação da senha do site</label> 
 					<input type="password" class="form-control" id="confirmacaoSenhaSite" th:field="*{confirmacaoSenhaSite}" th:maxlength="12"/>
-				</div>			
+				</div>	
+			</div>
+						
+			<div class="row">
+				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
+					<label for="rfid" class="control-label">RFID</label>
+					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
+				</div>
 				
 				<div class="form-group  col-sm-3" brewer:classforerror="senhaTeclado" th:classappend="bw-required">
 					<label for="senhaTeclado" class="control-label">Senha da porta</label> 
@@ -97,37 +90,8 @@
 					<input type="password" class="form-control  js-senha-teclado" id="confirmacaoSenhaTeclado" th:field="*{confirmacaoSenhaTeclado}"/>
 				</div>													
 			</div>	
-			
-			<div class="row">	
-				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="rfid">
-					<label for="rfid" class="control-label">RFID</label>
-					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
-				</div>	
-				
-				<div class="form-group  col-sm-6  js-container-audio" 
-					th:attr="data-url-audios=${url_audio} + '/audios'" id="divGroupAudio" brewer:classforerror="nomeAudio">
-					
-					<label for="divAudio" class="control-label">Senha falada</label>
-					<div class="well well-sm" id="divAudio">
-						<input type="hidden" th:field="*{nomeAudio}" id="audio"/>
-						
-		          		<span id="timer" style="padding-right: 20px;">2.000 segundos</span>
-		            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
-		            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
-		            	</button>
-		            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-warning" disabled>
-		            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
-		            	</button>
-		            	<button type="button" id="play" onclick="playRecord()" class="btn btn-success" disabled>
-		            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
-		            	</button>
-		            	
-		            	<audio id="tocadorAudio" src=""></audio>
-					</div>
-	          	</div>
-			</div>
 							
-			<button type="submit" class="btn  btn-primary" id="submitSalvar" onclick="salvarAudio()">Salvar</button>
+			<button type="submit" class="btn  btn-primary" id="submitSalvar">Cadastrar</button>
 		</form>
 	</div>
 		
@@ -135,14 +99,9 @@
 
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/vendors/bootstrap-waitingfor.min.js}"></script>
-	<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
-	<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
-	<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>
-	<script th:src="@{/javascripts/vendors/easytimer.min.js}"></script>
-	<script th:src="@{/javascripts/gravador.js}"></script>
+	<script th:src="@{/javascripts/vendors/easytimer.min.js}"></script>	
 	
-	<script>
-		carregarAudio();								
+	<script>							
 		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
 		$('#senhaTeclado').tooltip({'trigger':'focus', 'title': 'Digite 4 números'});
 		$('#rfid').tooltip({'trigger':'focus', 'title': 'Código do cartão de entrada'});
