@@ -114,25 +114,16 @@
 					<input type="text" class="form-control" id="rfid" th:field="*{rfid}"/>
 				</div>	
 				
-				<div class="form-group  col-sm-6  js-container-audio" 
-					th:attr="data-url-audios=${url_audio} + '/audios'" id="divGroupAudio" brewer:classforerror="nomeAudio">
+				<div class="form-group  col-sm-6  js-container-audio" id="divGroupAudio" brewer:classforerror="nomeAudio">
 					
 					<label for="divAudio" class="control-label">Senha falada</label>
-					<div class="well well-sm" id="divAudio">
-						<input type="hidden" th:field="*{nomeAudio}" id="audio"/>
-						
-		          		<span id="timer" style="padding-right: 20px;">2.000 segundos</span>
-		            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger">
-		            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
-		            	</button>
-		            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-warning" disabled>
-		            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
-		            	</button>
-		            	<button type="button" id="play" onclick="playRecord()" class="btn btn-success" disabled>
-		            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
-		            	</button>
-		            	
-		            	<audio id="tocadorAudio" src=""></audio>
+					<div id="divAudio">			
+						<input type="hidden" th:field="*{nomeAudio}" id="nomeAudio"/>			
+						<button type="button" class="btn btn-primary btn-circle btn-xl js-gravador-btn" 
+								data-toggle="modal" data-target="#modalGravador" 
+								data:urlaudio="${urlAudio}" data:podegravar="${podeGravar}">
+					    	<span class="fa fa-microphone fa-lg" aria-hidden="true"></span>
+					    </button>
 					</div>
 	          	</div>
 			</div>
@@ -157,30 +148,33 @@
 				</div>								
 			</div>
 									
-			<button type="submit" class="btn  btn-primary" id="submitSalvar" onclick="salvarAudio()">Salvar</button>
+			<button type="submit" class="btn  btn-primary" id="submitSalvar">Salvar</button>
 		</form>
 	</div>
+	<div th:replace="usuario/Gravador :: modal"></div>
 </section>
 
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/servico-busca-pessoa.js}"></script>
 	<script th:src="@{/javascripts/vendors/bootstrap-switch.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/bootstrap-waitingfor.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>
-	<script th:src="@{/javascripts/vendors/easytimer.min.js}"></script>
 	<script th:src="@{/javascripts/gravador.js}"></script>
 	
 	<script>
 		$('.js-status').bootstrapSwitch();
-		carregarAudio();
-		verificarMicrofone();
 		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
 		$('#senhaTeclado').tooltip({'trigger':'focus', 'title': 'Digite 4 números'});
 		$('#rfid').tooltip({'trigger':'focus', 'title': 'Código do cartão de entrada'});
 		
 		$('#submitSalvar').click(function() {
 			waitingDialog.show('Salvando usuário');
+		});
+
+		$('.js-gravador-btn').click(function(event) {
+			carregarAudio($(this).data('podegravar'), document.getElementById('nomeAudio').value, $(this).data('urlaudio'));
 		});
 	</script>
 </th:block>

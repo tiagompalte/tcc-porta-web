@@ -1,21 +1,13 @@
+
 var initial = 2000;
 var count = initial;
 var counter; //10 will  run it every 100th of a second
 var initialMillis;
 var soundFile;
 var mic;
-
-function succes(stream) {}
-
-function fail(error) {	
-	alert("Não foi encontrado nenhum microfone disponível");
-	document.getElementById('record').setAttribute("disabled","disabled");
-}
-
-navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia ||
-						navigator.mozGetUserMedia || navigator.msGetUserMedia);
-
-navigator.getMedia({audio : true}, succes, fail);
+var urlAudio;
+var url;
+var recorder;
 
 function timer() {
     if (count <= 0) {
@@ -33,17 +25,84 @@ function timer() {
 
 function displayCount(count) {
     var res = count / 1000;
-    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " segundos";
+    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " segs";
 }
 
-function carregarAudio() {
+function carregarAudio(podeGravar, audio, url) {
 	
-	if(document.getElementById('audio').value == null || document.getElementById('audio').value === '') {
+	if(!audio && !url) {
+		window.location.reload();
 		return;
 	}
 	
-	document.getElementById('tocadorAudio').src = $('.js-container-audio').data('url-audios') + "/" + document.getElementById('audio').value;
-	document.getElementById('play').removeAttribute("disabled");
+	this.url = url;
+		
+	if(audio) {
+		urlAudio = url + audio;		
+		document.getElementById('audio').value = audio;
+	}
+	
+	if(podeGravar) {		
+		navigator.getMedia = ( navigator.getUserMedia ||
+                navigator.webkitGetUserMedia ||
+                navigator.mozGetUserMedia ||
+                navigator.msGetUserMedia);
+
+		navigator.getMedia(
+				{audio : true}, 
+				// callbackSucesso
+				() => {
+					document.getElementById('record').removeAttribute("disabled");
+					verificarExistenciaAudio();
+				}, 
+				// callbackErro
+				() => {
+					document.getElementById('record').setAttribute("disabled","disabled");
+					verificarExistenciaAudio();
+				});
+	}
+	else {
+		verificarExistenciaAudio();
+	}
+}
+
+function verificarExistenciaAudio() {
+	
+	if(urlAudio) {
+		
+		waitingDialog.show('Carregando Áudio', {
+			  dialogSize: 'm',
+			  progressType: 'info'
+			});
+		
+		$.ajax({
+			url: urlAudio,	
+			type: "GET"
+		}).success((response) => {			
+			if(response) {			
+				document.getElementById('tocadorAudio').src = urlAudio;
+				document.getElementById('play').removeAttribute("disabled");
+			}
+		}).done(function() {
+			waitingDialog.hide();
+			liberarJanelaGravador();
+		});
+	}
+	else {
+		liberarJanelaGravador();
+	}
+}
+
+function liberarJanelaGravador() {
+	if(document.getElementById('play').disabled && document.getElementById('record').disabled) {
+		swal({
+			title: 'Oops', 
+			text: 'Não foi encontrado nenhum microfone disponível', 
+			type: 'error'
+		}, function() {
+			window.location.reload();			
+		});
+	}
 }
 
 function startTimer() {
@@ -78,8 +137,8 @@ function startRecording() {
 		document.getElementById('record').setAttribute("disabled","disabled");
 		document.getElementById('cancel').removeAttribute("disabled");
 	}
-	catch(err) {
-		alert(err);
+	catch(error) {
+		swal('Oops!', error, 'error');		
 	}
 }
 
@@ -89,17 +148,17 @@ function stopRecording() {
 	playRecord();
 	document.getElementById('play').removeAttribute("disabled");	
 	document.getElementById('record').removeAttribute("disabled");
+	document.getElementById('salvarAudio').removeAttribute("disabled");
 	document.getElementById('cancel').setAttribute("disabled","disabled");
 	
-	if(document.getElementById('audio').value == null || document.getElementById('audio').value === '') {
-		document.getElementById('audio').value = generateUUID() + ".wav";
+	if(!document.getElementById('audio').value) {
+		document.getElementById('audio').value = generateUUID() + ".wav";		
 	}
 	
 }
 
 function playRecord() {
-	if((soundFile === undefined || soundFile == null) && document.getElementById('tocadorAudio').src != null 
-			&& document.getElementById('tocadorAudio').src != '') {
+	if(!soundFile && document.getElementById('tocadorAudio').src) {
 		document.getElementById('tocadorAudio').play();
 	}
 	else {
@@ -109,7 +168,7 @@ function playRecord() {
 
 function salvarAudio() {
 	
-	if(soundFile === undefined || soundFile == null || soundFile.buffer == null) {
+	if(!soundFile || !soundFile.buffer || !url) {
 		return;
 	}
 			
@@ -119,15 +178,35 @@ function salvarAudio() {
 	var formData = new FormData();	
 	formData.append("name", document.getElementById('audio').value);
 	formData.append("file", audioBlob);
-		
+	
+	waitingDialog.show('Transmitindo áudio', {
+		  dialogSize: 'm',
+		  progressType: 'info'
+		});
+			
 	$.ajax({
-		url: $('.js-container-audio').data('url-audios'),	
+		url: url,	
 		type: "POST",
         enctype: 'multipart/form-data',
         processData: false,
         contentType: false,
         cache: false,
         data: formData
+	})
+	.success((response) => {		
+		swal({
+			title: 'Salvo!', 
+			text: 'Áudio salvo com sucesso', 
+			type: 'success'
+		}, function() {
+			window.location.reload();			
+		});
+	})
+	.error((error) => {
+		swal('Oops!', error.responseText, 'error');
+	})
+	.done(function() {
+		waitingDialog.hide();
 	});
 }
 

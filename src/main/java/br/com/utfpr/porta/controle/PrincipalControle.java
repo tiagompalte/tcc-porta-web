@@ -1,6 +1,5 @@
 package br.com.utfpr.porta.controle;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +37,6 @@ import br.com.utfpr.porta.email.EnvioEmailRunnable;
 import br.com.utfpr.porta.modelo.Autorizacao;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
-import br.com.utfpr.porta.modelo.Grupo;
 import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.modelo.Usuario;
@@ -61,6 +59,10 @@ public class PrincipalControle {
 	
 	private static final String REDIRECT_FORBIDDEN = "redirect:/403";
 	private static final String REDIRECT_DASHBOARD = "redirect:/dashboard";
+	private static final String COD_GRP_USUARIO = "COD_GRP_USUARIO";
+	private static final String COD_GRP_ANFITRIAO = "COD_GRP_ANFITRIAO";
+	private static final String URL_AUDIO = "URL_AUDIO";
+	private static final String GENEROS = "generos";
 	
 	@Autowired
 	private UsuarioServico usuarioServico;
@@ -101,8 +103,30 @@ public class PrincipalControle {
 	
 	@GetMapping("/dashboard")
 	public ModelAndView dashboard(HttpServletRequest httpServletRequest) {
+		
 		ModelAndView mv = new ModelAndView("Dashboard");
-		mv.addObject("welcome", "Seja bem vindo, ");
+		
+		Usuario usuarioLogado = usuariosRepositorio.buscarComGrupos(UsuarioSistema.getUsuarioLogado().getCodigo());
+				
+		if(usuarioLogado == null) {
+			return mv;
+		}
+		
+		String fraseWelcome = fraseBoasVindas(usuarioLogado.getPessoa() != null ? usuarioLogado.getPessoa().getGenero() : null);
+		
+		mv.addObject("welcome", fraseWelcome.concat(", "));
+		
+		Parametro parCodGrpUsr = parametroRepositorio.findOne(COD_GRP_USUARIO);
+		
+		boolean mostrarGravador = false;
+		if(parCodGrpUsr != null && parCodGrpUsr.getValorLong() != null) {			
+			mostrarGravador = UsuarioSistema.getUsuarioLogado().isPertenceAoGrupo(parCodGrpUsr.getValorLong()) && Strings.isEmpty(usuarioLogado.getNomeAudio());						
+		}
+				
+		mv.addObject("mostrarGravador", mostrarGravador);
+		mv.addObject("urlAudio", parametroUrlAudio());
+		mv.addObject("nomeAudio", usuarioLogado.getNomeAudio());
+		
 		return mv;
 	}
 	
@@ -116,29 +140,41 @@ public class PrincipalControle {
 		ModelAndView mv = new ModelAndView("usuario/NovoUsuario");
 		mv.addObject("csrfTokenFake", UUID.randomUUID());
 		mv.addObject("csrfHeaderNameFake", UUID.randomUUID());
-		mv.addObject("generos", Genero.values());
-		
-		Parametro parUrlAudio = parametroRepositorio.findOne("URL_AUDIO");
-		if(parUrlAudio != null && !Strings.isEmpty(parUrlAudio.getValor())) {
-			mv.addObject("url_audio", parUrlAudio.getValor());
-		}
-		else {
-			mv = new ModelAndView("redirect:/500");
-		}
-		
+		mv.addObject(GENEROS, Genero.values());				
 		return mv;
 	}
 	
-	private void segurarRedirectPaginaWeb() {
-		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
-		try {			
-			Thread.sleep(10000); // 10 segundos
+	private String fraseBoasVindas(Genero genero) {
+		
+		StringBuilder fraseBoasVindas = new StringBuilder("Seja bem vind");
+		if(genero != null) {
+			if(genero.compareTo(Genero.MASCULINO) == 0) {
+				fraseBoasVindas.append("o");
+			}
+			else if (genero.compareTo(Genero.FEMININO) == 0){
+				fraseBoasVindas.append("a");
+			}
+			else {
+				fraseBoasVindas.append("o(a)");
+			}
 		}
-		catch(Exception e) {
-			LOG.error("Erro ao iniciar thread de sleep", e);
+		else {
+			fraseBoasVindas.append("o(a)");
 		}
+				
+		return fraseBoasVindas.toString();
 	}
 	
+	private String parametroUrlAudio() {
+		Parametro parUrlAudio = parametroRepositorio.findOne(URL_AUDIO);
+		
+		if(parUrlAudio == null || Strings.isEmpty(parUrlAudio.getValor())) {
+			return null;
+		}
+		
+		return parUrlAudio.getValor().concat(!parUrlAudio.getValor().endsWith("/") ? "/" : "");
+	}
+		
 	private void enviarEmailBoasVindas(Usuario usuario) {
 		
 		try {
@@ -153,29 +189,14 @@ public class PrincipalControle {
 				throw new NullPointerException("Parâmetro URL_SITE não cadastrado");
 			}
 			
-			Genero genero = usuario.getPessoa().getGenero();
-			StringBuilder fraseBoasVindas = new StringBuilder("Seja bem vind");
-			if(genero != null) {
-				if(genero.compareTo(Genero.MASCULINO) == 0) {
-					fraseBoasVindas.append("o");
-				}
-				else if (genero.compareTo(Genero.FEMININO) == 0){
-					fraseBoasVindas.append("a");
-				}
-				else {
-					fraseBoasVindas.append("o(a)");
-				}
-			}
-			else {
-				fraseBoasVindas.append("o(a)");
-			}
+			String fraseBoasVindas = fraseBoasVindas(usuario.getPessoa().getGenero());
 			
 			Context context = new Context();						
 			context.setVariable("nome", usuario.getPessoa().getNome());
 			context.setVariable("url", parUrl.getValor());
 			String mensagem = templateEngine.process("email/mensagemBoasVindas", context);
 			
-			EnvioEmailRunnable thread = new EnvioEmailRunnable(usuario.getEmail(), fraseBoasVindas.toString(), mensagem, emailServico);
+			EnvioEmailRunnable thread = new EnvioEmailRunnable(usuario.getEmail(), fraseBoasVindas, mensagem, emailServico);
 			thread.run();
 			
 		} catch(Exception e) {
@@ -192,16 +213,20 @@ public class PrincipalControle {
 		
 		try {	
 			
-			Parametro parCodGrpUsr = parametroRepositorio.findOne("COD_GRP_USUARIO");
+			Parametro parCodGrpUsr = parametroRepositorio.findOne(COD_GRP_USUARIO);
 			
 			if(parCodGrpUsr == null) {
 				throw new NullPointerException("COD_GRP_USUARIO não parametrizado");
 			}
 			
-			Grupo grupoUsr = gruposRepositorio.findByCodigo(parCodGrpUsr.getValorLong());
-			List<Grupo> listaGrupo = new ArrayList<>();
-			listaGrupo.add(grupoUsr);			
-			usuario.setGrupos(listaGrupo);
+			usuario.addGrupo(gruposRepositorio.findByCodigo(parCodGrpUsr.getValorLong()));
+			
+			Parametro parCodGrpAnfitriao = parametroRepositorio.findOne(COD_GRP_ANFITRIAO);
+			
+			if(parCodGrpAnfitriao != null && parCodGrpAnfitriao.getValor() != null
+					&& !usuario.isPertenceAoGrupo(parCodGrpAnfitriao.getValorLong())) {
+				usuario.setEstabelecimento(null);
+			}
 									
 			usuarioServico.salvar(usuario);
 									
@@ -218,8 +243,6 @@ public class PrincipalControle {
 		
 		enviarEmailBoasVindas(usuario);
 				
-		segurarRedirectPaginaWeb();
-		
 		authenticateUserAndSetSession(usuario, request);
 		
 		return new ModelAndView(REDIRECT_DASHBOARD);
@@ -249,16 +272,19 @@ public class PrincipalControle {
 	
 	private ModelAndView carregarLayoutEdicaoUsuario(Usuario usuario) {
 		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
-		mv.addObject("generos", Genero.values());
+		mv.addObject(GENEROS, Genero.values());
 		mv.addObject(usuario);	
 		
-		Parametro parUrlAudio = parametroRepositorio.findOne("URL_AUDIO");
-		if(parUrlAudio != null && !Strings.isEmpty(parUrlAudio.getValor())) {
-			mv.addObject("url_audio", parUrlAudio.getValor());
+		String urlAudio = parametroUrlAudio();
+		if(Strings.isNotEmpty(urlAudio)) {
+			mv.addObject("urlAudio", urlAudio);
 		}
 		else {
+			LOG.error("Parâmetro {} não cadastrado", URL_AUDIO);
 			mv = new ModelAndView("redirect:/500");
 		}
+		
+		mv.addObject("podeGravar", usuario.isNovo() || UsuarioSistema.getUsuarioLogado().getCodigo().equals(usuario.getCodigo()));
 		
 		return mv;
 	}
@@ -283,16 +309,13 @@ public class PrincipalControle {
 		
 		try {	
 			
-			Parametro parCodGrpUsr = parametroRepositorio.findOne("COD_GRP_USUARIO");
+			Parametro parCodGrpUsr = parametroRepositorio.findOne(COD_GRP_USUARIO);
 			
 			if(parCodGrpUsr == null) {
 				throw new NullPointerException("COD_GRP_USUARIO não parametrizado");
 			}
 			
-			Grupo grupoUsuario = gruposRepositorio.findByCodigo(parCodGrpUsr.getValorLong());
-			List<Grupo> listaGrupo = new ArrayList<>();
-			listaGrupo.add(grupoUsuario);
-			usuario.setGrupos(listaGrupo);
+			usuario.addGrupo(gruposRepositorio.findByCodigo(parCodGrpUsr.getValorLong()));
 			usuario.setEstabelecimento(null);
 						
 			usuarioServico.salvar(usuario);
@@ -308,8 +331,6 @@ public class PrincipalControle {
 			return carregarLayoutEdicaoUsuario(usuario);
 		} 
 		
-		segurarRedirectPaginaWeb();
-		
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
 		return new ModelAndView("redirect:/usuarioCadastro/".concat(usuario.getCodigo().toString()));
 	}
@@ -318,7 +339,7 @@ public class PrincipalControle {
 	public ModelAndView novoEstabelecimento(Estabelecimento estabelecimento) {
 		ModelAndView mv = new ModelAndView("estabelecimento/NovoEstabelecimento");
 		mv.addObject("tiposPessoa", TipoPessoa.values());
-		mv.addObject("generos", Genero.values());
+		mv.addObject(GENEROS, Genero.values());
 		return mv;
 	}
 	
@@ -331,16 +352,13 @@ public class PrincipalControle {
 		
 		try {
 			
-			Parametro parCodGrpAnfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			Parametro parCodGrpAnfitriao = parametroRepositorio.findOne(COD_GRP_ANFITRIAO);
 			
-			if(parCodGrpAnfitriao == null) {
+			if(parCodGrpAnfitriao == null || parCodGrpAnfitriao.getValor() == null) {
 				throw new NullPointerException("COD_GRP_ANFITRIAO não parametrizado");
 			}
 			
-			Grupo grupoAnfitriao = gruposRepositorio.findByCodigo(parCodGrpAnfitriao.getValorLong());
-			List<Grupo> listaGrupo = new ArrayList<>();
-			listaGrupo.add(grupoAnfitriao);			
-			estabelecimento.getResponsavel().setGrupos(listaGrupo);
+			estabelecimento.getResponsavel().addGrupo(gruposRepositorio.findByCodigo(parCodGrpAnfitriao.getValorLong()));
 						
 			estabelecimentoServico.salvar(estabelecimento);
 			
@@ -377,7 +395,7 @@ public class PrincipalControle {
 	private ModelAndView carregarLayoutEdicaoEstabelecimento(Estabelecimento estabelecimento) {
 		ModelAndView mv = new ModelAndView("estabelecimento/CadastroEstabelecimento");
 		mv.addObject("tiposPessoa", TipoPessoa.values());
-		mv.addObject("generos", Genero.values());
+		mv.addObject(GENEROS, Genero.values());
 		mv.addObject(estabelecimento);		
 		return mv;
 	}
@@ -396,16 +414,13 @@ public class PrincipalControle {
 		
 		try {
 			
-			Parametro parCodGrpAnfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			Parametro parCodGrpAnfitriao = parametroRepositorio.findOne(COD_GRP_ANFITRIAO);
 			
 			if(parCodGrpAnfitriao == null) {
 				throw new NullPointerException("COD_GRP_ANFITRIAO não parametrizado");
 			}
 			
-			Grupo grupoAnfitriao = gruposRepositorio.findByCodigo(parCodGrpAnfitriao.getValorLong());
-			List<Grupo> listaGrupo = new ArrayList<>();
-			listaGrupo.add(grupoAnfitriao);			
-			estabelecimento.getResponsavel().setGrupos(listaGrupo);
+			estabelecimento.getResponsavel().addGrupo(gruposRepositorio.findByCodigo(parCodGrpAnfitriao.getValorLong()));
 			
 			estabelecimentoServico.salvar(estabelecimento);
 			
@@ -437,6 +452,5 @@ public class PrincipalControle {
 		
 		return mv;
 	}
-	
-		
+				
 }

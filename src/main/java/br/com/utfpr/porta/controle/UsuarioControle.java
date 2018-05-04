@@ -43,6 +43,9 @@ import br.com.utfpr.porta.storage.AudioStorage;
 @RequestMapping("/usuarios")
 public class UsuarioControle {
 	
+	private static final Logger LOG = LoggerFactory.getLogger(UsuarioControle.class);	
+	private static final String URL_AUDIO = "URL_AUDIO";
+	
 	@Autowired
 	private UsuarioServico usuarioServico;
 	
@@ -57,9 +60,7 @@ public class UsuarioControle {
 	
 	@Autowired
 	private Parametros parametroRepositorio;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(UsuarioControle.class);
-	
+		
 	@RequestMapping("/novo")
 	public ModelAndView novo(Usuario usuario) {	
 		ModelAndView mv = new ModelAndView("usuario/CadastroUsuario");
@@ -67,13 +68,16 @@ public class UsuarioControle {
 		mv.addObject("generos", Genero.values());
 		mv.addObject("grupos", gruposRepositorio.findAll());
 		
-		Parametro parUrlAudio = parametroRepositorio.findOne("URL_AUDIO");
+		Parametro parUrlAudio = parametroRepositorio.findOne(URL_AUDIO);
 		if(parUrlAudio != null && !Strings.isEmpty(parUrlAudio.getValor())) {
-			mv.addObject("url_audio", parUrlAudio.getValor());
+			mv.addObject("urlAudio", parUrlAudio.getValor());
 		}
 		else {
+			LOG.error("Parâmetro {} não cadastrado", URL_AUDIO);
 			mv = new ModelAndView("redirect:/500");
 		}
+		
+		mv.addObject("podeGravar", usuario.isNovo() || UsuarioSistema.getUsuarioLogado().getCodigo().equals(usuario.getCodigo()));
 		
 		return mv;
 	}
@@ -87,7 +91,12 @@ public class UsuarioControle {
 		
 		try {
 			
-			usuario.setEstabelecimento(null);
+			Parametro parCodGrpAnfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			
+			if(parCodGrpAnfitriao != null && parCodGrpAnfitriao.getValor() != null
+					&& !usuario.isPertenceAoGrupo(parCodGrpAnfitriao.getValorLong())) {
+				usuario.setEstabelecimento(null);
+			}
 						
 			usuarioServico.salvar(usuario);
 									
@@ -104,15 +113,7 @@ public class UsuarioControle {
 			result.reject(e.getMessage(), e.getMessage());
 			return novo(usuario);
 		}
-		
-		//Thread para "segurar" o redirect da página com o intuito de garantir a transmissão completa do áudio
-		try {			
-			Thread.sleep(10000); // 10 segundos
-		}
-		catch(Exception e) {
-			LOGGER.error("Erro ao iniciar thread de sleep", e);
-		}
-		
+				
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
 		return new ModelAndView("redirect:/usuarios/novo");
 	}

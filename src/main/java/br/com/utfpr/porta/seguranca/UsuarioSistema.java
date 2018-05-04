@@ -24,27 +24,27 @@ public class UsuarioSistema extends User {
 		return usuario;
 	}
 	
-	public static Usuario getUsuarioLogado() {
-		return ((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario();
-	}
-	
 	public static UsuarioSistema getUsuarioSistema() {
 		return (UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	}
 	
+	public static Usuario getUsuarioLogado() {
+		return getUsuarioSistema().getUsuario();
+	}
+		
 	public static boolean isPossuiPermissao(String role) {		
 		return SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority(role));
 	}
 	
 	public static String getCodigoEstabelecimento() {		
-		if(((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario().getEstabelecimento() != null) {			
-			return ((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario().getEstabelecimento().getCodigo().toString();
+		if(getUsuarioLogado().getEstabelecimento() != null) {			
+			return getUsuarioLogado().getEstabelecimento().getCodigo().toString();
 		}
 		return "";
 	}
 	
 	public static String getCodigoUsuario() {		
-		return ((UsuarioSistema) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsuario().getCodigo().toString();
+		return getUsuarioLogado().getCodigo().toString();
 	}
-
+	
 }

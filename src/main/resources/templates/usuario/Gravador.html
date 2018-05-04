@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:data="http://www.thymeleaf.org/extras/data"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+	<div class="modal fade" id="modalGravador" tabindex="-1" role="dialog"  th:fragment="modal">
+		<div class="modal-dialog  modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Gravador</h4>
+				</div>
+				
+				<div class="modal-body" id="modalBody">
+					<div class="container-fluid">					
+						<input type="hidden" id="audio"/>
+						
+						<div class="row form-group">
+							<span id="timer" style="padding-right: 20px;">2.000 segs</span>
+			            	<button type="button" id="record" onclick="startRecording()" class="btn btn-danger btn-lg" disabled>
+			            		<span class="glyphicon glyphicon-record fa-lg" aria-hidden="true"></span>
+			            	</button>
+			            	<button type="button" id="cancel" onclick="stopRecording()" class="btn btn-warning btn-lg" disabled>
+			            		<span class="glyphicon glyphicon-stop fa-lg" aria-hidden="true"></span>
+			            	</button>
+			            	<button type="button" id="play" onclick="playRecord()" class="btn btn-success btn-lg" disabled>
+			            		<span class="glyphicon glyphicon-play fa-lg" aria-hidden="true"></span>
+			            	</button>
+		            	</div>
+		            	<div class="form-group">
+		            		<button type="button" id="salvarAudio" onclick="salvarAudio()" class="btn btn-block btn-primary" disabled>
+		            			Salvar Áudio
+		            		</button>
+		            	</div>	            	
+		            	<audio id="tocadorAudio" src=""></audio>										
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

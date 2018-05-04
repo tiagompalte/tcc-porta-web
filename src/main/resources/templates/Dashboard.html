@@ -3,6 +3,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	xmlns:th="http://www.thymeleaf.org"
 	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:data="http://www.thymeleaf.org/extras/data"
 	xmlns:brewer="http://brewer.algaworks.com">
 
 <head>
@@ -27,12 +28,32 @@
 		
 		<div class="aw-error-panel__description">
 			As opções do sistema se encontram no menu lateral esquerdo
-			<br/><br/>			
+			<br/>
 		</div>	
 		
+		<div th:if="${mostrarGravador}">
+			Para deixar o seu cadastro completo, grave uma senha falada 
+			<button type="button" class="btn btn-primary btn-circle btn-xl js-gravador-btn" 
+					data-toggle="modal" data-target="#modalGravador" 
+					data:audio="${nomeAudio}" data:urlaudio="${urlAudio}">
+		    	<span class="fa fa-microphone fa-lg" aria-hidden="true"></span>
+		    </button>
+		</div>
+		
 	</div>
+	<div th:replace="usuario/Gravador :: modal"></div>
 </section>
 
 <th:block layout:fragment="javascript-extra">
+<script th:src="@{/javascripts/vendors/p5.min.js}"></script>
+<script th:src="@{/javascripts/vendors/p5.sound.min.js}"></script>
+<script th:src="@{/javascripts/vendors/p5.dom.js}"></script>
+<script th:src="@{/javascripts/vendors/bootstrap-waitingfor.min.js}"></script>
+<script th:src="@{/javascripts/gravador.js}"></script>
+<script>
+	$('.js-gravador-btn').click(function(event) {
+		carregarAudio(true, $(this).data('audio'), $(this).data('urlaudio'));
+	});
+</script>
 </th:block>
 </html>
