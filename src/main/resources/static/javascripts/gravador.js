@@ -69,28 +69,11 @@ function carregarAudio(podeGravar, audio, url) {
 function verificarExistenciaAudio() {
 	
 	if(urlAudio) {
-		
-		waitingDialog.show('Carregando Áudio', {
-			  dialogSize: 'm',
-			  progressType: 'info'
-			});
-		
-		$.ajax({
-			url: urlAudio,	
-			type: "GET"
-		}).success((response) => {			
-			if(response) {			
-				document.getElementById('tocadorAudio').src = urlAudio;
-				document.getElementById('play').removeAttribute("disabled");
-			}
-		}).done(function() {
-			waitingDialog.hide();
-			liberarJanelaGravador();
-		});
+		document.getElementById('tocadorAudio').src = urlAudio;
+		document.getElementById('play').removeAttribute("disabled");
 	}
-	else {
-		liberarJanelaGravador();
-	}
+	
+	liberarJanelaGravador();
 }
 
 function liberarJanelaGravador() {
