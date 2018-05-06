@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,8 +32,8 @@ public class LogControle {
 	private Estabelecimentos estabelecimentoRepositorio;
 
 	@GetMapping
-	public ModelAndView pesquisar(LogFiltro logFiltro, @PageableDefault(size = 5) Pageable pageable, 
-			HttpServletRequest httpServletRequest) {
+	public ModelAndView pesquisar(LogFiltro logFiltro, HttpServletRequest httpServletRequest,
+			@PageableDefault(size = 5, direction = Direction.DESC, sort = "dataHora") Pageable pageable) {
 		
 		ModelAndView mv = new ModelAndView("/log/PesquisaLogs");
 		
@@ -43,6 +44,7 @@ public class LogControle {
 		}
 				
 		Estabelecimento estabelecimento = null;
+		
 		if(logFiltro != null) {
 			if(logFiltro.getDataHoraInicio() != null && logFiltro.getDataHoraFim() != null
 					&& logFiltro.getDataHoraInicio().isAfter(logFiltro.getDataHoraFim())) {
@@ -53,12 +55,14 @@ public class LogControle {
 			if(logFiltro.getEstabelecimento() != null && estabelecimentos != null) {
 				estabelecimento = logFiltro.getEstabelecimento();
 			}
+			else {
+				estabelecimento = UsuarioSistema.getUsuarioLogado().getEstabelecimento();		
+			}
 		}
-		
-		else if(UsuarioSistema.getUsuarioLogado().getEstabelecimento() != null && estabelecimento == null) {
-			estabelecimento = UsuarioSistema.getUsuarioLogado().getEstabelecimento();			
+		else {
+			logFiltro = new LogFiltro();			
 		}
-		
+				
 		PageWrapper<Log> paginaWrapper = new PageWrapper<>(logsRepositorio.filtrar(
 				estabelecimento, logFiltro.getDataHoraInicio(), logFiltro.getDataHoraFim(), pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);

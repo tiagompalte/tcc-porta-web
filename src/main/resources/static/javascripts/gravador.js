@@ -80,7 +80,7 @@ function liberarJanelaGravador() {
 	if(document.getElementById('play').disabled && document.getElementById('record').disabled) {
 		swal({
 			title: 'Oops', 
-			text: 'Não foi encontrado nenhum microfone disponível', 
+			text: 'Não foi encontrado nenhum microfone disponível. Tente em outro computador', 
 			type: 'error'
 		}, function() {
 			window.location.reload();			
@@ -121,7 +121,7 @@ function startRecording() {
 		document.getElementById('cancel').removeAttribute("disabled");
 	}
 	catch(error) {
-		swal('Oops!', error, 'error');		
+		swal('Oops!', 'Erro ao gravar áudio. Tente mais tarde', 'error');		
 	}
 }
 
@@ -186,7 +186,13 @@ function salvarAudio() {
 		});
 	})
 	.error((error) => {
-		swal('Oops!', error.responseText, 'error');
+		swal({
+			title: 'Oops', 
+			text: 'O áudio não pode ser transmitido. Tente mais tarde', 
+			type: 'error'
+		}, function() {
+			window.location.reload();			
+		});
 	})
 	.done(function() {
 		waitingDialog.hide();

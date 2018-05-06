@@ -1,6 +1,5 @@
 package br.com.utfpr.porta.controle;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +8,7 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,7 +25,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.modelo.Estabelecimento;
 import br.com.utfpr.porta.modelo.Genero;
-import br.com.utfpr.porta.modelo.Grupo;
 import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.TipoPessoa;
 import br.com.utfpr.porta.repositorio.Enderecos;
@@ -72,16 +71,13 @@ public class EstabelecimentoControle {
 		
 		try {
 			
-			Parametro par_grp_anfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
+			Parametro parGrpAnfitriao = parametroRepositorio.findOne("COD_GRP_ANFITRIAO");
 			
-			if(par_grp_anfitriao == null || Strings.isEmpty(par_grp_anfitriao.getValor())) {
+			if(parGrpAnfitriao == null || Strings.isEmpty(parGrpAnfitriao.getValor())) {
 				throw new NullPointerException("Parâmetro do grupo de anfitrião não cadastrado");
 			}
-			
-			Grupo grupo_anfitriao = gruposRepositorio.findByCodigo(par_grp_anfitriao.getValorLong());
-			List<Grupo> lista_grupo = new ArrayList<>();
-			lista_grupo.add(grupo_anfitriao);			
-			estabelecimento.getResponsavel().setGrupos(lista_grupo);
+						
+			estabelecimento.getResponsavel().addGrupo(gruposRepositorio.findByCodigo(parGrpAnfitriao.getValorLong()));
 			
 			estabelecimentoServico.salvar(estabelecimento);
 		}
@@ -95,8 +91,8 @@ public class EstabelecimentoControle {
 	}
 	
 	@GetMapping
-	public ModelAndView pesquisar(EstabelecimentoFiltro filtro,
-			@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest) {
+	public ModelAndView pesquisar(EstabelecimentoFiltro filtro, HttpServletRequest httpServletRequest,
+			@PageableDefault(size = 5, direction = Direction.ASC, sort = "codigo") Pageable pageable) {
 		
 		ModelAndView mv = new ModelAndView("/estabelecimento/PesquisaEstabelecimentos");		
 		PageWrapper<Estabelecimento> paginaWrapper = new PageWrapper<>(
@@ -121,7 +117,7 @@ public class EstabelecimentoControle {
 	}
 	
 	@GetMapping("/estado/{sigla}")
-	public @ResponseBody ResponseEntity<?> obterListaCidadesPorEstado(@PathVariable String sigla) {
+	public @ResponseBody ResponseEntity obterListaCidadesPorEstado(@PathVariable String sigla) {
 		
 		if(Strings.isEmpty(sigla)) {
 			return null;
@@ -134,14 +130,12 @@ public class EstabelecimentoControle {
 	
 	
 	@DeleteMapping("/{codigo}")
-	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
+	public @ResponseBody ResponseEntity excluir(@PathVariable("codigo") Long codigo) {
 		try {
 			estabelecimentoServico.excluir(codigo);
-		} catch (ImpossivelExcluirEntidadeException e) {
+		} catch (ImpossivelExcluirEntidadeException | NullPointerException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-		} catch(NullPointerException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+		} 
 		return ResponseEntity.ok().build();
 	}
 	

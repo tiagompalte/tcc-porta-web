@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,20 +56,23 @@ public class PortaControle {
 	@Autowired
 	private Parametros parametrosRepositorio;
 	
+	private static final String ROLE_SUPORTE = "ROLE_EDITAR_TODOS_ESTABELECIMENTOS";
+	private static final String ESTABELECIMENTOS = "estabelecimentos";
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Porta porta) {
 		
 		ModelAndView mv = new ModelAndView("porta/CadastroPorta");
 		
-		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao(ROLE_SUPORTE)) {
 			porta.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		
-		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
-			mv.addObject("estabelecimentos", estabelecimentosRepositorio.findAll());
+		if(UsuarioSistema.isPossuiPermissao(ROLE_SUPORTE)) {
+			mv.addObject(ESTABELECIMENTOS, estabelecimentosRepositorio.findAll());
 		}
 		else {
-			mv.addObject("estabelecimentos", UsuarioSistema.getUsuarioLogado().getEstabelecimento());
+			mv.addObject(ESTABELECIMENTOS, UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		
 		return mv;
@@ -81,7 +85,7 @@ public class PortaControle {
 			return novo(porta);
 		}
 		
-		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+		if(porta.isNovo() && !UsuarioSistema.isPossuiPermissao(ROLE_SUPORTE)) {
 			result.reject("Usuário sem permissão para cadastrar nova porta", "Usuário sem permissão para cadastrar nova porta");
 			return novo(porta);
 		}
@@ -99,7 +103,7 @@ public class PortaControle {
 					result.reject("Não foi encontrado na base de dados essa porta", "Não foi encontrado na base de dados essa porta");
 					return novo(porta);
 				}
-				else if(passwordEncoder.matches(porta.getSenha(), portaDB.getSenha()) == false) {					
+				else if(!passwordEncoder.matches(porta.getSenha(), portaDB.getSenha())) {					
 					result.reject("Senha não confere", "Senha não confere");
 					return novo(porta);
 				}
@@ -117,17 +121,17 @@ public class PortaControle {
 	}
 	
 	@GetMapping
-	public ModelAndView pesquisar(PortaFiltro portaFiltro, 
-			@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest) {
+	public ModelAndView pesquisar(PortaFiltro portaFiltro, HttpServletRequest httpServletRequest,
+			@PageableDefault(size = 5, direction = Direction.ASC, sort = "codigo") Pageable pageable) {
 		
 		ModelAndView mv = new ModelAndView("/porta/PesquisaPortas");
 		 
-		if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+		if(!UsuarioSistema.isPossuiPermissao(ROLE_SUPORTE)) {
 			portaFiltro.setEstabelecimento(UsuarioSistema.getUsuarioLogado().getEstabelecimento());
 		}
 		else {
 			List<Estabelecimento> listaEstabelecimentos = estabelecimentosRepositorio.findAll();
-			mv.addObject("estabelecimentos", listaEstabelecimentos);
+			mv.addObject(ESTABELECIMENTOS, listaEstabelecimentos);
 		}
 				
 		PageWrapper<Porta> paginaWrapper = new PageWrapper<>(portaRepositorio.filtrar(portaFiltro, pageable), httpServletRequest);
@@ -139,7 +143,7 @@ public class PortaControle {
 	public ModelAndView editar(@PathVariable Long codigo) {
 		
 		Porta porta;
-		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+		if(UsuarioSistema.isPossuiPermissao(ROLE_SUPORTE)) {
 			porta = portaRepositorio.findOne(codigo);
 		}
 		else {
@@ -160,21 +164,21 @@ public class PortaControle {
 	}
 	
 	@GetMapping("/estabelecimento/{codigo_estabelecimento}")
-	public @ResponseBody ResponseEntity<?> obterListaPortasPorEstabelecimento(@PathVariable Long codigo_estabelecimento) {
+	public @ResponseBody ResponseEntity obterListaPortasPorEstabelecimento(@PathVariable Long codigoEstabelecimento) {
 		
-		if(codigo_estabelecimento == null) {
+		if(codigoEstabelecimento == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Código do estabelecimento não informado");
 		}
 		
-		if(UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS") == false &&
-				Long.valueOf(UsuarioSistema.getCodigoEstabelecimento()).compareTo(codigo_estabelecimento) != 0) {
+		if(!UsuarioSistema.isPossuiPermissao(ROLE_SUPORTE) &&
+				Long.valueOf(UsuarioSistema.getCodigoEstabelecimento()).compareTo(codigoEstabelecimento) != 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Usuário sem permissão");
 		}
 				
-		List<Porta> listaPortas = portaRepositorio.findByEstabelecimento(new Estabelecimento(codigo_estabelecimento));
+		List<Porta> listaPortas = portaRepositorio.findByEstabelecimento(new Estabelecimento(codigoEstabelecimento));
 		
 		List<PortaDto> listaPortaDto = new ArrayList<>();
-		if(listaPortas != null && listaPortas.isEmpty() == false) {
+		if(listaPortas != null && !listaPortas.isEmpty()) {
 			for(Porta porta : listaPortas) {
 				listaPortaDto.add(new PortaDto(porta));
 			}
@@ -184,34 +188,30 @@ public class PortaControle {
 	}
 	
 	@DeleteMapping("/{codigo}")
-	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
+	public @ResponseBody ResponseEntity excluir(@PathVariable("codigo") Long codigo) {
 		
-		if(!UsuarioSistema.isPossuiPermissao("ROLE_EDITAR_TODOS_ESTABELECIMENTOS")) {
+		if(!UsuarioSistema.isPossuiPermissao(ROLE_SUPORTE)) {
 			
-			Parametro par_cod_est_sistema = parametrosRepositorio.findOne("COD_EST_SISTEMA");
+			Parametro parCodEstSistema = parametrosRepositorio.findOne("COD_EST_SISTEMA");
 			
-			if(par_cod_est_sistema == null) {
+			if(parCodEstSistema == null) {
 				throw new NullPointerException("COD_EST_SISTEMA não parametrizado");
 			}			
 			
 			Porta porta = portaRepositorio.findOne(codigo);
-			Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(par_cod_est_sistema.getValorLong());
+			Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(parCodEstSistema.getValorLong());
 			try {				
 				portaServico.modificarEstabelecimento(porta, estabelecimento);
-			} catch (ImpossivelExcluirEntidadeException e) {
+			} catch (ImpossivelExcluirEntidadeException | NullPointerException e) {
 				return ResponseEntity.badRequest().body(e.getMessage());
-			} catch(NullPointerException e) {
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}			
+			} 			
 		}
 		else {
 			try {
 				portaServico.excluir(codigo);
-			} catch (ImpossivelExcluirEntidadeException e) {
+			} catch (ImpossivelExcluirEntidadeException | NullPointerException e) {
 				return ResponseEntity.badRequest().body(e.getMessage());
-			} catch(NullPointerException e) {
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
+			} 
 		}
 				
 		return ResponseEntity.ok().build();
