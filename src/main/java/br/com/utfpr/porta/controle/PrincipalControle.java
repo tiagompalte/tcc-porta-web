@@ -196,7 +196,8 @@ public class PrincipalControle {
 			context.setVariable("url", parUrl.getValor());
 			String mensagem = templateEngine.process("email/mensagemBoasVindas", context);
 			
-			EnvioEmailRunnable thread = new EnvioEmailRunnable(usuario.getEmail(), fraseBoasVindas, mensagem, emailServico);
+			EnvioEmailRunnable thread = new EnvioEmailRunnable(usuario.getEmail(), fraseBoasVindas, 
+											new String(mensagem.getBytes("UTF-8"), "ISO-8859-1"), emailServico);
 			thread.run();
 			
 		} catch(Exception e) {
