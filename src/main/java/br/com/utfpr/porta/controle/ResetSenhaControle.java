@@ -145,13 +145,14 @@ public class ResetSenhaControle {
 				}
 				
 				String url = parUrl.getValor().endsWith("/") ? parUrl.getValor() : parUrl.getValor().concat("/");
-				
+								
 				Context context = new Context();
 				context.setVariable("url", url.concat(token.getToken()));
-				context.setVariable("usuario", token.getUsuario());
+				context.setVariable("nome", token.getUsuario().getPessoa().getNome());
 				String mensagem = templateEngine.process("email/mensagemResetSenha", context);
 				
-				EnvioEmailRunnable thread = new EnvioEmailRunnable(token.getUsuario().getEmail(), "Alterar Senha", mensagem, emailServico);
+				EnvioEmailRunnable thread = new EnvioEmailRunnable(token.getUsuario().getEmail(), "Alterar Senha", 
+													new String(mensagem.getBytes("UTF-8"), "ISO-8859-1"), emailServico);
 				thread.run();
 			}
 			
@@ -159,5 +160,5 @@ public class ResetSenhaControle {
 			LOG.error("Erro ao enviar email para resetar senha", e);
 		}		
 	}
-
+	
 }
