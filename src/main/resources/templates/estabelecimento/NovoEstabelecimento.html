@@ -165,7 +165,7 @@
 				</div>
 			</div>
 								
-			<button type="submit" class="btn  btn-primary">Salvar</button>
+			<button type="submit" class="btn  btn-primary" id="submitSalvar">Cadastrar</button>
 		</form>
 	</div>
 </section>
@@ -173,8 +173,14 @@
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/pessoa.mascara-cpf-cnpj.js}"></script>
 	<script th:src="@{/javascripts/servico-busca-cep.js}"></script>
+	<script th:src="@{/javascripts/vendors/bootstrap-waitingfor.min.js}"></script>
+	
 	<script>
 		$('#senhaSite').tooltip({'trigger':'focus', 'title': 'Digite entre 6 a 12 caracteres'});
+		
+		$('#submitSalvar').click(function() {
+			waitingDialog.show('Salvando novo estabelecimento');
+		});
 	</script>	
 </th:block>
 </html>

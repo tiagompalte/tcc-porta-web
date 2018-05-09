@@ -2,6 +2,7 @@ package br.com.utfpr.porta.controle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -163,7 +164,7 @@ public class PortaControle {
 		return portaRepositorio.findOne(codigo);		
 	}
 	
-	@GetMapping("/estabelecimento/{codigo_estabelecimento}")
+	@GetMapping("/estabelecimento/{codigoEstabelecimento}")
 	public @ResponseBody ResponseEntity obterListaPortasPorEstabelecimento(@PathVariable Long codigoEstabelecimento) {
 		
 		if(codigoEstabelecimento == null) {
@@ -178,10 +179,8 @@ public class PortaControle {
 		List<Porta> listaPortas = portaRepositorio.findByEstabelecimento(new Estabelecimento(codigoEstabelecimento));
 		
 		List<PortaDto> listaPortaDto = new ArrayList<>();
-		if(listaPortas != null && !listaPortas.isEmpty()) {
-			for(Porta porta : listaPortas) {
-				listaPortaDto.add(new PortaDto(porta));
-			}
+		if(listaPortas != null) {
+			listaPortaDto = listaPortas.stream().map(porta -> new PortaDto(porta)).collect(Collectors.toList());
 		}
 		
 		return ResponseEntity.ok().body(listaPortaDto);
