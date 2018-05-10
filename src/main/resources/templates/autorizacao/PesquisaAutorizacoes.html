@@ -136,6 +136,9 @@
 						    $('#porta').append('<option value='+item.codigo+'>' + item.codigo + " - " + item.descricao + '</option>');
 						});
 					}
+				},
+				error: function(error) {
+					console.log(error);
 				}
 			});
 		});
