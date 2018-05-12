@@ -151,8 +151,7 @@ public class ResetSenhaControle {
 				context.setVariable("nome", token.getUsuario().getPessoa().getNome());
 				String mensagem = templateEngine.process("email/mensagemResetSenha", context);
 				
-				EnvioEmailRunnable thread = new EnvioEmailRunnable(token.getUsuario().getEmail(), "Alterar Senha", 
-													new String(mensagem.getBytes("UTF-8"), "ISO-8859-1"), emailServico);
+				EnvioEmailRunnable thread = new EnvioEmailRunnable(token.getUsuario().getEmail(), "Alterar Senha", mensagem, emailServico);
 				thread.run();
 			}
 			
