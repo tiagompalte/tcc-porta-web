@@ -34,6 +34,7 @@ import br.com.utfpr.porta.repositorio.filtro.PortaFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.PortaServico;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
+import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
 
 @Controller
 @RequestMapping("/portas")
@@ -175,7 +176,7 @@ public class PortaControle {
 				porta.setEstabelecimento(null);
 				portaServico.salvar(porta);
 				
-			} catch (ImpossivelExcluirEntidadeException | NullPointerException e) {
+			} catch (ImpossivelExcluirEntidadeException | ValidacaoBancoDadosExcecao | NullPointerException e) {
 				return ResponseEntity.badRequest().body(e.getMessage());
 			} 			
 		}
