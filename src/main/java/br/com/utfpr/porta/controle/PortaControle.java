@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,15 +27,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.utfpr.porta.controle.paginacao.PageWrapper;
 import br.com.utfpr.porta.dto.PortaDto;
 import br.com.utfpr.porta.modelo.Estabelecimento;
-import br.com.utfpr.porta.modelo.Parametro;
 import br.com.utfpr.porta.modelo.Porta;
 import br.com.utfpr.porta.repositorio.Estabelecimentos;
-import br.com.utfpr.porta.repositorio.Parametros;
 import br.com.utfpr.porta.repositorio.Portas;
 import br.com.utfpr.porta.repositorio.filtro.PortaFiltro;
 import br.com.utfpr.porta.seguranca.UsuarioSistema;
 import br.com.utfpr.porta.servico.PortaServico;
 import br.com.utfpr.porta.servico.excecao.ImpossivelExcluirEntidadeException;
+import br.com.utfpr.porta.servico.excecao.ValidacaoBancoDadosExcecao;
 
 @Controller
 @RequestMapping("/portas")
@@ -50,13 +48,7 @@ public class PortaControle {
 	
 	@Autowired
 	private Estabelecimentos estabelecimentosRepositorio;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
-	@Autowired
-	private Parametros parametrosRepositorio;
-	
+		
 	private static final String ROLE_SUPORTE = "ROLE_EDITAR_TODOS_ESTABELECIMENTOS";
 	private static final String ESTABELECIMENTOS = "estabelecimentos";
 	
@@ -92,24 +84,6 @@ public class PortaControle {
 		}
 				
 		try {
-			
-			if(porta.isNovo()) {						
-				porta.setSenha(this.passwordEncoder.encode(porta.getSenha()));
-			}
-			else {
-				
-				Porta portaDB = portaRepositorio.findOne(porta.getCodigo());
-				
-				if(portaDB == null) {
-					result.reject("Não foi encontrado na base de dados essa porta", "Não foi encontrado na base de dados essa porta");
-					return novo(porta);
-				}
-				else if(!passwordEncoder.matches(porta.getSenha(), portaDB.getSenha())) {					
-					result.reject("Senha não confere", "Senha não confere");
-					return novo(porta);
-				}
-			}
-			
 			portaServico.salvar(porta);
 		}
 		catch(Exception e) {
@@ -190,18 +164,19 @@ public class PortaControle {
 	public @ResponseBody ResponseEntity excluir(@PathVariable("codigo") Long codigo) {
 		
 		if(!UsuarioSistema.isPossuiPermissao(ROLE_SUPORTE)) {
-			
-			Parametro parCodEstSistema = parametrosRepositorio.findOne("COD_EST_SISTEMA");
-			
-			if(parCodEstSistema == null) {
-				throw new NullPointerException("COD_EST_SISTEMA não parametrizado");
-			}			
-			
-			Porta porta = portaRepositorio.findOne(codigo);
-			Estabelecimento estabelecimento = estabelecimentosRepositorio.findOne(parCodEstSistema.getValorLong());
-			try {				
-				portaServico.modificarEstabelecimento(porta, estabelecimento);
-			} catch (ImpossivelExcluirEntidadeException | NullPointerException e) {
+						
+			try {
+				
+				Porta porta = portaRepositorio.findOne(codigo);
+				
+				if(porta == null) {
+					throw new NullPointerException("Porta não encontrada na base de dados");
+				}
+				
+				porta.setEstabelecimento(null);
+				portaServico.salvar(porta);
+				
+			} catch (ImpossivelExcluirEntidadeException | ValidacaoBancoDadosExcecao | NullPointerException e) {
 				return ResponseEntity.badRequest().body(e.getMessage());
 			} 			
 		}
