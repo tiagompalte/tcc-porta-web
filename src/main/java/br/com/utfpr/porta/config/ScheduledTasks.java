@@ -19,6 +19,7 @@ import br.com.utfpr.porta.repositorio.TokenResetSenhas;
 @Component
 public class ScheduledTasks {
 	
+	private static final String PARAMETRO_AUDIO = "URL_AUDIO";
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTasks.class);
 	
 	@Autowired
@@ -36,10 +37,10 @@ public class ScheduledTasks {
     @Scheduled(initialDelay = 0, fixedDelay = 1500000) //25 minutos
     public void pingServicoAudio() {
 		
-		Parametro parUrlAudio = parametroRepositorio.findOne("URL_AUDIO");
+		Parametro parUrlAudio = parametroRepositorio.findOne(PARAMETRO_AUDIO);
 		
 		if(parUrlAudio == null || Strings.isEmpty(parUrlAudio.getValor())) {
-			LOGGER.error("Erro no ping no serviço de áudio: Parâmetro URL_AUDIO não cadastrado");
+			LOGGER.error("Erro no ping no serviço áudio. Parâmetro {} não cadastrado", PARAMETRO_AUDIO);
 			return;
 		}
 		
@@ -54,10 +55,10 @@ public class ScheduledTasks {
 				con.setRequestProperty("User-Agent", "Mozilla/5.0");			
 				responseCode = con.getResponseCode();
 				tentativas++;
-				LOGGER.info("Ping no serviço de áudio: Tentativa: ".concat(String.valueOf(tentativas).concat(" Resposta: ").concat(String.valueOf(responseCode))));
+				LOGGER.info("Ping no serviço de API: Tentativa: {} Resposta: {}", tentativas, responseCode);				
 				Thread.sleep(3000);
 			}
-			while(responseCode != HttpURLConnection.HTTP_OK && tentativas < 10);
+			while(!(responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) && tentativas < 10);
 		}
 		catch(Exception e) {
 			LOGGER.error("Erro no ping no serviço de áudio: ", e);
